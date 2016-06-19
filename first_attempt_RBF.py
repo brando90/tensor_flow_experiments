@@ -67,16 +67,16 @@ def get_batch(X, Y, M):
 sess = tf.Session()
 init = tf.initialize_all_variables() #
 sess.run(init)
-steps = 5000
+steps = 6000
 M = 50
 for i in range(steps):
-    # Create fake data for y = W.x + b where W = 2, b = 0
+    ## Create fake data for y = W.x + b where W = 2, b = 0
     batch = get_batch(X_train, Y_train, M)
-    # Train
-    # if i%100 == 0:
-    #     train_error = sess.run(l2_loss, feed_dict={x:X_train, y_: Y_train})
-    #     print("step %d, training accuracy %g"%(i, train_error))
-    #     print("After %d iteration:" % i)
+    ## Train
+    if i%200 == 0:
+        train_error = sess.run(l2_loss, feed_dict={x:X_train, y_: Y_train})
+        print("step %d, training accuracy %g"%(i, train_error))
+        print("After %d iteration:" % i)
     batch_xs = batch[0]
     batch_ys = batch[0]
     feed = {x: batch_xs, y_: batch_ys}
