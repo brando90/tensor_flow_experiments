@@ -25,25 +25,26 @@ y_ = tf.placeholder(tf.float32, shape=[None, 784]) # (M x D)
 l2_loss = tf.reduce_mean(tf.square(y_-y))
 
 # single training step opt
-train_step = tf.train.GradientDescentOptimizer(0.5).minimize(l2_loss)
+train_step = tf.train.GradientDescentOptimizer(0.01).minimize(l2_loss)
 
 ## TRAIN
 sess = tf.Session()
 init = tf.initialize_all_variables() #
 sess.run(init)
-steps = 2000
+steps = 5000
+M = 50
 for i in range(steps):
     # Create fake data for y = W.x + b where W = 2, b = 0
     #xs = np.array([[i]])
     #ys = np.array([[2*i + 1]])
-    batch = mnist.train.next_batch(50)
+    batch = mnist.train.next_batch(M)
     # Train
     if i%100 == 0:
         #train_accuracy = l2_loss.eval(feed_dict={x:batch[0], y_: batch[1], keep_prob: 1.0})
-        test_batch = mnist.train.next_batch(5000)
-        test_accuracy = sess.run(l2_loss, feed_dict={x:test_batch[0], y_: test_batch[0]})
+        train_batch = mnist.train.next_batch(50000)
+        train_error = sess.run(l2_loss, feed_dict={x:train_batch[0], y_: train_batch[0]})
         #train_accuracy =  feed_dict={x:batch[0], y_: batch[1]})
-        print("step %d, training accuracy %g"%(i, test_accuracy))
+        print("step %d, training accuracy %g"%(i, train_error))
         print("After %d iteration:" % i)
     #train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
     #feed = { x: xs, y_: ys }
