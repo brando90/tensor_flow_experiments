@@ -40,7 +40,11 @@ C = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1) ) # (D1 x 1)
 # make model
 WW =  tf.reduce_sum(W*W, reduction_indices=0) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
 XX =  tf.reduce_sum(x*x, reduction_indices=1) # (M x 1) = sum( (M x D^(l-1)), 1 )
-Delta_tilde = 2.0*tf.matmul(x,W) - (WW + XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
+#Delta_tilde = 2.0*tf.matmul(x,W) - (WW + XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
+P1 = tf.add(WW, XX)
+P2 = 2.0*tf.matmul(x,W)
+Delta_tilde = P1 - P2
+#Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX)
 beta = -1.0*tf.pow( 0.5*tf.div(1.0,S), 2)
 Z = beta * ( Delta_tilde ) # (M x D^(l))
 A = tf.exp(Z) # (M x D^(l))
@@ -55,7 +59,7 @@ train_step = tf.train.GradientDescentOptimizer(0.01).minimize(l2_loss)
 
 ## TRAIN
 def get_batch(X, Y, M):
-    mini_batch_indices  = np.floor( np.random.rand(M,1)*M ).astype(int)
+    mini_batch_indices = np.random.randint(M,size=M)
     Xminibatch =  X_train[mini_batch_indices,:] # ( M x D^(0) )
     Yminibatch = Y_train[mini_batch_indices,:] # ( M x D^(L) )
     return (Xminibatch, Yminibatch)
@@ -69,15 +73,10 @@ for i in range(steps):
     # Create fake data for y = W.x + b where W = 2, b = 0
     batch = get_batch(X_train, Y_train, M)
     # Train
-    if i%100 == 0:
-        #train_accuracy = l2_loss.eval(feed_dict={x:batch[0], y_: batch[1], keep_prob: 1.0})
-        train_error = sess.run(l2_loss, feed_dict={x:X_train, y_: Y_train})
-        #train_accuracy =  feed_dict={x:batch[0], y_: batch[1]})
-        print("step %d, training accuracy %g"%(i, train_error))
-        print("After %d iteration:" % i)
-    #train_step.run(feed_dict={x: batch[0], y_: batch[1], keep_prob: 0.5})
-    #feed = { x: xs, y_: ys }
-    #train_step.run(feed_dict={x: batch[0], y_: batch[1]})
+    # if i%100 == 0:
+    #     train_error = sess.run(l2_loss, feed_dict={x:X_train, y_: Y_train})
+    #     print("step %d, training accuracy %g"%(i, train_error))
+    #     print("After %d iteration:" % i)
     batch_xs = batch[0]
     batch_ys = batch[0]
     feed = {x: batch_xs, y_: batch_ys}
