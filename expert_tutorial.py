@@ -2,35 +2,6 @@ import tensorflow as tf
 # download and install the MNIST data automatically
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
-
-# launch interactive session
-sess = tf.InteractiveSession()
-# nodes for the input images and target output classes
-x = tf.placeholder(tf.float32, shape=[None, 784])
-y_ = tf.placeholder(tf.float32, shape=[None, 10])
-
-# Variable is a value that lives in TensorFlow's computation graph
-W = tf.Variable(tf.zeros([784,10]))
-b = tf.Variable(tf.zeros([10]))
-
-# init variables
-sess.run(tf.initialize_all_variables())
-# make model
-y = tf.nn.softmax(tf.matmul(x,W) + b)
-# cost function
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
-# train step of GD
-train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
-# train by repeatedly running train_step
-for i in range(1000):
-  batch = mnist.train.next_batch(50)
-  train_step.run(feed_dict={x: batch[0], y_: batch[1]})
-# array of true false when y matches y_ (true vs pred)
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
-# transforms true false to 1,0 and then computes accuracy
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-# should be about 92%
-print(accuracy.eval(feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
 # init
 def weight_variable(shape):
   initial = tf.truncated_normal(shape, stddev=0.1)
@@ -44,7 +15,6 @@ def conv2d(x, W):
 def max_pool_2x2(x):
   return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
                         strides=[1, 2, 2, 1], padding='SAME')
-
 # First layer
 W_conv1 = weight_variable([5, 5, 1, 32]) # The convolutional will compute 32 features for each 5x5 patch
 b_conv1 = bias_variable([32]) # We will also have a bias vector with a component for each output channel.

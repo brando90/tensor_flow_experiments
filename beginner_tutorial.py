@@ -6,15 +6,15 @@ mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 # placeholder for data
 x = tf.placeholder(tf.float32, [None, 784])
 # variables for parameters
-W = tf.Variable(tf.zeros([784, 10]))
-b = tf.Variable(tf.zeros([10]))
+W = tf.Variable(tf.truncated_normal(shape, mean=0.0, stddev=0.1))
+b = tf.Variable(tf.constant(0.1, shape=shape))
 # create model
 y = tf.nn.softmax(tf.matmul(x, W) + b)
 ### training
 # new placeholder to input the correct answers
 y_ = tf.placeholder(tf.float32, [None, 10])
 #cost function
-cross_entropy = tf.reduce_mean(-tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]))
+cross_entropy = tf.reduce_mean( -tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]) )
 # single training step opt.
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 #init op
