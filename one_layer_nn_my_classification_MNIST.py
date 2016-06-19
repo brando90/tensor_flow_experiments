@@ -7,7 +7,7 @@ mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 # launch interactive session
 sess = tf.InteractiveSession()
 # nodes for the input images and target output classes
-D1 = 100
+D1 = 5000
 x = tf.placeholder(tf.float32, shape=[None, 784], name="x") # M x D
 
 # Variable is a value that lives in TensorFlow's computation graph
@@ -40,7 +40,7 @@ for i in range(steps):
     # Create fake data for y = W.x + b where W = 2, b = 0
     batch = mnist.train.next_batch(M)
     # Train
-    if i%100 == 0:
+    if i%200 == 0:
         #train_accuracy = l2_loss.eval(feed_dict={x:batch[0], y_: batch[1], keep_prob: 1.0})
         train_batch = mnist.train.next_batch(50000)
         train_error = sess.run(accuracy, feed_dict={x:train_batch[0], y_: train_batch[1]})
@@ -51,3 +51,9 @@ for i in range(steps):
     batch_ys = batch[1]
     feed = {x: batch_xs, y_: batch_ys}
     sess.run(train_step, feed_dict=feed)
+#train_accuracy = l2_loss.eval(feed_dict={x:batch[0], y_: batch[1], keep_prob: 1.0})
+train_batch = mnist.train.next_batch(50000)
+train_error = sess.run(accuracy, feed_dict={x:train_batch[0], y_: train_batch[1]})
+#train_accuracy =  feed_dict={x:batch[0], y_: batch[1]})
+print("step %d, training accuracy %g"%(i, train_error))
+print("After %d iteration:" % i)
