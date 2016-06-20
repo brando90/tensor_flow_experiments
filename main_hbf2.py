@@ -21,6 +21,16 @@ def get_data(N_train_var=60000, N_test_var=60000, low_x_var=-np.pi, high_x_var=n
     Y_test = get_labels(X_test, np.zeros( (N_test,1) ), f)
     return (X_train, Y_train, X_test, Y_test)
 
+def get_Gaussian_layer(x,W,S,C):
+    WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
+    XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
+    Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
+    beta = -1.0*tf.pow( 0.5*tf.div(1.0,S), 2)
+    Z = beta * ( Delta_tilde ) # (M x D^(l))
+    A = tf.exp(Z) # (M x D^(l))
+    y_rbf = tf.matmul(A,C) # (M x 1) = (M x D^(l)) * (D^(l) x 1)
+    return y_rbf
+
 # launch interactive session
 sess = tf.InteractiveSession()
 
@@ -28,25 +38,23 @@ sess = tf.InteractiveSession()
 # nodes for the input images and target output classes
 (N_train,D) = X_train.shape
 D1 = 72
+D2 = 72
 (N_test,D_out) = Y_test.shape
 
 
 x = tf.placeholder(tf.float32, shape=[None, D]) # M x D
-# Variable is a value that lives in TensorFlow's computation graph
-W = tf.Variable( tf.truncated_normal([D,D1], mean=0.0, stddev=0.1) ) # (D x D1)
-S = tf.Variable(tf.constant(0.0001, shape=[1])) # (1 x 1)
-C = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1) ) # (D1 x 1)
+# Variables Layer1
+W1 = tf.Variable( tf.truncated_normal([D,D1], mean=0.0, stddev=0.1) ) # (D x D1)
+S1 = tf.Variable(tf.constant(0.0001, shape=[1])) # (1 x 1)
+C1 = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1) ) # (D1 x 1)
+# Variables Layer2
+W2 = tf.Variable( tf.truncated_normal([D,D2], mean=0.0, stddev=0.1) ) # (D x D1)
+S2 = tf.Variable(tf.constant(0.0001, shape=[1])) # (1 x 1)
+C2 = tf.Variable( tf.truncated_normal([D2,D_out], mean=0.0, stddev=0.1) ) # (D1 x 1)
 
 # make model
-WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
-XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
-#Delta_tilde = 2.0*tf.matmul(x,W) - (WW + XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
-Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX)
-#Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX)
-beta = -1.0*tf.pow( 0.5*tf.div(1.0,S), 2)
-Z = beta * ( Delta_tilde ) # (M x D^(l))
-A = tf.exp(Z) # (M x D^(l))
-y = tf.matmul(A,C) # (M x 1) = (M x D^(l)) * (D^(l) x 1)
+y_rbf1 = get_Gaussian_layer(x,W1,S1,C1)
+y_rbf2 = get_Gaussian_layer(y_rbf1,W2,S2,C2)
 y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
 
 #L2 loss/cost function sum((y_-y)**2)
@@ -69,7 +77,6 @@ sess.run(init)
 steps = 8000
 M = 100
 for i in range(steps):
-    ## Create fake data for y = W.x + b where W = 2, b = 0
     batch = get_batch(X_train, Y_train, M)
     ## Train
     if i%200 == 0:
