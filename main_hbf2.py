@@ -21,10 +21,16 @@ def get_data(N_train_var=60000, N_test_var=60000, low_x_var=-np.pi, high_x_var=n
     Y_test = get_labels(X_test, np.zeros( (N_test,1) ), f)
     return (X_train, Y_train, X_test, Y_test)
 
-def get_Gaussian_layer(x,W,S,C):
+def get_Gaussian_layer(x,W,S,C,BN_layer = False, scale_bn = None, offset_bn = None, mu_bn = None, sig_bn = None):
     WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
     XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
     Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
+    if BN_layer:
+        mu = mu_bn
+        sig = sig_bn
+        offset = offset_bn
+        scale = scale_bn
+        Delta_tilde = tf.nn.batch_normalization(Delta_tilde, mu, sig, offset, scale, var_eps)
     beta = -1.0*tf.pow( 0.5*tf.div(1.0,S), 2)
     Z = beta * ( Delta_tilde ) # (M x D^(l))
     A = tf.exp(Z) # (M x D^(l))
@@ -47,14 +53,26 @@ x = tf.placeholder(tf.float32, shape=[None, D]) # M x D
 W1 = tf.Variable( tf.truncated_normal([D,D1], mean=0.0, stddev=0.1) ) # (D x D1)
 S1 = tf.Variable(tf.constant(0.0001, shape=[1])) # (1 x 1)
 C1 = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1) ) # (D1 x 1)
+BN_layer1 = False
+if BN_layer1
+    mean1 = tf.Variable(tf.constant(0.0, shape=[depth]), trainable=False)
+    variance1 = tf.Variable(tf.constant(1.0, shape=[depth]), trainable=False)
+    beta1 = tf.Variable(tf.constant(0.0, shape=[depth]))
+    gamma1 = tf.Variable(tf.constant(1.0, shape=[depth]))
 # Variables Layer2
 W2 = tf.Variable( tf.truncated_normal([D,D2], mean=0.0, stddev=0.1) ) # (D x D1)
 S2 = tf.Variable(tf.constant(0.0001, shape=[1])) # (1 x 1)
 C2 = tf.Variable( tf.truncated_normal([D2,D_out], mean=0.0, stddev=0.1) ) # (D1 x 1)
+BN_layer2 = False
+if BN_layer2
+    mean2 = tf.Variable(tf.constant(0.0, shape=[depth]), trainable=False)
+    variance2 = tf.Variable(tf.constant(1.0, shape=[depth]), trainable=False)
+    beta2 = tf.Variable(tf.constant(0.0, shape=[depth]))
+    gamma2 = tf.Variable(tf.constant(1.0, shape=[depth]))
 
 # make model
-y_rbf1 = get_Gaussian_layer(x,W1,S1,C1)
-y_rbf2 = get_Gaussian_layer(y_rbf1,W2,S2,C2)
+y_rbf1 = get_Gaussian_layer(x,W1,S1,C1,BN_layer1)
+y_rbf2 = get_Gaussian_layer(y_rbf1,W2,S2,C2,BN_layer2)
 y = y_rbf2
 y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
 
