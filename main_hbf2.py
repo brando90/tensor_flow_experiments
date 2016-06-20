@@ -37,8 +37,8 @@ sess = tf.InteractiveSession()
 (X_train, Y_train, X_test, Y_test) = get_data()
 # nodes for the input images and target output classes
 (N_train,D) = X_train.shape
-D1 = 72
-D2 = 72
+D1 = 10
+D2 = 10
 (N_test,D_out) = Y_test.shape
 
 
@@ -55,6 +55,7 @@ C2 = tf.Variable( tf.truncated_normal([D2,D_out], mean=0.0, stddev=0.1) ) # (D1 
 # make model
 y_rbf1 = get_Gaussian_layer(x,W1,S1,C1)
 y_rbf2 = get_Gaussian_layer(y_rbf1,W2,S2,C2)
+y = y_rbf2
 y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
 
 #L2 loss/cost function sum((y_-y)**2)
@@ -75,11 +76,11 @@ sess = tf.Session()
 init = tf.initialize_all_variables() #
 sess.run(init)
 steps = 8000
-M = 100
+M = 10
 for i in range(steps):
     batch = get_batch(X_train, Y_train, M)
     ## Train
-    if i%200 == 0:
+    if i%2 == 0:
         train_error = sess.run(l2_loss, feed_dict={x:X_train, y_: Y_train})
         print("step %d, training accuracy %g"%(i, train_error))
         print("After %d iteration:" % i)
