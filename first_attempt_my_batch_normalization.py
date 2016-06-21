@@ -25,14 +25,16 @@ def batch_norm(x, D_l, phase_train, scope='bn'):
         batch_mean, batch_var = tf.nn.moments(x, [0], name='moments')
         # Maintains moving averages of variables by employing an exponential decay.
         ema = tf.train.ExponentialMovingAverage(decay=0.5)
-        def train_phase():
+        def train_phase(batch_mean, batch_var):
             # during training use batch statistics
             mu = mean.assign(batch_mean)
             var = var.assign(batch_var)
             return mu, var
-        def test_phase():
+        def test_phase(batch_mean, batch_var):
             # during testing/inference use the population statistics that are computed using a moving average
             return ema.average(batch_mean), ema.average(batch_var)
+        # testing & training utilities
+        batch_mean, batch_var = tf.nn.moments(x, [0], name='moments')
         mean, var = tf.cond(phase_train, train_phase, test_phase )
         bn_op = tf.nn.batch_normalization(x, mean, var, beta, gamma, 1e-3)
     return bn_op
