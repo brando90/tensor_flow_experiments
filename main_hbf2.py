@@ -67,8 +67,8 @@ train_step = tf.train.AdagradOptimizer(0.00001).minimize(l2_loss)
 ## TRAIN
 def get_batch(X, Y, M):
     mini_batch_indices = np.random.randint(M,size=M)
-    Xminibatch =  X_train[mini_batch_indices,:] # ( M x D^(0) )
-    Yminibatch = Y_train[mini_batch_indices,:] # ( M x D^(L) )
+    Xminibatch =  X[mini_batch_indices,:] # ( M x D^(0) )
+    Yminibatch = Y[mini_batch_indices,:] # ( M x D^(L) )
     return (Xminibatch, Yminibatch)
 
 sess = tf.Session()

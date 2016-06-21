@@ -1,3 +1,5 @@
+import numpy as np
+
 def get_labels(X,Y,f):
     N_train = X.shape[0]
     for i in range(N_train):
