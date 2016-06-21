@@ -31,10 +31,8 @@ class ConvolutionalBatchNormalizer(object):
   """
 
   def __init__(self, depth, epsilon, ewma_trainer, scale_after_norm):
-    self.mean = tf.Variable(tf.constant(0.0, shape=[depth]),
-                            trainable=False)
-    self.variance = tf.Variable(tf.constant(1.0, shape=[depth]),
-                                trainable=False)
+    self.mean = tf.Variable(tf.constant(0.0, shape=[depth]), trainable=False)
+    self.variance = tf.Variable(tf.constant(1.0, shape=[depth]), trainable=False)
     self.beta = tf.Variable(tf.constant(0.0, shape=[depth]))
     self.gamma = tf.Variable(tf.constant(1.0, shape=[depth]))
     self.ewma_trainer = ewma_trainer
@@ -52,14 +50,10 @@ class ConvolutionalBatchNormalizer(object):
       assign_mean = self.mean.assign(mean)
       assign_variance = self.variance.assign(variance)
       with tf.control_dependencies([assign_mean, assign_variance]):
-        return tf.nn.batch_norm_with_global_normalization(
-            x, mean, variance, self.beta, self.gamma,
-            self.epsilon, self.scale_after_norm)
+        return tf.nn.batch_norm_with_global_normalization( x, mean, variance, self.beta, self.gamma, self.epsilon, self.scale_after_norm)
     else:
       mean = self.ewma_trainer.average(self.mean)
       variance = self.ewma_trainer.average(self.variance)
       local_beta = tf.identity(self.beta)
       local_gamma = tf.identity(self.gamma)
-      return tf.nn.batch_norm_with_global_normalization(
-          x, mean, variance, local_beta, local_gamma,
-          self.epsilon, self.scale_after_norm)
+      return tf.nn.batch_norm_with_global_normalization( x, mean, variance, local_beta, local_gamma, self.epsilon, self.scale_after_norm)
