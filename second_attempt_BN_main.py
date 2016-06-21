@@ -17,22 +17,23 @@ def batch_norm(x, beta, gamma, mean, var, phase_train, bn_eps=1e-3):
     Return:
         bn_op:      batch-normalized op
     """
-    batch_mean, batch_var = tf.nn.moments(x, [0], name='moments')
-    def update_bn_moments_train(batch_mean, batch_var):
+    batch_mean, batch_var = tf.nn.moments(x, axes=[0], name='moments')
+    def update_bn_moments_train():
         # during training use batch statistics
-        mu = mean.assign(batch_mean)
-        var = var.assign(batch_var)
-        return mu, var
-    def update_bn_moments_test(batch_mean, batch_var):
+        mu_out = mean.assign(batch_mean)
+        var_out = var.assign(batch_var)
+        return mu_out, var_out
+    def update_bn_moments_test():
         # during testing/inference use the population statistics that are computed using a moving average
         return ema.average(batch_mean), ema.average(batch_var) # returns the Variable holding the (exp mov) average of batch_var.
     # testing & training utilities
+    print phase_train == None
     mean, var = tf.cond(phase_train, update_bn_moments_train, update_bn_moments_test )
     bn_op = tf.nn.batch_normalization(x, mean, var, beta, gamma, bn_eps)
     return bn_op
 
 def summated_relu_layer(x,W,b,C,bn_layer=False,beta=None,gamma=None,mean=None,var=None,phase_train=None):
-    z1 = tf.matmul(x,W) + b # M x D1
+    z1 = tf.matmul(x,W) + b # (M x D1)
     if bn_layer:
         z1 = batch_norm(x, beta, gamma, mean, var, phase_train)
     a = tf.nn.relu(z1) # (M x D1) = (M x D) * (D x D1)
@@ -63,7 +64,7 @@ phase_train = tf.placeholder(tf.bool, name='phase_train')
 C = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1) ) # (D1 x 1)
 # make model
 x = tf.placeholder(tf.float32, name='input_image')
-layer1 = summated_relu_layer(x,W,b,C,False,beta,gamma,mean,var,phase_train)
+layer1 = summated_relu_layer(x,W,b,C,True,beta,gamma,mean,var,phase_train)
 y = layer1
 y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
 #L2 loss/cost function sum((y_-y)**2)
