@@ -10,5 +10,6 @@ v = tf.get_variable("v1", [1])
 print v1.name
 print v2.name
 print v.name
+
 print v1 == v
 assert v1 == v
