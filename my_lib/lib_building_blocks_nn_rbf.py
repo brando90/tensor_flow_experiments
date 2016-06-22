@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 
-
 def get_Gaussian_layer(x,W,S,C,BN_layer = False, scale_bn = None, offset_bn = None, mu_bn = None, sig_bn = None):
     WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
     XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
@@ -21,7 +20,7 @@ def get_Gaussian_layer(x,W,S,C,BN_layer = False, scale_bn = None, offset_bn = No
 def get_summated_NN_layer(x,W,b,C,phase_train, scope='bn'):
     z1 = tf.matmul(x,W) + b # (M x D1)
     if phase_train is not None:
-        z1 = batch_norm(z1, 1, phase_train, scope)
+        z1 = standard_batch_norm(z1, 1, phase_train, scope)
     a = tf.nn.relu(z1) # (M x D1) = (M x D) * (D x D1)
     layer = tf.matmul(a,C)
     return layer

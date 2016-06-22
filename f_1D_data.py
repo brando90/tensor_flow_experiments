@@ -25,23 +25,13 @@ def generate_data(N_train_var=60000, N_cv_var=60000, N_test_var=60000, low_x_var
     Y_test = get_labels(X_test, np.zeros( (N_test,1) ), f)
     return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
 
-def get_data(file_name="f_1d_cos_no_noise_data"):
+def get_data_from_file(file_name="f_1d_cos_no_noise_data"):
     npzfile = np.load(file_name)
     # get data
     X_train = npzfile['X_train']
     Y_train = npzfile['Y_train']
-    X_cv = npzfile['X_train']
-    Y_cv = npzfile['Y_train']
+    X_cv = npzfile['X_cv']
+    Y_cv = npzfile['Y_cv']
     X_test = npzfile['X_test']
     Y_test = npzfile['Y_test']
     return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
-
-(X_train,Y_train, X_cv,Y_cv, X_test,Y_test) = generate_data()
-outfile = "f_1d_cos_no_noise_data"
-np.savez(outfile, X_train=X_train, Y_train=Y_train, X_cv=X_cv, Y_cv=Y_cv, X_test=X_test, Y_test=Y_test)
-#outfile.seek(0) # Only needed here to simulate closing & reopening file
-npzfile = np.load(outfile)
-# >>> npzfile.files
-# ['y', 'x']
-# npzfile['x'] gets the np.array
-# npzfile['y'] gets the np.array
