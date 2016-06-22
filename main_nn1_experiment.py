@@ -27,7 +27,10 @@ l2_loss = tf.reduce_mean(tf.square(y_-y))
 
 # single training step opt
 #train_step = tf.train.GradientDescentOptimizer(0.001).minimize(l2_loss)
-train_step = tf.train.AdagradOptimizer(0.00001).minimize(l2_loss)
+train_step = tf.train.MomentumOptimizer(learning_rate=0.0001,momentum=0.8).minimize(l2_loss)
+#train_step = tf.train.AdadeltaOptimizer.(learning_rate=0.001, rho=0.95, epsilon=1e-08, name='Adadelta').minimize(l2_loss)
+#train_step = tf.train.AdamOptimizer(learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-08, name='Adam').minimize(l2_loss)
+#train_step = tf.train.AdagradOptimizer(0.000001).minimize(l2_loss)
 
 ## TRAIN
 def get_batch(X, Y, M):
