@@ -35,7 +35,7 @@ def batch_norm(x, beta, gamma, mean, var, phase_train, bn_eps=1e-3):
 def summated_relu_layer(x,W,b,C,bn_layer=False,beta=None,gamma=None,mean=None,var=None,phase_train=None):
     z1 = tf.matmul(x,W) + b # (M x D1)
     if bn_layer:
-        z1 = batch_norm(x, beta, gamma, mean, var, phase_train)
+        z1 = batch_norm(z1, beta, gamma, mean, var, phase_train)
     a = tf.nn.relu(z1) # (M x D1) = (M x D) * (D x D1)
     layer = tf.matmul(a,C)
     return layer

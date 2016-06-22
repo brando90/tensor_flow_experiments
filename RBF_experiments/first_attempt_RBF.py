@@ -5,14 +5,14 @@ from f_1D_data import *
 (X_train, Y_train, X_test, Y_test) = get_data()
 # nodes for the input images and target output classes
 (N_train,D) = X_train.shape
-D1 = 72
+D1 = 24
 (N_test,D_out) = Y_test.shape
 
 
 x = tf.placeholder(tf.float32, shape=[None, D]) # M x D
 # Variable is a value that lives in TensorFlow's computation graph
 W = tf.Variable( tf.truncated_normal([D,D1], mean=0.0, stddev=0.1) ) # (D x D1)
-S = tf.Variable(tf.constant(0.0001, shape=[1])) # (1 x 1)
+S = tf.Variable(tf.constant(10.0, shape=[1])) # (1 x 1)
 C = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1) ) # (D1 x 1)
 
 # make model
@@ -32,7 +32,8 @@ l2_loss = tf.reduce_mean(tf.square(y_-y))
 
 # single training step opt
 #train_step = tf.train.GradientDescentOptimizer(0.001).minimize(l2_loss)
-train_step = tf.train.AdagradOptimizer(0.00001).minimize(l2_loss)
+#train_step = tf.train.AdagradOptimizer(0.00001).minimize(l2_loss)
+train_step = tf.train.MomentumOptimizer(learning_rate=0.001,momentum=0.0009).minimize(l2_loss)
 
 ## TRAIN
 def get_batch(X, Y, M):

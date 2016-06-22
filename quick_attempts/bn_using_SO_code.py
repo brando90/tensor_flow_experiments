@@ -19,7 +19,7 @@ def batch_norm(x, n_out, phase_train, scope='bn'):
                                      name='beta', trainable=True)
         gamma = tf.Variable(tf.constant(1.0, shape=[n_out]),
                                       name='gamma', trainable=True)
-        batch_mean, batch_var = tf.nn.moments(x, [0,1,2], name='moments')
+        batch_mean, batch_var = tf.nn.moments(x, [0], name='moments')
         ema = tf.train.ExponentialMovingAverage(decay=0.5)
 
         def mean_var_with_update():
@@ -36,7 +36,7 @@ def batch_norm(x, n_out, phase_train, scope='bn'):
 def summated_relu_layer(x,W,b,C,phase_train, scope='bn'):
     z1 = tf.matmul(x,W) + b # (M x D1)
     if phase_train is not None:
-        z1 = batch_norm(x, 1, phase_train, scope)
+        z1 = batch_norm(z1, 1, phase_train, scope)
     a = tf.nn.relu(z1) # (M x D1) = (M x D) * (D x D1)
     layer = tf.matmul(a,C)
     return layer
@@ -61,7 +61,7 @@ b = tf.Variable(tf.constant(0.1, shape=[D1])) # (D1 x 1)
 # var = tf.Variable(tf.constant(1.0, shape=[D1]), trainable=False) #non-trainable params
 # ema = tf.train.ExponentialMovingAverage(decay=0.5) # Maintains moving averages of variables by employing an exponential decay.
 phase_train = tf.placeholder(tf.bool, name='phase_train')
-#phase_train = None
+phase_train = None
 #
 C = tf.Variable( tf.truncated_normal([D1,D_out], mean=0.0, stddev=0.1) ) # (D1 x 1)
 # make model
@@ -79,17 +79,21 @@ def get_batch(X, Y, M):
     Yminibatch = Y[mini_batch_indices,:] # ( M x D^(L) )
     return (Xminibatch, Yminibatch)
 # SGD alg
-train_step = tf.train.AdagradOptimizer(0.00001).minimize(l2_loss)
+#train_step = tf.train.AdagradOptimizer(0.00001).minimize(l2_loss)
+train_step = tf.train.MomentumOptimizer(learning_rate=0.01,momentum=0.9).minimize(l2_loss)
+
 with tf.Session() as sess:
     sess.run( tf.initialize_all_variables() )
     steps = 8000
-    M = 100 #batch-size
+    M = 3000 #batch-size
     for i in range(steps):
         ## Create fake data for y = W.x + b where W = 2, b = 0
         (batch_xs, batch_ys) = get_batch(X_train, Y_train, M)
         ## Train
         if i%200 == 0:
-            train_error = sess.run(l2_loss, feed_dict={x:X_train, y_:Y_train, phase_train: False})
+            #train_error = sess.run(l2_loss, feed_dict={x:X_train, y_:Y_train, phase_train: False})
+            train_error = sess.run(l2_loss, feed_dict={x:X_train, y_:Y_train})
             print("step %d, training accuracy %g"%(i, train_error))
             print("After %d iteration:" % i)
-        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys, phase_train: True})
+        #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys, phase_train: True})
+        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
