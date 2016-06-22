@@ -1,19 +1,18 @@
 import numpy as np
 import tensorflow as tf
 from tensorflow.python import control_flow_ops
-from f_1D_data import *
-from .. import lib_building_blocks_nn_rbf
+#from .. import my_lib
+import imp
+foo = imp.load_source('my_lib', '../my_lib/lib_building_blocks_nn_rbf.py')
 
-(X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data(file_name='f_1d_cos_no_noise_data')
+(X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = my_lib.get_data(file_name='f_1d_cos_no_noise_data')
 (N_train,D) = X_train.shape
 D1 = 72
 (N_test,D_out) = Y_test.shape
 
-def makeNNmodel(W,b,C):
-    x = tf.placeholder(tf.float32, name='input_image')
+def makeNNmodel(x,W,b,C):
     layer1 = summated_relu_layer(x,W,b,C,phase_train)
     y = layer1
-    y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
     return f
 
 ## create BN variables
@@ -22,14 +21,11 @@ b = tf.Variable( tf.constant(0.1, shape=[D1]) ) # (D1 x 1)
 C = tf.Variable( tf.truncated_normal([D1,D_out], mean=0.0, stddev=0.1) ) # (D1 x 1)
 phase_train = tf.placeholder(tf.bool, name='phase_train')
 #phase_train = None
-# make model
 x = tf.placeholder(tf.float32, name='input_image')
-layer1 = summated_relu_layer(x,W,b,C,phase_train)
+layer1 = makeNNmodel(x,W,b,C)
 y = layer1
 y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
-#L2 loss/cost function sum((y_-y)**2)
 l2_loss = tf.reduce_mean(tf.square(y_-y))
-#
 ## TRAIN
 def get_batch(X, Y, M):
     mini_batch_indices = np.random.randint(M,size=M)
@@ -39,7 +35,6 @@ def get_batch(X, Y, M):
 # SGD alg
 #train_step = tf.train.AdagradOptimizer(0.00001).minimize(l2_loss)
 train_step = tf.train.MomentumOptimizer(learning_rate=0.01,momentum=0.9).minimize(l2_loss)
-
 with tf.Session() as sess:
     sess.run( tf.initialize_all_variables() )
     steps = 8000
