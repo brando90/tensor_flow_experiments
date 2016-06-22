@@ -1,16 +1,12 @@
 import numpy as np
 import tensorflow as tf
 
-def get_Gaussian_layer(x,W,S,C,BN_layer = False, scale_bn = None, offset_bn = None, mu_bn = None, sig_bn = None):
+def get_Gaussian_layer(x,W,S,C, phase_train=None):
     WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
     XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
     Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
-    if BN_layer:
-        mu = mu_bn
-        sig = sig_bn
-        offset = offset_bn
-        scale = scale_bn
-        Delta_tilde = tf.nn.batch_normalization(Delta_tilde, mu, sig, offset, scale, var_eps)
+    if phase_train is not None:
+        Delta_tilde = standard_batch_norm(Delta_tilde, 1,phase_train)
     beta = -1.0*tf.pow( 0.5*tf.div(1.0,S), 2)
     Z = beta * ( Delta_tilde ) # (M x D^(l))
     A = tf.exp(Z) # (M x D^(l))
