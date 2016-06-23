@@ -6,7 +6,7 @@ def get_labels(X,Y,f):
         Y[i] = f(X[i])
     return Y
 
-def generate_data(N_train_var=60000, N_cv_var=60000, N_test_var=60000, low_x_var=-np.pi, high_x_var=np.pi):
+def generate_data(N_train_var=60000, N_cv_var=60000, N_test_var=60000, low_x_var=-2*np.pi, high_x_var=2*np.pi):
     # f(x) = 2*(2(cos(x)^2 - 1)^2 -1
     f = lambda x: 2*np.power( 2*np.power( np.cos(x) ,2) - 1, 2) - 1
     low_x = low_x_var

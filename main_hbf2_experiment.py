@@ -3,6 +3,7 @@ import tensorflow as tf
 from tensorflow.python import control_flow_ops
 import my_lib.lib_building_blocks_nn_rbf as ml
 import f_1D_data as data_lib
+import time
 #import winsound
 
 def make_HBF2_model(x,W1,S1,C1,W2,S2,C2,phase_train):
@@ -13,6 +14,8 @@ def make_HBF2_model(x,W1,S1,C1,W2,S2,C2,phase_train):
 
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data_lib.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
 (N_train,D) = X_train.shape
+print np.amax(X_train)
+print np.amin(X_train)
 D1 = 48
 D2 = 48
 (N_test,D_out) = Y_test.shape
@@ -67,9 +70,10 @@ def get_batch_feed(X, Y, M, phase_train):
         feed_dict = {x: Xminibatch, y_: Yminibatch}
     return feed_dict
 
+start_time = time.time()
 with tf.Session() as sess:
     sess.run( tf.initialize_all_variables() )
-    steps = 27000
+    steps = 10
     M = 2000 #batch-size
     for i in range(steps):
         ## Create fake data for y = W.x + b where W = 2, b = 0
@@ -86,3 +90,7 @@ with tf.Session() as sess:
         #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
 #winsound.Beep(Freq = 2500,Dur = 1000)
+seconds = (time.time() - start_time)
+minutes = seconds/ 60
+print("--- %s seconds ---" % seconds )
+print("--- %s minutes ---" % minutes )
