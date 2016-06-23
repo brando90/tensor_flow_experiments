@@ -4,10 +4,11 @@ import tensorflow as tf
 def get_Gaussian_layer(x,W,S,C, phase_train=None):
     WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
     XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
+    # -|| x - w ||^2 = -(-2<x,w> + ||x||^2 + ||w||^2) = 2<x,w> - (||x||^2 + ||w||^2)
     Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
     if phase_train is not None:
         Delta_tilde = standard_batch_norm(Delta_tilde, 1,phase_train)
-    beta = -1.0*tf.pow( 0.5*tf.div(1.0,S), 2)
+    beta = 0.5*tf.pow(tf.div(1.0,S), 2)
     Z = beta * ( Delta_tilde ) # (M x D^(l))
     A = tf.exp(Z) # (M x D^(l))
     y_rbf = tf.matmul(A,C) # (M x 1) = (M x D^(l)) * (D^(l) x 1)

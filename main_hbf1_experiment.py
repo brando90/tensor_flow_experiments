@@ -12,7 +12,6 @@ def make_HBF1_model(x,W1,S1,C1,phase_train):
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data_lib.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
 (N_train,D) = X_train.shape
 D1 = 72
-D2 = 72
 (N_test,D_out) = Y_test.shape
 
 x = tf.placeholder(tf.float32, shape=[None, D]) # M x D
@@ -44,8 +43,8 @@ def get_batch(X, Y, M):
     return (Xminibatch, Yminibatch)
 with tf.Session() as sess:
     sess.run( tf.initialize_all_variables() )
-    steps = 8000
-    M = 3000 #batch-size
+    steps = 2000
+    M = 10 #batch-size
     for i in range(steps):
         ## Create fake data for y = W.x + b where W = 2, b = 0
         (batch_xs, batch_ys) = get_batch(X_train, Y_train, M)

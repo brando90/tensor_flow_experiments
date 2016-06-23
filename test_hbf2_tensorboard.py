@@ -13,14 +13,13 @@ def make_HBF2_model(x,W1,S1,C1,W2,S2,C2,phase_train):
 
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data_lib.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
 (N_train,D) = X_train.shape
-D1 = 48
-D2 = 48
+D1 = 128
+D2 = 128
 (N_test,D_out) = Y_test.shape
 
 x = tf.placeholder(tf.float32, shape=[None, D]) # M x D
 # Variables Layer1
-#std = 1.5*np.pi
-std = 0.1
+std = 1.5*np.pi
 W1 = tf.Variable( tf.truncated_normal([D,D1], mean=0.0, stddev=std) ) # (D x D1)
 S1 = tf.Variable(tf.constant(25.0, shape=[1])) # (1 x 1)
 C1 = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1) ) # (D1 x 1)
@@ -29,7 +28,7 @@ W2 = tf.Variable( tf.truncated_normal([D,D2], mean=0.0, stddev=std) ) # (D x D1)
 S2 = tf.Variable(tf.constant(25.0, shape=[1])) # (1 x 1)
 C2 = tf.Variable( tf.truncated_normal([D2,D_out], mean=0.0, stddev=0.1) ) # (D1 x 1)
 # BN layer
-#phase_train = None #BN OFF
+phase_train = None #BN OFF
 phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 
 # make model
