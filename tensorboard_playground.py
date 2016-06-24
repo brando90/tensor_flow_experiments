@@ -10,39 +10,31 @@ import f_1D_data as data_lib
 import time
 #import winsound
 
-def make_HBF2_model(x,W1,S1,C1,W2,S2,C2,phase_train):
+def make_HBF1_model(x,W1,S1,C1,phase_train):
     with tf.name_scope("layer1") as scope:
         layer1 = ml.get_Gaussian_layer(x,W1,S1,C1,phase_train)
-    with tf.name_scope("layer2") as scope:
-        layer2 = ml.get_Gaussian_layer(layer1,W2,S2,C2,phase_train)
-    y = layer2
+    y = layer1
     return y
 
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data_lib.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
 (N_train,D) = X_train.shape
 D1 = 24
-D2 = 24
 (N_test,D_out) = Y_test.shape
 
 x = tf.placeholder(tf.float32, shape=[None, D], name='x-input') # M x D
 # Variables Layer1
 #std = 1.5*np.pi
 std = 0.1
-W1 = tf.Variable( tf.truncated_normal([D,D1], mean=0.0, stddev=std, name='W1') ) # (D x D1)
-S1 = tf.Variable(tf.constant(100.0, shape=[1], name='S1')) # (1 x 1)
-C1 = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1, name='C1') ) # (D1 x 1)
-# Variables Layer2
-W2 = tf.Variable( tf.truncated_normal([D,D2], mean=0.0, stddev=std, name='W2') ) # (D x D1)
-S2 = tf.Variable(tf.constant(100.0, shape=[1], name='S2')) # (1 x 1)
-C2 = tf.Variable( tf.truncated_normal([D2,D_out], mean=0.0, stddev=0.1, name='C2') ) # (D1 x 1)
-
+W1 = tf.Variable( tf.truncated_normal([D,D1], mean=0.0, stddev=std), name='W1') # (D x D1)
+S1 = tf.Variable( tf.constant(100.0, shape=[1]), name='S1') # (1 x 1)
+C1 = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1), name='C1') # (D1 x 1)
 # BN layer
 phase_train = None #BN OFF
 #phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 
 # make model
-with tf.name_scope("HBF2") as scope:
-    y = make_HBF2_model(x,W1,S1,C1,W2,S2,C2,phase_train)
+with tf.name_scope("HBF1") as scope:
+    y = make_HBF1_model(x,W1,S1,C1,phase_train)
 y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
 with tf.name_scope("L2_loss") as scope:
     l2_loss = tf.reduce_mean(tf.square(y_-y))
@@ -60,10 +52,6 @@ with tf.name_scope("train") as scope:
 W1_hist = tf.histogram_summary("W1", W1)
 S1_hist = tf.histogram_summary("S1", S1)
 C1_hist = tf.histogram_summary("C1", C1)
-
-W2_hist = tf.histogram_summary("W2", W2)
-S2_hist = tf.histogram_summary("S2", S2)
-C2_hist = tf.histogram_summary("C2", C2)
 
 with tf.name_scope("l2_loss") as scope:
   l2_hist = tf.histogram_summary("l2_loss", l2_loss)
@@ -93,7 +81,7 @@ def get_batch_feed(X, Y, M, phase_train):
 start_time = time.time()
 with tf.Session() as sess:
     merged = tf.merge_all_summaries()
-    writer = tf.train.SummaryWriter("/tmp/hbf2_logs", sess.graph)
+    writer = tf.train.SummaryWriter("/tmp/hbf1_logs", sess.graph)
 
     sess.run( tf.initialize_all_variables() )
     steps = 500

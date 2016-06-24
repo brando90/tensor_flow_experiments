@@ -1,5 +1,6 @@
-# run python tensorboard_simple_mnist_example.py --logdir=/tmp/mnist_logs
-# tensorboard --logdir=/tmp/mnist_logs
+## run command to collect model: python tensorboard_simple_mnist_example.py --logdir=/tmp/mnist_logs
+## tensorboard --logdir=/tmp/mnist_logs
+## run http://localhost:6006/
 
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
