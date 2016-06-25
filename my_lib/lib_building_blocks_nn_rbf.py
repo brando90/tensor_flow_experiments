@@ -17,7 +17,7 @@ def get_Gaussian_layer(x,W,S,C, phase_train=None):
         y_rbf = tf.matmul(A,C) # (M x 1) = (M x D^(l)) * (D^(l) x 1)
     return y_rbf
 
-def get_summated_NN_layer(x,W,b,C,phase_train = None, scope='SumRelu'):
+def get_summated_NN_layer(x,W,b,C,phase_train=None, scope='SumRelu'):
     z1 = tf.matmul(x,W) + b # (M x D1)
     if phase_train is not None:
         z1 = standard_batch_norm(z1, 1, phase_train, scope)
@@ -25,27 +25,34 @@ def get_summated_NN_layer(x,W,b,C,phase_train = None, scope='SumRelu'):
     layer = tf.matmul(a,C)
     return layer
 
-def get_NN_layer(x,phase_train = None, scope="NNLayer"):
+def get_NN_layer(x, laters_dimensions, phase_train=None, scope="NNLayer"):
+    (D_l_1, D_l) = laters_dimensions
     with tf.name_scope(scope):
-        W = tf.Variable(tf.constant(0.0, shape=[D_l_1, D_l]), name='beta', trainable=True)
-        b = tf.Variable(tf.constant(1.0, shape=[D_l]), name='gamma', trainable=True)
+        W = tf.Variable(tf.truncated_normal(shape=[D_l_1, D_l], mean=0.0, stddev=1.0), trainable=True)
+        b = tf.Variable(tf.constant(1.0, shape=[D_l]), trainable=True)
         z = tf.matmul(x,W) + b
         if phase_train is not None:
-            z = standard_batch_norm(z1, 1, phase_train)
-        a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
+            z = standard_batch_norm(z, 1, phase_train)
+        layer = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
     return layer
 
-def get_summation_layer(x, phase_train = None, scope="SumLayer"):
+def get_summation_layer(x, dimensions_list, phase_train=None, scope="SumLayer"):
+    #D_in = len(x)
+    (D_in, D_out) = (dimensions_list[0], dimensions_list[-1])
     with tf.name_scope(scope):
+        C = tf.Variable( tf.truncated_normal(shape=[D_in,D_out]) )
         a = tf.matmul(x, C)
     return a
 
-def build_NN(x,nb_hidden_layers, phase_train):
+def build_NN(x, dimensions_list, phase_train=None):
     current_layer = x
-    for l in range(nb_hidden_layers):
-        current_layer = get_NN_layer(current_layer, phase_train)
-    f = get_summation_layer()
-    return
+    nb_layers = len(dimensions_list)
+    #go through hidden layers
+    for l in range(1,nb_layers-1):
+        (D_l_1, D_l) = (dimensions_list[l-1], dimensions_list[l])
+        current_layer = get_NN_layer(current_layer, (D_l_1, D_l), phase_train)
+    f = get_summation_layer(x, phase_train, dimensions_list)
+    return f
 
 def standard_batch_norm(x, n_out, phase_train, scope='bn'):
     """

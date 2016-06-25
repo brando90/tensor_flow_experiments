@@ -14,8 +14,8 @@ tensorboard_data_loc = "nn1_logs"
 
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data_lib.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
 (N_train,D) = X_train.shape
-D1 = 24
 (N_test,D_out) = Y_test.shape
+dimensions_list = [D,10,D_out]
 nb_layers = 1
 
 x = tf.placeholder(tf.float32, shape=[None, D], name='x-input') # M x D
@@ -23,9 +23,9 @@ x = tf.placeholder(tf.float32, shape=[None, D], name='x-input') # M x D
 #phase_train = None #BN OFF
 phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 
-# make model
-with tf.name_scope("NN"+nb_layers) as scope:
-    nn = get_NN_layer(x, phase_train, scope="NNLayer")
+### make model
+with tf.name_scope( "NN"+str(nb_layers) ) as scope:
+    nn = ml.build_NN(x, dimensions_list)
 
 y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
 with tf.name_scope("L2_loss") as scope:
