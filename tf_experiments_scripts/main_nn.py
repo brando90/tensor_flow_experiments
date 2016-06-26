@@ -30,10 +30,10 @@ def get_initilizations(init_args):
         inits_b = [None]
         nb_hidden_layers = len(dims)-1
         for l in range(1,nb_hidden_layers):
-            inits_W.append( tf.truncated_normal(shape=[init_args.dims[l-1],init_args.dims[l]], mean=init_args.mu[l], stddev=init_args.std[l]) )
-            inits_b.append( tf.constant(init_args.b_init[l], dtype=tf.float64, shape=[dims[l]] ) )
+            inits_W.append( tf.truncated_normal(shape=[init_args.dims[l-1],init_args.dims[l]], mean=init_args.mu[l], stddev=init_args.std[l], dtype=tf.float64) )
+            inits_b.append( tf.constant(init_args.b_init[l], shape=[dims[l]], dtype=tf.float64 ) )
         l = len(init_args.dims)-1
-        inits_C = [ tf.truncated_normal(shape=[init_args.dims[l-1],init_args.dims[l]], mean=init_args.mu, stddev=init_args.std) ]
+        inits_C = [ tf.truncated_normal(dtype=tf.float64, shape=[init_args.dims[l-1],init_args.dims[l]], mean=init_args.mu, stddev=init_args.std) ]
     elif init_args.init_type  == 'data_init':
         X_train = init_args.X_train
         pass
@@ -46,6 +46,7 @@ def get_initilizations(init_args):
 
 ## NN params
 phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
+phase_train = None
 dims = [D,10,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
@@ -58,7 +59,7 @@ init_args = ns.FrozenNamespace(init_type=init_type,dims=dims,mu=mu,std=std,b_ini
 x = tf.placeholder(tf.float64, shape=[None, D], name='x-input') # M x D
 with tf.name_scope("NN") as scope:
     nn = mtf.build_NN(x,dims,(inits_C,inits_W,init_b),phase_train)
-    nn = mtf.get_summation_layer(nn, init_C[0])
+    y = mtf.get_summation_layer(nn, inits_C[0])
 
 ## Output and Loss
 y_ = tf.placeholder(tf.float64, shape=[None, D_out]) # (M x D)
