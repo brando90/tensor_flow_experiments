@@ -1,6 +1,9 @@
 import numpy as np
 import tensorflow as tf
 
+def hello_world():
+    print "Hello World!"
+
 def get_Gaussian_layer(x,W,S,C, phase_train=None):
     with tf.name_scope("Z-pre_acts") as scope:
         WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )

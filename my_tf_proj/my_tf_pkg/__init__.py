@@ -1,6 +1,6 @@
 # helps users of project/pkg from knowning the internal structure of modules
 # easier to use funcs in all modules
-from my_tf_lib.my_tf_lib import *
+from my_tf_pkg.lib_building_blocks_nn_rbf import *
 #from pkg_1.module2 import *
 
 #from pkg_1.module1 import f1 as superduperf1

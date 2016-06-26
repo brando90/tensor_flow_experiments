@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(
-    name='my_project',
+    name='my_project', #project name
     version='0.1.0',
     description='my project description',
     #url
