@@ -4,11 +4,13 @@
 
 import numpy as np
 import tensorflow as tf
-from tensorflow.python import control_flow_ops
-import my_lib.lib_building_blocks_nn_rbf as ml
-import namespaces as ns
-import f_1D_data as data_lib
+
+import my_tf_pkg as mtf
+#from tensorflow.python import control_flow_ops
 import time
+
+import namespaces as ns
+
 #import winsound
 
 # def get_initilizations(**kwargs):
@@ -23,37 +25,40 @@ import time
 #     return inits_W,init_b
 
 def get_initilizations(init_args):
-    if init_arg.init_type == 'truncated_normal':
-        inits_W = []
-        inits_b = []
+    if init_args.init_type == 'truncated_normal':
+        inits_W = [None]
+        inits_b = [None]
         nb_hidden_layers = len(dims)-1
         for l in range(1,nb_hidden_layers):
-            inits_W.append( tf.truncated_normal(shape=[init_arg.dims[l-1],init_arg.dims[l]], mean=init_arg.mu, stddev=init_arg.std) )
-            init_b.append( tf.constant(init_args.offset, shape=[dims[l]]) )
-        l = len(init_arg.dims)
-        inits_C = [tf.truncated_normal(shape=dims[l-1], dims[l], mean=init_arg.mu, stddev=init_arg.std) ]
-    elif init_arg.init_type  == 'data_init':
-        X_train = init_arg.X_train
+            inits_W.append( tf.truncated_normal(shape=[init_args.dims[l-1],init_args.dims[l]], mean=init_args.mu[l], stddev=init_args.std[l]) )
+            inits_b.append( tf.constant(init_args.b_init[l], dtype=tf.float64, shape=[dims[l]] ) )
+        l = len(init_args.dims)-1
+        inits_C = [ tf.truncated_normal(shape=[init_args.dims[l-1],init_args.dims[l]], mean=init_args.mu, stddev=init_args.std) ]
+    elif init_args.init_type  == 'data_init':
+        X_train = init_args.X_train
         pass
-    return (inits_C,inits_W,init_b)
+    return (inits_C,inits_W,inits_b)
 
 ## Data sets
-(X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data_lib.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
+(X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
 (N_train,D) = X_train.shape
 (N_test,D_out) = Y_test.shape
 
 ## NN params
 phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 dims = [D,10,D_out]
+mu = len(dims)*[0.0]
+std = len(dims)*[0.1]
+b_init = len(dims)*[0.1]
 init_type = 'truncated_normal'
-init_args = ns.FrozenNamespace(init_type=init_type,dims=dims)
+init_args = ns.FrozenNamespace(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init)
 (inits_C,inits_W,init_b) = get_initilizations(init_args)
 
 ## Make Model
 x = tf.placeholder(tf.float64, shape=[None, D], name='x-input') # M x D
 with tf.name_scope("NN") as scope:
-    nn = build_NN(x, dims, inits, phase_train)
-    nn = get_summation_layer(nn, init_C)
+    nn = mtf.build_NN(x,dims,(inits_C,inits_W,init_b),phase_train)
+    nn = mtf.get_summation_layer(nn, init_C[0])
 
 ## Output and Loss
 y_ = tf.placeholder(tf.float64, shape=[None, D_out]) # (M x D)
@@ -72,15 +77,15 @@ with tf.name_scope("train") as scope:
 ## Add summary ops to collect data
 #W1_hist = tf.histogram_summary("W1_hist", W1)
 #W1_scalar_summary = tf.scalar_summary("W1_scalar", W1)
-W1_hist = tf.histogram_summary("W1", W1)
+#W1_hist = tf.histogram_summary("W1", W1)
 
 #S1_hist = tf.histogram_summary("S1_hist", S1)
 #S1_scalar_summary = tf.scalar_summary("S1_scalar", S1)
-S1_scalar_summary = tf.scalar_summary("S1", S1)
+#S1_scalar_summary = tf.scalar_summary("S1", S1)
 
 #C1_hist = tf.histogram_summary("C1_hist", C1)
 #C1_scalar_summary = tf.scalar_summary("C1_scalar", C1)
-C1_hist = tf.histogram_summary("C1", C1)
+#C1_hist = tf.histogram_summary("C1", C1)
 
 with tf.name_scope("l2_loss") as scope:
   ls_scalar_summary = tf.scalar_summary("l2_loss", l2_loss)
