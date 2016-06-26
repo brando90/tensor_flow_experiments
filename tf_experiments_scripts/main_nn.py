@@ -11,29 +11,56 @@ import f_1D_data as data_lib
 import time
 #import winsound
 
+# def get_initilizations(**kwargs):
+#     if kwargs['init_type'] == 'truncated_normal':
+#         dims = kwargs['dims']
+#         inits_W = [None]
+#         for l in range(1,):
+#             inits_W.append(tf.truncated_normal(shape=dims[l-1], dims[l], mean=kwargs['mean'], stddev=kwargs['stddev']))
+#             init_b.append(tf.constant(0.1, shape=[dims[l]]))
+#     elif kwargs['init_type']  == 'data_init':
+#         pass
+#     return inits_W,init_b
+
+def get_initilizations(init_args):
+    if init_arg.init_type == 'truncated_normal':
+        inits_W = []
+        inits_b = []
+        nb_hidden_layers = len(dims)-1
+        for l in range(1,nb_hidden_layers):
+            inits_W.append( tf.truncated_normal(shape=[init_arg.dims[l-1],init_arg.dims[l]], mean=init_arg.mu, stddev=init_arg.std) )
+            init_b.append( tf.constant(init_args.offset, shape=[dims[l]]) )
+        l = len(init_arg.dims)
+        inits_C = [tf.truncated_normal(shape=dims[l-1], dims[l], mean=init_arg.mu, stddev=init_arg.std) ]
+    elif init_arg.init_type  == 'data_init':
+        X_train = init_arg.X_train
+        pass
+    return (inits_C,inits_W,init_b)
+
+## Data sets
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data_lib.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
 (N_train,D) = X_train.shape
 (N_test,D_out) = Y_test.shape
 
-x = tf.placeholder(tf.float32, shape=[None, D], name='x-input') # M x D
-# Variables Layer1
-#std = 1.5*np.pi
-std = np.pi
-W1 = tf.Variable( tf.truncated_normal([D,D1], mean=0.0, stddev=std), name='W1') # (D x D1)
-S1 = tf.Variable( tf.constant(100.0, shape=[]), name='S1') # (1 x 1)
-C1 = tf.Variable( tf.truncated_normal([D1,1], mean=0.0, stddev=0.1), name='C1' ) # (D1 x 1)
-# BN layer
-#phase_train = None #BN OFF
+## NN params
 phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
+dims = [D,10,D_out]
+init_type = 'truncated_normal'
+init_args = ns.FrozenNamespace(init_type=init_type,dims=dims)
+(inits_C,inits_W,init_b) = get_initilizations(init_args)
 
-# make model
-with tf.name_scope("HBF1") as scope:
-    y = make_HBF1_model(x,W1,S1,C1,phase_train)
-y_ = tf.placeholder(tf.float32, shape=[None, D_out]) # (M x D)
+## Make Model
+x = tf.placeholder(tf.float64, shape=[None, D], name='x-input') # M x D
+with tf.name_scope("NN") as scope:
+    nn = build_NN(x, dims, inits, phase_train)
+    nn = get_summation_layer(nn, init_C)
+
+## Output and Loss
+y_ = tf.placeholder(tf.float64, shape=[None, D_out]) # (M x D)
 with tf.name_scope("L2_loss") as scope:
     l2_loss = tf.reduce_mean(tf.square(y_-y))
 
-# single training step opt
+## Training Step
 with tf.name_scope("train") as scope:
     #train_step = tf.train.GradientDescentOptimizer(0.001).minimize(l2_loss)
     #train_step = tf.train.MomentumOptimizer(learning_rate=0.001,momentum=0.6).minimize(l2_loss)

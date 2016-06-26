@@ -28,31 +28,43 @@ def get_summated_NN_layer(x,W,b,C,phase_train=None, scope='SumRelu'):
     layer = tf.matmul(a,C)
     return layer
 
-def get_NN_layer(x, dims, phase_train=None, scope="NNLayer"):
-    (D_l_1, D_l) = laters_dimensions
+def get_summation_layer(x, dimensions_list, phase_train=None, scope="SumLayer"):
+    (D_in, D_out) = (dimensions_list[0], dimensions_list[-1])
     with tf.name_scope(scope):
-        W = tf.Variable(tf.truncated_normal(shape=[D_l_1, D_l], mean=0.0, stddev=1.0), trainable=True)
-        b = tf.Variable(tf.constant(1.0, shape=[D_l]), trainable=True)
+        C = tf.Variable( tf.truncated_normal(shape=[D_in,D_out]) )
+        a = tf.matmul(x, C)
+    return a
+
+## Standardn NN
+
+def get_NN_layer(x, dims, init, phase_train=None, scope="NNLayer"):
+    init_W,init_b = init
+    with tf.name_scope(scope):
+        W = tf.Variable(initsW, trainable=True)
+        b = tf.Variable(initsb, trainable=True)
         z = tf.matmul(x,W) + b
         if phase_train is not None:
             z = standard_batch_norm(z, 1, phase_train)
         layer = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
     return layer
 
-def build_NN(x, dims, inits, ns_init=None, phase_train=None):
-    current_layer = x
-    for l in range(1,):
-        current_layer = get_NN_layer(current_layer, (dims[l-1], dims[l]), phase_train)
-    f = get_summation_layer(x, phase_train, dimensions_list)
-    return f
+def build_NN(x, dims, inits, phase_train=None):
+    init_W,init_b = inits
+    layer = x
+    nb_hidden_layers = len(dims)-1
+    for l in xrange(1,nb_hidden_layers): # from 1 to L-1
+        layer = get_NN_layer(x=layer, init=(init_W[l],init_b[l]), dims=(dims[l-1], dims[l]), phase_train)
+    return layer
 
-def get_summation_layer(x, dimensions_list, phase_train=None, scope="SumLayer"):
-    #D_in = len(x)
-    (D_in, D_out) = (dimensions_list[0], dimensions_list[-1])
+## Final Layer
+
+def get_summation_layer(x, init, scope="SumLayer"):
     with tf.name_scope(scope):
-        C = tf.Variable( tf.truncated_normal(shape=[D_in,D_out]) )
+        C = tf.Variable( init )
         a = tf.matmul(x, C)
     return a
+
+## BN
 
 def standard_batch_norm(x, n_out, phase_train, scope='bn'):
     """
