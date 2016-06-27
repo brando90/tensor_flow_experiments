@@ -22,8 +22,9 @@ def get_summed_Gaussian_layer(l, x, dims, init, phase_train=None, scope="SumNNLa
     with tf.name_scope("A"+l) as scope:
         A = tf.exp(Z) # (M x D^(l))
     with tf.name_scope("SumGauss"+l) as scope:
-        C = tf.Variable(init_C, name='C'+l, trainable=True)
-        layer = tf.matmul(A,C) # (M x 1) = (M x D^(l)) * (D^(l) x 1)
+        layer = get_summation_layer(l, a, init_C, scope="SumLayer"+l)
+        #C = tf.Variable(init_C, name='C'+l, trainable=True)
+        #layer = tf.matmul(A,C) # (M x 1) = (M x D^(l)) * (D^(l) x 1)
     return layer
 
 def build_summed_HBF(x, dims, inits, phase_train=None):
@@ -45,7 +46,7 @@ def get_summed_NN_layer(l, x, dims, init, phase_train=None, scope="SumNNLayer"):
         if phase_train is not None:
             z = standard_batch_norm(z, 1, phase_train,scope='BN'+l)
         a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
-        layer = get_summation_layer(a, init_C, scope="SumLayer"+l)
+        layer = get_summation_layer(l, a, init_C, scope="SumLayer"+l)
         W = tf.histogram_summary('W'+l, W)
         b = tf.histogram_summary('b'+l, b)
     return layer
@@ -83,11 +84,11 @@ def build_standard_NN(x, dims, inits, phase_train=None):
 
 ## Final Layer
 
-def get_summation_layer(x, init, scope="SumLayer"):
+def get_summation_layer(l, x, init, scope="SumLayer"):
     with tf.name_scope(scope):
         C = tf.Variable( init )
         a = tf.matmul(x, C)
-        C = tf.histogram_summary("C", C)
+        C = tf.histogram_summary("C"+l, C)
     return a
 
 ## BN
