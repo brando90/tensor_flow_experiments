@@ -1,4 +1,4 @@
-## run cmd to collect model: python test_hbf1_tensorboard.py --logdir=/tmp/nn_logs
+## run cmd to collect model: python main_nn.py --logdir=/tmp/nn_logs
 ## show board on browser run cmd: tensorboard --logdir=/tmp/nn_logs
 ## browser: http://localhost:6006/
 
@@ -45,9 +45,11 @@ def get_initilizations(init_args):
 (N_test,D_out) = Y_test.shape
 
 ## NN params
+tensorboard_data_dump = '/tmp/nn_logs'
 phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 phase_train = None
 dims = [D,10,D_out]
+dims = [D,10,10,10,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
 b_init = len(dims)*[0.1]
@@ -75,18 +77,6 @@ with tf.name_scope("train") as scope:
     #train_step = tf.train.AdagradOptimizer(0.0001).minimize(l2_loss)
     #train_step = tf.train.RMSPropOptimizer.(learning_rate=0.01, decay=0.9, momentum=0.0, epsilon=1e-10, name='RMSProp').minimize(l2_loss)
 
-## Add summary ops to collect data
-#W1_hist = tf.histogram_summary("W1_hist", W1)
-#W1_scalar_summary = tf.scalar_summary("W1_scalar", W1)
-#W1_hist = tf.histogram_summary("W1", W1)
-
-#S1_hist = tf.histogram_summary("S1_hist", S1)
-#S1_scalar_summary = tf.scalar_summary("S1_scalar", S1)
-#S1_scalar_summary = tf.scalar_summary("S1", S1)
-
-#C1_hist = tf.histogram_summary("C1_hist", C1)
-#C1_scalar_summary = tf.scalar_summary("C1_scalar", C1)
-#C1_hist = tf.histogram_summary("C1", C1)
 
 with tf.name_scope("l2_loss") as scope:
   ls_scalar_summary = tf.scalar_summary("l2_loss", l2_loss)
@@ -116,11 +106,11 @@ def get_batch_feed(X, Y, M, phase_train):
 start_time = time.time()
 with tf.Session() as sess:
     merged = tf.merge_all_summaries()
-    writer = tf.train.SummaryWriter("/tmp/hbf1_logs", sess.graph)
+    writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
 
     sess.run( tf.initialize_all_variables() )
-    steps = 270000
-    M = 1000 #batch-size
+    steps = 2000
+    M = 100 #batch-size
     for i in range(steps):
         ## Create fake data for y = W.x + b where W = 2, b = 0
         #(batch_xs, batch_ys) = get_batch_feed(X_train, Y_train, M, phase_train)
