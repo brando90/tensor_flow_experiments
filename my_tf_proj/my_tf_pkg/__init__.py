@@ -2,6 +2,7 @@
 # easier to use funcs in all modules
 # following line imports (i.e. similar to copying the code) from the declared packages
 from my_tf_pkg.hbf_nn_builder import *
+from my_tf_pkg.f_1D_data import *
 #having the package name declared
 #from pkg_1.module2 import *
 
