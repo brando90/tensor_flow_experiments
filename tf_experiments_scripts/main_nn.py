@@ -47,9 +47,9 @@ def get_initilizations(init_args):
 ## NN params
 tensorboard_data_dump = '/tmp/nn_logs'
 phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
-phase_train = None
-dims = [D,10,D_out]
-dims = [D,10,10,10,D_out]
+#phase_train = None
+dims = [D,24,D_out]
+#dims = [D,10,10,10,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
 b_init = len(dims)*[0.1]
