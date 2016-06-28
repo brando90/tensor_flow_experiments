@@ -10,13 +10,13 @@ def get_Z_tf(x,W,S,l='layer'):
     XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
     # -|| x - w ||^2 = -(-2<x,w> + ||x||^2 + ||w||^2) = 2<x,w> - (||x||^2 + ||w||^2)
     Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX)
-    return Delta_tilde
+    return S*Delta_tilde
 
 def get_z_np(x,W,S):
     WW = np.sum(np.multiply(W,W), axis=0, dtype=None, keepdims=True)
     XX = np.sum(np.multiply(x,x), axis=1, dtype=None, keepdims=True)
     Delta_tilde = 2.0*np.dot(x,W) - (WW + XX)
-    return Delta_tilde
+    return S*Delta_tilde
 
 W = np.random.rand(4,3)
 x = np.random.rand(5,4)
