@@ -1,5 +1,7 @@
 import numpy as np
 import tensorflow as tf
+import sklearn as sk
+from sklearn.metrics.pairwise import euclidean_distances
 
 def hello_world():
     print "Hello World!"
@@ -107,3 +109,35 @@ def standard_batch_norm(x, n_out, phase_train, scope='bn'):
         mean, var = tf.cond(phase_train, mean_var_with_update, lambda: (ema.average(batch_mean), ema.average(batch_var)))
         normed = tf.nn.batch_normalization(x, mean, var, beta, gamma, 1e-3)
     return normed
+
+## kernel
+
+def get_kernel_matrix(x,W,S):
+    beta = 0.5*np.power(1.0/S,2)
+    #beta = 0.5*tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
+    Z = -beta*euclidean_distances(X=x,Y=np.transpose(W),squared=True)
+    K = np.exp(Z)
+    return K
+
+def get_z_np(x,W):
+    WW = np.sum(np.multiply(W,W), axis=0, dtype=None, keepdims=True)
+    XX = np.sum(np.multiply(x,x), axis=1, dtype=None, keepdims=True)
+    Delta_tilde = 2.0*np.dot(x,W) - (WW + XX)
+    return Delta_tilde
+
+def get_Z_tf(x,W,l='layer'):
+    W = tf.Variable(W, name='W'+l, trainable=True, dtype=tf.float64)
+    WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
+    XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
+    # -|| x - w ||^2 = -(-2<x,w> + ||x||^2 + ||w||^2) = 2<x,w> - (||x||^2 + ||w||^2)
+    Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX)
+    return Delta_tilde
+
+def get_beta_np(S):
+    beta = 0.5*np.power(1.0/S,2)
+    return beta
+
+def get_beta_tf(S):
+    one = tf.constant(1.0,dtype=tf.float64)
+    beta = 0.5*tf.pow( tf.div(one,S), 2)
+    return beta
