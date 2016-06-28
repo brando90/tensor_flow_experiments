@@ -215,31 +215,36 @@ def get_batch_feed(X, Y, M, phase_train):
     return feed_dict
 
 start_time = time.time()
-with tf.Session() as sess:
-    merged = tf.merge_all_summaries()
-    writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
+with open('/Users/brandomiranda/Documents/MATLAB/hbf_research/om_simulations/tensor_flow_experiments/tf_experiments_scripts/errors_file.txt', 'w+') as f:
+    with tf.Session() as sess:
+        merged = tf.merge_all_summaries()
+        writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
 
-    sess.run( tf.initialize_all_variables() )
-    for i in range(steps):
-        ## Create fake data for y = W.x + b where W = 2, b = 0
-        #(batch_xs, batch_ys) = get_batch_feed(X_train, Y_train, M, phase_train)
-        feed_dict_batch = get_batch_feed(X_train, Y_train, M, phase_train)
-        ## Train
-        if i%report_error_freq == 0:
-            train_result = sess.run([merged, l2_loss], feed_dict=feed_dict_train)
-            summary_str_train = train_result[0]
-            train_error = train_result[1]
+        sess.run( tf.initialize_all_variables() )
+        for i in range(steps):
+            ## Create fake data for y = W.x + b where W = 2, b = 0
+            #(batch_xs, batch_ys) = get_batch_feed(X_train, Y_train, M, phase_train)
+            feed_dict_batch = get_batch_feed(X_train, Y_train, M, phase_train)
+            ## Train
+            if i%report_error_freq == 0:
+                train_result = sess.run([merged, l2_loss], feed_dict=feed_dict_train)
+                summary_str_train = train_result[0]
+                train_error = train_result[1]
 
-            test_result = sess.run([merged, l2_loss], feed_dict=feed_dict_test)
-            summary_str_test = test_result[0]
-            test_error = test_result[1]
+                test_result = sess.run([merged, l2_loss], feed_dict=feed_dict_test)
+                summary_str_test = test_result[0]
+                test_error = test_result[1]
 
-            writer.add_summary(summary_str_train, i)
-            #print("step %d, training error %g"%(i, train_error))
-            print("Model *%s%s*, step %d, training error %g, test error %g"%(model, nb_hidden_layers, i, train_error,test_error))
-            print("Opt: %s, BN %s, After %d iteration, Init: %s" % (optimization_alg,bn,i,init_type) )
-        sess.run(train_step, feed_dict=feed_dict_batch)
-        #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+                writer.add_summary(summary_str_train, i)
+                #print("step %d, training error %g"%(i, train_error))
+                loss_msg = "Model *%s%s*, step %d, training error %g, test error %g \n"%(model, nb_hidden_layers, i, train_error,test_error)
+                print loss_msg,
+                mdl_info_msg = "Opt: %s, BN %s, After %d iteration, Init: %s \n" % (optimization_alg,bn,i,init_type)
+                print mdl_info_msg,
+                f.write(loss_msg)
+                f.write(mdl_info_msg)
+            sess.run(train_step, feed_dict=feed_dict_batch)
+            #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
 seconds = (time.time() - start_time)
 minutes = seconds/ 60
