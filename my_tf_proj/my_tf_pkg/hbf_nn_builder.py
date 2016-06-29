@@ -46,6 +46,7 @@ def build_standard_NN(x, dims, inits, phase_train=None):
 
 def get_summation_layer(l, x, init, scope="SumLayer"):
     with tf.name_scope(scope+l):
+        #print init
         C = tf.Variable( init )
         layer = tf.matmul(x, C)
     C = tf.histogram_summary("C"+l, C)
@@ -113,9 +114,9 @@ def standard_batch_norm(x, n_out, phase_train, scope='bn'):
 ## kernel
 
 def get_kernel_matrix(x,W,S):
-    beta = 0.5*np.power(1.0/S,2)
+    beta = get_beta_np(S)
     #beta = 0.5*tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
-    Z = -beta*euclidean_distances(X=x,Y=np.transpose(W),squared=True)
+    Z = -beta*euclidean_distances(X=x,Y=W,squared=True)
     K = np.exp(Z)
     return K
 
