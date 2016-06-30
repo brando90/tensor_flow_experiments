@@ -23,13 +23,13 @@ opt = tf.train.GradientDescentOptimizer(learning_rate)
 gv = opt.compute_gradients(y,[x])
 # transformed gradient variable list = [ (T(gradient),variable) ]
 decay = 0.9 # decay the gradient for the sake of the example
-tgv = [(T(g,decay=decay),v) for (g,v) in gv] #list [(grad,var)]
+tgv = [ (T(g,decay=decay), v) for (g,v) in gv] #list [(grad,var)]
 # apply transformed gradients (this case no transform)
 apply_transform_op = opt.apply_gradients(tgv)
 
-dydx = tgv[0]
+(dydx,_) = tgv[0]
 x_scalar_summary = tf.scalar_summary("x", x)
-#grad_scalar_summary = tf.scalar_summary("dydx", dydx)
+grad_scalar_summary = tf.scalar_summary("dydx", dydx)
 
 with tf.Session() as sess:
     merged = tf.merge_all_summaries()
@@ -37,7 +37,7 @@ with tf.Session() as sess:
     writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
 
     sess.run(tf.initialize_all_variables())
-    epochs = 10
+    epochs = 14
     for i in range(epochs):
         b_val = 1.0 #fake data (in SGD it would be different on every epoch)
         print '----'
@@ -45,8 +45,8 @@ with tf.Session() as sess:
         print 'before update',x_before_update
 
         # get gradients
-        grad_list = [g for (g,v) in gv]
-        (summary_str_grad,grad_val) = sess.run([merged] + grad_list, feed_dict={b: b_val})
+        #grad_list = [g for (g,v) in gv]
+        (summary_str_grad,grad_val) = sess.run([merged] + [dydx], feed_dict={b: b_val})
         grad_vals = sess.run([g for (g,v) in gv], feed_dict={b: b_val})
         print 'grad_vals: ',grad_vals
         writer.add_summary(summary_str_grad, i)
