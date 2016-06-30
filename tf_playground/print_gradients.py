@@ -15,7 +15,7 @@ y_ = tf.placeholder(tf.float32, [None, 10])
 #cost function
 cross_entropy = tf.reduce_mean( -tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]) )
 # single training step opt
-learning_rate = 1
+learning_rate = 1.0
 train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(cross_entropy)
 optimizer = tf.train.GradientDescentOptimizer(learning_rate) ## <tensorflow.python.training.gradient_descent.GradientDescentOptimizer object at 0x10643c290>
 with tf.Session() as sess:

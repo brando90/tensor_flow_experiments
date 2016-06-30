@@ -6,9 +6,11 @@ x = tf.Variable(0.5)
 y = x*x
 opt = tf.train.AdagradOptimizer(0.1)
 grads = opt.compute_gradients(y)
+
 grad_placeholder = [ tf.placeholder("float", shape=grad[1].get_shape()), grad[1] for grad in grads]
 apply_placeholder_op = opt.apply_gradients(grad_placeholder)
-transform_grads = [(function1(grad[0]), grad[1]) for grad in grads]
+
+transform_grads = [(function1(grad[0]), grad[1]) for grad in grads] #list [(grad,var)]
 apply_transform_op = opt.apply_gradients(transform_grads)
 #Initialize
 
