@@ -22,18 +22,18 @@ opt = tf.train.GradientDescentOptimizer(learning_rate)
 # gradient variable list = [ (gradient,variable) ]
 gv = opt.compute_gradients(y,[x])
 # transformed gradient variable list = [ (T(gradient),variable) ]
-decay = 0.1 # decay the gradient for the sake of the example
+decay = 0.9 # decay the gradient for the sake of the example
 tgv = [(T(g,decay=decay),v) for (g,v) in gv] #list [(grad,var)]
 # apply transformed gradients (this case no transform)
 apply_transform_op = opt.apply_gradients(tgv)
 
-tensorboard_data_dump = '/tmp/quaratic_temp'
 dydx = tgv[0]
 x_scalar_summary = tf.scalar_summary("x", x)
-grad_scalar_summary = tf.scalar_summary("dydx", dydx)
+#grad_scalar_summary = tf.scalar_summary("dydx", dydx)
 
 with tf.Session() as sess:
     merged = tf.merge_all_summaries()
+    tensorboard_data_dump = '/tmp/quaratic_temp'
     writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
 
     sess.run(tf.initialize_all_variables())
@@ -44,20 +44,17 @@ with tf.Session() as sess:
         x_before_update = x.eval()
         print 'before update',x_before_update
 
-
-        #(summary_str_train,grad_vals) = sess.run(merged + [g for (g,v) in gv], feed_dict={b: b_val})
-        #print 'grad_vals: ',grad_vals
-        #summary_str_train = train_result[0]
-        #train_error = train_result[1]
-        #writer.add_summary(summary_str_train, i)
-
-        # compute gradients
-        #grad_vals = sess.run([g for (g,v) in gv], feed_dict={b: b_val})
-        #print 'grad_vals: ',grad_vals
+        # get gradients
+        grad_list = [g for (g,v) in gv]
+        (summary_str_grad,grad_val) = sess.run([merged] + grad_list, feed_dict={b: b_val})
+        grad_vals = sess.run([g for (g,v) in gv], feed_dict={b: b_val})
+        print 'grad_vals: ',grad_vals
+        writer.add_summary(summary_str_grad, i)
 
         # applies the gradients
-        (summary_str_train,grad_vals) = sess.run([merged,apply_transform_op], feed_dict={b: b_val})
+        [summary_str_apply_transform,_] = sess.run([merged,apply_transform_op], feed_dict={b: b_val})
+        writer.add_summary(summary_str_apply_transform, i)
 
-        print 'value of x should be: ', x_before_update - T(grad_vals[0], decay=decay)
+        print 'value of x after update should be: ', x_before_update - T(grad_vals[0], decay=decay)
         x_after_update = x.eval()
         print 'after update', x_after_update
