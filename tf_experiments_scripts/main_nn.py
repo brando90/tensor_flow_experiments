@@ -83,7 +83,7 @@ with tf.name_scope("L2_loss") as scope:
 
 ## train params
 report_error_freq = 100
-steps = 604000
+steps = 5000
 M = 1000 #batch-size
 optimization_alg = 'GD'
 optimization_alg = 'Momentum'
@@ -92,8 +92,8 @@ optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
 #optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:
-    starter_learning_rate = 0.00001
-    decay_rate = 0.80
+    starter_learning_rate = 0.001
+    decay_rate = 0.9
     decay_steps = 1000
     staircase = True
     # decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
@@ -140,8 +140,10 @@ def register_all_variables_and_grards(y):
     for (dldw,v) in grad_vars:
         if dldw != None:
             tf.histogram_summary('hist_'+v.name+'dW', dldw)
-            if v.get_shape() == []:
+            if v.get_shape() == [] or dldw.get_shape() == []:
                 tf.scalar_summary('scal_'+v.name+'dW', dldw)
+            l2norm_dldw = tf.reduce_mean(tf.square(dldw))
+            tf.scalar_summary('scal_'+v.name+'dW_l2_norm', l2norm_dldw)
 
 register_all_variables_and_grards(y)
 
