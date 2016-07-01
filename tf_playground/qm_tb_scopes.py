@@ -4,25 +4,39 @@
 
 import tensorflow as tf
 
-# x variable
-x = tf.Variable(10.0,name='x')
-# b placeholder (simualtes the "data" part of the training)
-b = tf.placeholder(tf.float32)
-# make model (1/2)(x-b)^2
-xx_b = 0.5*tf.pow(x-b,2)
-y=xx_b
+def get_quaratic():
+    # x variable
+    with tf.variable_scope('quadratic'):
+        x = tf.get_variable('x', [1], initializer= tf.constant_initializer(10.0))
+        #x = tf.Variable(10.0,name='x')
+        # b placeholder (simualtes the "data" part of the training)
+        b = tf.placeholder(tf.float32,name='b')
+        # make model (1/2)(x-b)^2
+        xx_b = 0.5*tf.pow(x-b,2)
+        y=xx_b
+        return y,x
 
+y,x = get_quaratic()
 learning_rate = 1.0
 # get optimizer
 opt = tf.train.GradientDescentOptimizer(learning_rate)
 # gradient variable list = [ (gradient,variable) ]
+print x.name
+with tf.variable_scope('quadratic', reuse = True):
+    x = tf.get_variable('x', [1])
+#x = tf.get_variable('quadratic/x', [1])
+
+#x = tf.get_variable('quadratic/x')
+#x = tf.get_variable(x.name)
+
 gv = opt.compute_gradients(y,[x])
 # transformed gradient variable list = [ (T(gradient),variable) ]
 decay = 0.9 # decay the gradient for the sake of the example
-# apply transformed gradients (this case no transform)
+# apply transformed gradients
 tgv = [ (decay*g, v) for (g,v) in gv] #list [(grad,var)]
 apply_transform_op = opt.apply_gradients(tgv)
 
+# get first grad
 (dydx,_) = tgv[0]
 # track value of x
 x_scalar_summary = tf.scalar_summary("x", x)
