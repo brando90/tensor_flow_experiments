@@ -71,7 +71,6 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
         inits_W=[None]
         inits_S=[None]
         indices=np.random.choice( X_train.shape[0],size=dims[1])
-        #print np.transpose( X_train[indices,:]).shape
         inits_W.append(np.transpose( X_train[indices,:]) )
         for l in range(1,nb_hidden_layers):
             #inits_W.append( tf.truncated_normal(shape=[1,dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) )

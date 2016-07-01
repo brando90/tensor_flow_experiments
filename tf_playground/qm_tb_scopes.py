@@ -59,11 +59,12 @@ with tf.Session() as sess:
     for i in range(epochs):
         b_val = 1.0 #fake data (in SGD it would be different on every epoch)
         # get gradients
-        (summary_str_grad,grad_val) = sess.run([merged]+[dydx], feed_dict={b: b_val})
+        (summary_str_grad,grad_val,_) = sess.run([merged]+[dydx, apply_transform_op], feed_dict={b: b_val})
+        #(summary_str_grad,grad_val) = sess.run([merged]+[dydx], feed_dict={b: b_val})
         print 'grad_val',grad_val
         # applies the gradients
-        [summary_str_apply_transform,_] = sess.run([merged,apply_transform_op], feed_dict={b: b_val})
+        #[summary_str_apply_transform,_] = sess.run([merged,apply_transform_op], feed_dict={b: b_val})
         print 'x',x.eval()
         # write summaries
         writer.add_summary(summary_str_grad, i)
-        writer.add_summary(summary_str_apply_transform, i)
+        #writer.add_summary(summary_str_apply_transform, i)

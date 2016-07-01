@@ -4,6 +4,7 @@
 
 import numpy as np
 import tensorflow as tf
+import shutil
 
 import my_tf_pkg as mtf
 #from tensorflow.python import control_flow_ops
@@ -72,6 +73,8 @@ elif model == 'summed_hbf':
     with tf.name_scope("summHBF") as scope:
         mdl = mtf.build_summed_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
 
+# delete contents of tensorboard dir
+shutil.rmtree(tensorboard_data_dump)
 ## Output and Loss
 y = mdl
 y_ = tf.placeholder(tf.float64, shape=[None, D_out]) # (M x D)
@@ -99,26 +102,47 @@ with tf.name_scope("train") as scope:
 
     # Passing global_step to minimize() will increment it at each step.
     if optimization_alg == 'GD':
-        train_step = tf.train.GradientDescentOptimizer(learning_rate).minimize(l2_loss, global_step=global_step)
+        opt = tf.train.GradientDescentOptimizer(learning_rate)
+        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'Momentum':
         momentum = 0.9
-        train_step = tf.train.MomentumOptimizer(learning_rate=learning_rate,momentum=momentum).minimize(l2_loss, global_step=global_step)
+        opt = tf.train.MomentumOptimizer(learning_rate=learning_rate,momentum=momentum)
+        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'Adadelta':
         rho = 0.95
-        train_step = tf.train.AdadeltaOptimizer(learning_rate=learning_rate, rho=rho, epsilon=1e-08, name='Adadelta').minimize(l2_loss, global_step=global_step)
+        opt = tf.train.AdadeltaOptimizer(learning_rate=learning_rate, rho=rho, epsilon=1e-08, name='Adadelta')
+        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'Adam':
         beta1=0.9
         beta2=0.999
-        train_step = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2, epsilon=1e-08, name='Adam').minimize(l2_loss, global_step=global_step)
+        opt = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2, epsilon=1e-08, name='Adam')
+        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'Adagrad':
-        train_step = tf.train.AdagradOptimizer(learning_rate).minimize(l2_loss, global_step=global_step)
+        opt = tf.train.AdagradOptimizer(learning_rate)
+        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'RMSProp':
         decay = 0.9
         momentum = 0.0
-        train_step = tf.train.RMSPropOptimizer(learning_rate=learning_rate, decay=decay, momentum=momentum, epsilon=1e-10, name='RMSProp').minimize(l2_loss, global_step=global_step)
+        opt = tf.train.RMSPropOptimizer(learning_rate=learning_rate, decay=decay, momentum=momentum, epsilon=1e-10, name='RMSProp')
+        train_step = opt.minimize(l2_loss, global_step=global_step)
 
 with tf.name_scope("l2_loss") as scope:
   ls_scalar_summary = tf.scalar_summary("l2_loss", l2_loss)
+
+def register_all_variables_and_grards(y):
+    all_vars = tf.all_variables()
+    for v in tf.all_variables():
+        tf.histogram_summary('hist_'+v.name, v)
+        if v.get_shape() == []:
+            tf.scalar_summary('scal_'+v.name, v)
+
+    grad_vars = opt.compute_gradients(y,all_vars) #[ (T(gradient),variable) ]
+    for (dldw,v) in grad_vars:
+        tf.histogram_summary(v.name, v)
+        if v.get_shape() == []:
+            tf.scalar_summary(v.name, v)
+
+register_all_variables_and_grards(y)
 
 ## TRAIN
 if phase_train is not None:
@@ -159,27 +183,20 @@ with open(path_tf_exmperiments+'errors_file.txt', 'w+') as f:
             feed_dict_batch = get_batch_feed(X_train, Y_train, M, phase_train)
             ## Train
             if i%report_error_freq == 0:
-                train_result = sess.run([merged, l2_loss], feed_dict=feed_dict_train)
-                summary_str_train = train_result[0]
-                train_error = train_result[1]
-
-                test_result = sess.run([merged, l2_loss], feed_dict=feed_dict_test)
-                summary_str_test = test_result[0]
-                test_error = test_result[1]
-
+                (summary_str_train,train_error) = sess.run(fetches=[merged, l2_loss], feed_dict=feed_dict_train)
+                (summary_str_test,test_error) = sess.run(test_error=[merged, l2_loss], feed_dict=feed_dict_test)
                 writer.add_summary(summary_str_train, i)
-                #print("step %d, training error %g"%(i, train_error))
+
                 loss_msg = "Model *%s%s*, step %d, training error %g, test error %g \n"%(model, nb_hidden_layers, i, train_error,test_error)
-                print loss_msg,
                 mdl_info_msg = "Opt: %s, BN %s, After %d iteration, Init: %s \n" % (optimization_alg,bn,i,init_type)
+                print loss_msg,
                 print mdl_info_msg,
                 # write results
                 f.write(loss_msg)
                 f.write(mdl_info_msg)
                 # save mdl
                 save_path = saver.save(sess, path_tf_exmperiments+'/tmp_mdls/model.ckpt',global_step=i)
-                #print("Model saved in file: %s" % save_path)
-            sess.run(train_step, feed_dict=feed_dict_batch)
+            sess.run(fetches=[merged,train_step], feed_dict=feed_dict_batch)
             #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
 
