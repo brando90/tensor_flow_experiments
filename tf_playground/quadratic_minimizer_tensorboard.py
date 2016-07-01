@@ -19,10 +19,11 @@ opt = tf.train.GradientDescentOptimizer(learning_rate)
 gv = opt.compute_gradients(y,[x])
 # transformed gradient variable list = [ (T(gradient),variable) ]
 decay = 0.9 # decay the gradient for the sake of the example
-# apply transformed gradients (this case no transform)
+# apply transformed gradients
 tgv = [ (decay*g, v) for (g,v) in gv] #list [(grad,var)]
 apply_transform_op = opt.apply_gradients(tgv)
 
+#get v
 (dydx,_) = tgv[0]
 # track value of x
 x_scalar_summary = tf.scalar_summary("x", x)
