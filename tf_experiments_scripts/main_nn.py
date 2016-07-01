@@ -138,9 +138,10 @@ def register_all_variables_and_grards(y):
 
     grad_vars = opt.compute_gradients(y,all_vars) #[ (T(gradient),variable) ]
     for (dldw,v) in grad_vars:
-        tf.histogram_summary(v.name, v)
-        if v.get_shape() == []:
-            tf.scalar_summary(v.name, v)
+        if dldw != None:
+            tf.histogram_summary('hist_'+v.name+'dW', dldw)
+            if v.get_shape() == []:
+                tf.scalar_summary('scal_'+v.name+'dW', dldw)
 
 register_all_variables_and_grards(y)
 
@@ -184,7 +185,7 @@ with open(path_tf_exmperiments+'errors_file.txt', 'w+') as f:
             ## Train
             if i%report_error_freq == 0:
                 (summary_str_train,train_error) = sess.run(fetches=[merged, l2_loss], feed_dict=feed_dict_train)
-                (summary_str_test,test_error) = sess.run(test_error=[merged, l2_loss], feed_dict=feed_dict_test)
+                (summary_str_test,test_error) = sess.run(fetches=[merged, l2_loss], feed_dict=feed_dict_test)
                 writer.add_summary(summary_str_train, i)
 
                 loss_msg = "Model *%s%s*, step %d, training error %g, test error %g \n"%(model, nb_hidden_layers, i, train_error,test_error)
