@@ -2,7 +2,7 @@ import json
 import numpy as np
 import my_rand_lib as mr
 
-results = {'random_seed':None}
+results = {'rand_seed':None}
 results = mr.put_numpy_seed_in_json_dic(results)
 
 print np.random.rand(1)
