@@ -22,6 +22,7 @@ rand_seed = (rnd0,list(rnd1),rnd2,rnd3,rnd4)
 results['rand_seed'] = rand_seed
 print rand_seed
 print type(rnd1[0])
+rand1[0]
 
 #results[2336278189] =  2336278189
 
