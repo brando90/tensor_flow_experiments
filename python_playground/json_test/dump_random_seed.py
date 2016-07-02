@@ -21,16 +21,20 @@ print np.random.rand(1)
 print np.random.rand(1)
 print np.random.rand(1)
 
-fpath = './tmp_file'
+fpath = './rand_seed_file'
 with open(fpath,'w+') as f:
     json.dump(results,f)
 
-print '...'
+print '... doing other stuff'
 
 with open(fpath,'r+') as f:
     results2 = json.load(f)
 
-print np.random.rand(1)
+print 'other ',np.random.rand(1)
+print 'other ',np.random.rand(1)
+print 'other ',np.random.rand(1)
+
+print '... done doing stuff'
 
 rand_seed = get_numpy_seed(results2)
 np.random.set_state(rand_seed)
