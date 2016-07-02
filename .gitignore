@@ -1,6 +1,7 @@
 errors_file.txt
 .DS_Store
 tmp_mdls/
+tmp_mdls_*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
