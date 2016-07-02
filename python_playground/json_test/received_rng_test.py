@@ -1,13 +1,13 @@
 import json
 import numpy as np
-import dump_random_seed
+import my_rand_lib as mr
 
 
 fpath = './rand_seed_file'
 with open(fpath,'r+') as f:
     results2 = json.load(f)
 
-rand_seed = get_numpy_seed(results2)
+rand_seed = mr.get_numpy_seed(results2)
 np.random.set_state(rand_seed)
 
 print np.random.rand(1)
