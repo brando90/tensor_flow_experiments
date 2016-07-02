@@ -16,6 +16,15 @@ results['test_errors'].append(1)
 
 print json.dumps(results)
 
+(rnd0,rnd1,rnd2,rnd3,rnd4) = np.random.get_state()
+rand_seed = (rnd0,list(rnd1),rnd2,rnd3,rnd4)
+(rnd0,rnd1,rnd2,rnd3,rnd4) = rand_seed
+results['rand_seed'] = rand_seed
+print rand_seed
+print type(rnd1[0])
+
+#results[2336278189] =  2336278189
+
 fpath = './tmp_file'
 with open(fpath,'w+') as f:
     json.dump(results,f)
