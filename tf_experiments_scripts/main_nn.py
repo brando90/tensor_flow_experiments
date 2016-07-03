@@ -39,28 +39,30 @@ def load_results_dic(results,**kwargs):
 #path = '/Users/brandomiranda/Documents/MATLAB/hbf_research/om_simulations/tensor_flow_experiments/tf_experiments_scripts/'
 results = {'test_errors':[],'train_errors':[]}
 if len(sys.argv) >= 4:
+    prefix = 'om'
     slurm_jobid = sys.argv[0]
     slurm_array_task_id = sys.argv[1]
     job_number = sys.argv[2]
 else:
+    prefix='tmp'
     slurm_jobid = '0'
     slurm_array_task_id = '0'
     if len(sys.argv) == 2:
         job_number = sys.argv[1]
     else:
         job_number = 'test'
+print 'prefix', prefix
 results['job_number'] = job_number
 results['job_number'] = job_number
 results['job_number'] = job_number
 date = datetime.date.today().strftime("%B %d").replace (" ", "_")
-path = './tmp_test_experiemtns/tmp_%s_j%s'%(date,job_number)
+path = './%s_test_experiemtns/%s_%s_j%s'%(prefix,prefix,date,job_number)
 #path = './om_experiments/'
 make_and_check_dir(path)
-#paths
-errors_pretty = '/tmp_errors_file_%s_slurm_j%s.txt'%(date,slurm_array_task_id)
-mdl_dir ='/tmp_mdl_%s_slurm_j%s'%(date,slurm_array_task_id)
-json_file = '/tmp_json_%s_slurm_j%s'%(date,slurm_array_task_id)
-tensorboard_data_dump = '/tmp_tensorboard_mdl'
+errors_pretty = '/%s_errors_file_%s_slurm_j%s.txt'%(prefix,date,slurm_array_task_id)
+mdl_dir ='/%s_mdl_%s_slurm_j%s'%(prefix,date,slurm_array_task_id)
+json_file = '/%s_json_%s_slurm_j%s'%(prefix,date,slurm_array_task_id)
+tensorboard_data_dump = '/%s_tensorboard_mdl'%(prefix)
 #
 make_and_check_dir(path=path+mdl_dir)
 make_and_check_dir(path=path+tensorboard_data_dump)
@@ -133,7 +135,7 @@ M = 10 #batch-size
 optimization_alg = 'GD'
 optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-#optimization_alg = 'Adam'
+optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
 #optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:

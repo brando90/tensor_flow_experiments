@@ -1,0 +1,11 @@
+cd0b4fb1142c971a975114f658ce5a1080f9c521
+Model *hbf2*, step 0/50, training error 0.547535, test error 0.544453 
+Opt: Momentum, BN True, After 0/50 iteration, Init: truncated_normal 
+Model *hbf2*, step 10/50, training error 0.517639, test error 0.515672 
+Opt: Momentum, BN True, After 10/50 iteration, Init: truncated_normal 
+Model *hbf2*, step 20/50, training error 0.499544, test error 0.499721 
+Opt: Momentum, BN True, After 20/50 iteration, Init: truncated_normal 
+Model *hbf2*, step 30/50, training error 0.508562, test error 0.509718 
+Opt: Momentum, BN True, After 30/50 iteration, Init: truncated_normal 
+Model *hbf2*, step 40/50, training error 0.499052, test error 0.499038 
+Opt: Momentum, BN True, After 40/50 iteration, Init: truncated_normal 
