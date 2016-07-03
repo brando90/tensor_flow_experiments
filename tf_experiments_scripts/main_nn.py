@@ -15,7 +15,7 @@ import my_tf_pkg as mtf
 #from tensorflow.python import control_flow_ops
 import time
 
-import namespaces as ns
+#import namespaces as ns
 
 #import winsound
 
@@ -48,7 +48,7 @@ path = '.'
 errors_pretty = '/tmp_errors_file_%s_j%s.txt'%(date,job_number)
 mdl_dir ='/tmp_mdl_%s_j%s'%(date,job_number)
 make_and_check_dir(path=mdl_dir)
-json_file = '/tmp_sjon_%s_j%s'%(date,job_number)
+json_file = '/tmp_json_%s_j%s'%(date,job_number)
 # JSON results structure
 results = {'test_errors':[],'train_errors':[]}
 results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(), results=results)
@@ -250,6 +250,7 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
                 f_err_msgs.write(loss_msg)
                 f_err_msgs.write(mdl_info_msg)
                 # save mdl
+                #save_path = saver.save(sess, path+'/tmp_mdls/model.ckpt',global_step=i)
                 save_path = saver.save(sess, path+'/tmp_mdls/model.ckpt',global_step=i)
             sess.run(fetches=[merged,train_step], feed_dict=feed_dict_batch)
             #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})

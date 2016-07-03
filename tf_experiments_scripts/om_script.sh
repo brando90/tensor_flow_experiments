@@ -7,4 +7,4 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=rene_sax14@yahoo.com
 
-python test.py $SLURM_ARRAY_TASK_ID $SLURM_JOBID
+python main_nn.py $SLURM_ARRAY_TASK_ID $SLURM_JOBID
