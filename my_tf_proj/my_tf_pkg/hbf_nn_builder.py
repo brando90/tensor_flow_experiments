@@ -47,7 +47,7 @@ def build_standard_NN(x, dims, inits, phase_train=None):
 def get_summation_layer(l, x, init, scope="SumLayer"):
     with tf.name_scope(scope+l):
         #print init
-        C = tf.get_variable(name='C', dtype=tf.float64, initializer=init, regularizer=None, trainable=True)
+        C = tf.get_variable(name='C'+l, dtype=tf.float64, initializer=init, regularizer=None, trainable=True)
         layer = tf.matmul(x, C)
     C = tf.histogram_summary('C'+l, C)
     return layer
@@ -58,14 +58,18 @@ def get_HBF_layer(l, x, dims, init, phase_train=None, scope="HBFLayer"):
         with tf.name_scope('Z'+l):
             W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True)
             S = tf.get_variable(name='S'+l, dtype=tf.float64, initializer=init_S, regularizer=None, trainable=True)
+            # if phase_train is not None:
+            #     x = standard_batch_norm(l+'_', x , 1,phase_train)
             WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
             XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
             # -|| x - w ||^2 = -(-2<x,w> + ||x||^2 + ||w||^2) = 2<x,w> - (||x||^2 + ||w||^2)
             Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
-            if phase_train is not None:
-                Delta_tilde = standard_batch_norm(l, Delta_tilde, 1,phase_train)
+            # if phase_train is not None:
+            #     Delta_tilde = standard_batch_norm(l, Delta_tilde, 1,phase_train)
             beta = 0.5*tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
             Z = beta * ( Delta_tilde ) # (M x D^(l))
+        if phase_train is not None:
+            Z = standard_batch_norm(l, Z , 1,phase_train)
         with tf.name_scope('A'+l):
             layer = tf.exp(Z) # (M x D^(l))
     W = tf.histogram_summary('W'+l, W)

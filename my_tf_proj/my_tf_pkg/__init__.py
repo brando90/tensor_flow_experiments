@@ -4,6 +4,7 @@
 from my_tf_pkg.hbf_nn_builder import *
 from my_tf_pkg.f_1D_data import *
 from my_tf_pkg.initializations import *
+from my_tf_pkg.my_rand_lib import *
 #having the package name declared
 #from pkg_1.module2 import *
 

@@ -7,7 +7,7 @@ fpath = './rand_seed_file'
 with open(fpath,'r+') as f:
     results2 = json.load(f)
 
-rand_seed = mr.get_numpy_seed(results2)
+rand_seed = mr.make_numpy_seed_from(results2)
 np.random.set_state(rand_seed)
 
 print np.random.rand(1)

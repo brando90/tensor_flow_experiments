@@ -20,37 +20,37 @@ def get_initilizations_standard_NN(init_type,dims,mu,std,b_init,S_init,X_train,Y
         pass
     return (inits_C,inits_W,inits_b)
 
-def get_initilizations_summed_NN(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
-#def get_initilizations_summed_NN(args):
-    if  init_type=='truncated_normal':
-        inits_W=[None]
-        inits_b=[None]
-        inits_C=[None]
-        nb_hidden_layers=len(dims)-1
-        for l in range(1,nb_hidden_layers):
-            inits_W.append( tf.truncated_normal(shape=[1,dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) )
-            inits_b.append( tf.constant( b_init[l], shape=[dims[l]], dtype=tf.float64 ) )
-            inits_C.append( tf.truncated_normal(shape=[dims[l],1], mean=mu[l], stddev=std[l], dtype=tf.float64) )
-    elif  init_type=='data_init':
-        X_train=X_train
-        pass
-    return (inits_C,inits_W,inits_b)
-
-def get_initilizations_summed_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
-#def get_initilizations_summed_HBF(args):
-    if  init_type=='truncated_normal':
-        inits_W=[None]
-        inits_S=[None]
-        inits_C=[None]
-        nb_hidden_layers=len(dims)-1
-        for l in range(1,nb_hidden_layers):
-            inits_W.append( tf.truncated_normal(shape=[1,dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) )
-            inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
-            inits_C.append( tf.truncated_normal(shape=[dims[l],1], mean=mu[l], stddev=std[l], dtype=tf.float64) )
-    elif  init_type=='data_init':
-        X_train=X_train
-        pass
-    return (inits_C,inits_W,inits_S)
+# def get_initilizations_summed_NN(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
+# #def get_initilizations_summed_NN(args):
+#     if  init_type=='truncated_normal':
+#         inits_W=[None]
+#         inits_b=[None]
+#         inits_C=[None]
+#         nb_hidden_layers=len(dims)-1
+#         for l in range(1,nb_hidden_layers):
+#             inits_W.append( tf.truncated_normal(shape=[1,dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) )
+#             inits_b.append( tf.constant( b_init[l], shape=[dims[l]], dtype=tf.float64 ) )
+#             inits_C.append( tf.truncated_normal(shape=[dims[l],1], mean=mu[l], stddev=std[l], dtype=tf.float64) )
+#     elif  init_type=='data_init':
+#         X_train=X_train
+#         pass
+#     return (inits_C,inits_W,inits_b)
+#
+# def get_initilizations_summed_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
+# #def get_initilizations_summed_HBF(args):
+#     if  init_type=='truncated_normal':
+#         inits_W=[None]
+#         inits_S=[None]
+#         inits_C=[None]
+#         nb_hidden_layers=len(dims)-1
+#         for l in range(1,nb_hidden_layers):
+#             inits_W.append( tf.truncated_normal(shape=[1,dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) )
+#             inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
+#             inits_C.append( tf.truncated_normal(shape=[dims[l],1], mean=mu[l], stddev=std[l], dtype=tf.float64) )
+#     elif  init_type=='data_init':
+#         X_train=X_train
+#         pass
+#     return (inits_C,inits_W,inits_S)
 
 def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
 #def get_initilizations_HBF(args):
@@ -61,7 +61,7 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
         inits_C=[None]
         nb_hidden_layers=len(dims)-1
         for l in range(1,nb_hidden_layers):
-            inits_W.append( tf.truncated_normal(shape=[1,dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) )
+            inits_W.append( tf.truncated_normal(shape=[dims[l-1],dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) )
             inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
             #inits_C.append( tf.truncated_normal(shape=[dims[l],1], mean=mu[l], stddev=std[l], dtype=tf.float64) )
         l=len(dims)-1

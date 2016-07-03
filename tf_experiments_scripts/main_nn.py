@@ -5,6 +5,8 @@
 import numpy as np
 import tensorflow as tf
 import shutil
+import subprocess
+import json
 
 import my_tf_pkg as mtf
 #from tensorflow.python import control_flow_ops
@@ -14,14 +16,34 @@ import namespaces as ns
 
 #import winsound
 
+def load_results_dic(results,**kwargs):
+    for key, value in kwargs.iteritems():
+        results[key] = value
+    return results
+
+#path_tf_exmperiments = '/Users/brandomiranda/Documents/MATLAB/hbf_research/om_simulations/tensor_flow_experiments/tf_experiments_scripts/'
+job_number = sys.argv[1]
+date = datetime.date.today().strftime("%B %d").replace (" ", "_")
+path_tf_exmperiments = '.'
+#paths
+errors_pretty = '/tmp_errors_file_%s_j%s.txt'%(date,job_number)
+mdl_file ='/tmp_mdl_%s_j%s'%(date,job_number)
+json_file = '/tmp_sjon_%s_j%s'%(date,job_number)
+# JSON results structure
+results = {'test_errors':[],'train_errors':[]}
+results_dic = fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(), results=results)
+results['date'] = date
+results['job_number'] = job_number
+
+
 ## Data sets
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
 (N_train,D) = X_train.shape
 (N_test,D_out) = Y_test.shape
 
 ## NN params
-dims = [D,24,D_out]
-#dims = [D,24,24,D_out]
+#dims = [D,24,D_out]
+dims = [D,24,24,D_out]
 #dims = [D,24,24,24,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
@@ -33,10 +55,10 @@ init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
 #init_args = ns.FrozenNamespace(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
-model = 'standard_nn'
-model = 'summed_nn'
-model = 'hbf'
+#model = 'summed_nn'
 #model = 'summed_hbf'
+model = 'standard_nn'
+model = 'hbf'
 
 bn = True
 if bn:
@@ -51,28 +73,31 @@ nb_hidden_layers = nb_layers-1
 print( '-----> Running model: %s. (nb_hidden_layers = %d, nb_layers = %d)' % (model,nb_hidden_layers,nb_layers) )
 print( '-----> Units: %s)' % (dims) )
 if model == 'standard_nn':
-    tensorboard_data_dump = '/tmp/standard_nn_logs'
+    #tensorboard_data_dump = '/tmp/standard_nn_logs'
+    tensorboard_data_dump = '/standard_nn_logs'
     (inits_C,inits_W,inits_b) = mtf.get_initilizations_standard_NN(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
     with tf.name_scope("standardNN") as scope:
         mdl = mtf.build_standard_NN(x,dims,(inits_C,inits_W,inits_b),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
-elif model == 'summed_nn':
-    tensorboard_data_dump = '/tmp/summed_nn_logs'
-    (inits_C,inits_W,inits_b) = mtf.get_initilizations_summed_NN(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
-    with tf.name_scope("summNN") as scope:
-        mdl = mtf.build_summed_NN(x,dims,(inits_C,inits_W,inits_b),phase_train)
+# elif model == 'summed_nn':
+#     tensorboard_data_dump = '/tmp/summed_nn_logs'
+#     (inits_C,inits_W,inits_b) = mtf.get_initilizations_summed_NN(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
+#     with tf.name_scope("summNN") as scope:
+#         mdl = mtf.build_summed_NN(x,dims,(inits_C,inits_W,inits_b),phase_train)
 elif model == 'hbf':
-    tensorboard_data_dump = '/tmp/hbf_logs'
+    #tensorboard_data_dump = '/tmp/hbf_logs'
+    tensorboard_data_dump = '/hbf_logs'
     (inits_C,inits_W,inits_S) = mtf.get_initilizations_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
     with tf.name_scope("HBF") as scope:
         mdl = mtf.build_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
-elif model == 'summed_hbf':
-    tensorboard_data_dump = '/tmp/summed_hbf_logs'
-    (inits_C,inits_W,inits_S) = mtf.get_initilizations_summed_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
-    with tf.name_scope("summHBF") as scope:
-        mdl = mtf.build_summed_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
+# elif model == 'summed_hbf':
+#     tensorboard_data_dump = '/tmp/summed_hbf_logs'
+#     (inits_C,inits_W,inits_S) = mtf.get_initilizations_summed_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
+#     with tf.name_scope("summHBF") as scope:
+#         mdl = mtf.build_summed_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
 
+print '==> tensorboard_data_dump: ', tensorboard_data_dump
 # delete contents of tensorboard dir
 shutil.rmtree(tensorboard_data_dump)
 ## Output and Loss
@@ -83,12 +108,12 @@ with tf.name_scope("L2_loss") as scope:
 
 ## train params
 report_error_freq = 100
-steps = 5000
+steps = 8000
 M = 1000 #batch-size
 optimization_alg = 'GD'
 optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-optimization_alg = 'Adam'
+#optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
 #optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:
@@ -169,15 +194,19 @@ def get_batch_feed(X, Y, M, phase_train):
         feed_dict = {x: Xminibatch, y_: Yminibatch}
     return feed_dict
 
+def print_messages(*args):
+    for i, msg in enumerate(args):
+        print ('-->msg %s: ', msg)
+
 # Add ops to save and restore all the variables.
 saver = tf.train.Saver(max_to_keep=30)
-
 start_time = time.time()
-path_tf_exmperiments = '/Users/brandomiranda/Documents/MATLAB/hbf_research/om_simulations/tensor_flow_experiments/tf_experiments_scripts/'
-with open(path_tf_exmperiments+'errors_file.txt', 'w+') as f:
+with open(path+errors_pretty, 'w+') as f_err_msgs:
+    git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+    f.write(git_hash)
     with tf.Session() as sess:
         merged = tf.merge_all_summaries()
-        writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
+        writer = tf.train.SummaryWriter(path+mdl_file, sess.graph)
 
         sess.run( tf.initialize_all_variables() )
         for i in xrange(steps):
@@ -190,21 +219,32 @@ with open(path_tf_exmperiments+'errors_file.txt', 'w+') as f:
                 (summary_str_test,test_error) = sess.run(fetches=[merged, l2_loss], feed_dict=feed_dict_test)
                 writer.add_summary(summary_str_train, i)
 
-                loss_msg = "Model *%s%s*, step %d, training error %g, test error %g \n"%(model, nb_hidden_layers, i, train_error,test_error)
-                mdl_info_msg = "Opt: %s, BN %s, After %d iteration, Init: %s \n" % (optimization_alg,bn,i,init_type)
-                print loss_msg,
-                print mdl_info_msg,
-                # write results
-                f.write(loss_msg)
-                f.write(mdl_info_msg)
+                loss_msg = "Model *%s%s*, step %d/%d, training error %g, test error %g \n"%(model,nb_hidden_layers,i,steps,train_error,test_error)
+                mdl_info_msg = "Opt: %s, BN %s, After %d/%d iteration, Init: %s \n" % (optimization_alg,bn,i,steps,init_type)
+                print_messages(loss_msg, mdl_info_msg)
+                # store results
+                results['train_error'].append(train_error)
+                results['test_error'].append(test_error)
+                # write errors to pretty print
+                f_err_msgs.write(loss_msg)
+                f_err_msgs.write(mdl_info_msg)
                 # save mdl
                 save_path = saver.save(sess, path_tf_exmperiments+'/tmp_mdls/model.ckpt',global_step=i)
             sess.run(fetches=[merged,train_step], feed_dict=feed_dict_batch)
             #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
+load_results_dic(results,dims=dims,mu=mu,std=std,init_constant=init_constant,b_init=b_init,S_init=S_init,\
+    init_type=init_type,model=model,bn=bn,tensorboard_data_dump=tensorboard_data_dump,\
+    report_error_freq=report_error_freq,steps=steps,M=M,optimization_alg=optimization_alg,\
+    starter_learning_rate=starter_learning_rate,decay_rate=decay_rate,staircase=staircase)
 
 seconds = (time.time() - start_time)
 minutes = seconds/ 60
 print("--- %s seconds ---" % seconds )
 print("--- %s minutes ---" % minutes )
+## dump results to JSON
+results['seconds'] = seconds
+results['minutes'] = minutes
+with open(path+json_file, 'w+') as f_json:
+    json.dump(results,f_json)
 #winsound.Beep(Freq = 2500,Dur = 1000)
