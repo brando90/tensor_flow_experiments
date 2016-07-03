@@ -56,7 +56,7 @@ results['job_number'] = job_number
 results['job_number'] = job_number
 results['job_number'] = job_number
 date = datetime.date.today().strftime("%B %d").replace (" ", "_")
-path = './%s_test_experiemtns/%s_%s_j%s'%(prefix,prefix,date,job_number)
+path = './%s_test_experiments/%s_%s_j%s'%(prefix,prefix,date,job_number)
 #path = './om_experiments/'
 make_and_check_dir(path)
 errors_pretty = '/%s_errors_file_%s_slurm_j%s.txt'%(prefix,date,slurm_array_task_id)
