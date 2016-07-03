@@ -251,7 +251,7 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
                 f_err_msgs.write(mdl_info_msg)
                 # save mdl
                 #save_path = saver.save(sess, path+'/tmp_mdls/model.ckpt',global_step=i)
-                save_path = saver.save(sess, path+'/tmp_mdls/model.ckpt',global_step=i)
+                save_path = saver.save(sess, path+mdl_dir+'/model.ckpt',global_step=i)
             sess.run(fetches=[merged,train_step], feed_dict=feed_dict_batch)
             #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
