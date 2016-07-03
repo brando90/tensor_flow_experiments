@@ -36,35 +36,28 @@ def load_results_dic(results,**kwargs):
         results[key] = value
     return results
 
-print sys.argv
-
+#path = '/Users/brandomiranda/Documents/MATLAB/hbf_research/om_simulations/tensor_flow_experiments/tf_experiments_scripts/'
 results = {'test_errors':[],'train_errors':[]}
-(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save) = mtf.process_argv(sys.argv)
-
-tf_rand_seed = int(os.urandom(64).encode('hex'), 16)
-results['tf_rand_seed'] = tf_rand_seed
-tf.set_random_seed(tf_rand_seed)
-
-print 'prefix=%s,slurm_jobid=%s,slurm_array_task_id=%s,job_number=%s'%(prefix,slurm_jobid,slurm_array_task_id,job_number)
+if len(sys.argv) > 1:
+    slurm_jobid = sys.argv[1]
+    slurm_array_task_id = sys.argv[2]
+    job_number = sys.argv[3]
+else:
+    slurm_jobid = '0'
+    slurm_array_task_id = '0'
+    job_number = sys.argv[1]
 results['job_number'] = job_number
-results['slurm_jobid'] = slurm_jobid
-results['slurm_array_task_id'] = slurm_array_task_id
+results['job_number'] = job_number
+results['job_number'] = job_number
 date = datetime.date.today().strftime("%B %d").replace (" ", "_")
-path = './%s_test_experiments/%s_%s_j%s'%(prefix,prefix,date,job_number)
+path = './tmp_test_experiemtns/tmp_j%s'%(date,job_number)
 #path = './om_experiments/'
-errors_pretty = '/%s_errors_file_%s_slurm_sj%s.txt'%(prefix,date,slurm_array_task_id)
-mdl_dir ='/%s_mdl_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
-json_file = '/%s_json_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
-#tensorboard_data_dump = '/%s_tb_mdl_sj%s'%(prefix,slurm_array_task_id)
-tensorboard_data_dump = '/tmp/mdl_logs'
-print '==> tensorboard_data_dump: ', path+tensorboard_data_dump
-#
-make_and_check_dir(path=path)
-make_and_check_dir(path=path+mdl_dir)
-make_and_check_dir(path=path+tensorboard_data_dump)
-make_and_check_dir(path= path+tensorboard_data_dump)
-# delete contents of tensorboard dir
-shutil.rmtree(path+tensorboard_data_dump)
+make_and_check_dir(path)
+#paths
+errors_pretty = '/tmp_errors_file_%s_slurm_j%s.txt'%(date,slurm_array_task_id)
+mdl_dir ='/tmp_mdl_%s_slurm_j%s'%(date,slurm_array_task_id)
+make_and_check_dir(path=mdl_dir)
+json_file = '/tmp_json_%s_slurm_j%s'%(date,slurm_array_task_id)
 # JSON results structure
 results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(), results=results)
 results['date'] = date
@@ -87,10 +80,11 @@ S_init = b_init
 init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
+#init_args = ns.FrozenNamespace(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
+#model = 'summed_nn'
+#model = 'summed_hbf'
 model = 'standard_nn'
 model = 'hbf'
-#
-max_to_keep = 10
 
 bn = True
 if bn:
@@ -106,17 +100,34 @@ print( '-----> Running model: %s. (nb_hidden_layers = %d, nb_layers = %d)' % (mo
 print( '-----> Units: %s)' % (dims) )
 if model == 'standard_nn':
     #tensorboard_data_dump = '/tmp/standard_nn_logs'
+    tensorboard_data_dump = '/tmp_standard_nn_logs'
     (inits_C,inits_W,inits_b) = mtf.get_initilizations_standard_NN(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
     with tf.name_scope("standardNN") as scope:
         mdl = mtf.build_standard_NN(x,dims,(inits_C,inits_W,inits_b),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
+# elif model == 'summed_nn':
+#     tensorboard_data_dump = '/tmp/summed_nn_logs'
+#     (inits_C,inits_W,inits_b) = mtf.get_initilizations_summed_NN(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
+#     with tf.name_scope("summNN") as scope:
+#         mdl = mtf.build_summed_NN(x,dims,(inits_C,inits_W,inits_b),phase_train)
 elif model == 'hbf':
     #tensorboard_data_dump = '/tmp/hbf_logs'
+    tensorboard_data_dump = '/tmp_hbf_logs'
     (inits_C,inits_W,inits_S) = mtf.get_initilizations_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
     with tf.name_scope("HBF") as scope:
         mdl = mtf.build_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
+# elif model == 'summed_hbf':
+#     tensorboard_data_dump = '/tmp/summed_hbf_logs'
+#     (inits_C,inits_W,inits_S) = mtf.get_initilizations_summed_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
+#     with tf.name_scope("summHBF") as scope:
+#         mdl = mtf.build_summed_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
 
+tensorboard_dump_path = path+tensorboard_data_dump
+make_and_check_dir(path= tensorboard_dump_path)
+print '==> tensorboard_data_dump: ', tensorboard_dump_path
+# delete contents of tensorboard dir
+shutil.rmtree(tensorboard_dump_path)
 ## Output and Loss
 y = mdl
 y_ = tf.placeholder(tf.float64, shape=[None, D_out]) # (M x D)
@@ -130,7 +141,7 @@ M = 10 #batch-size
 optimization_alg = 'GD'
 optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-optimization_alg = 'Adam'
+#optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
 #optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:
@@ -188,6 +199,7 @@ def register_all_variables_and_grards(y):
             tf.scalar_summary('scal_'+v.name+'dW_l2_norm', l2norm_dldw)
 
 register_all_variables_and_grards(y)
+
 ## TRAIN
 if phase_train is not None:
     #DO BN
@@ -215,14 +227,14 @@ def print_messages(*args):
         print ('-->msg %s: ', msg)
 
 # Add ops to save and restore all the variables.
-if mdl_save:
-    saver = tf.train.Saver(max_to_keep=max_to_keep)
+saver = tf.train.Saver(max_to_keep=30)
 start_time = time.time()
 with open(path+errors_pretty, 'w+') as f_err_msgs:
+    git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
     f_err_msgs.write(git_hash)
     with tf.Session() as sess:
         merged = tf.merge_all_summaries()
-        writer = tf.train.SummaryWriter(path+tensorboard_data_dump, sess.graph)
+        writer = tf.train.SummaryWriter(path+mdl_dir, sess.graph)
 
         sess.run( tf.initialize_all_variables() )
         for i in xrange(steps):
@@ -246,12 +258,10 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
                 f_err_msgs.write(mdl_info_msg)
                 # save mdl
                 #save_path = saver.save(sess, path+'/tmp_mdls/model.ckpt',global_step=i)
-                if mdl_save:
-                    save_path = saver.save(sess, path+tensorboard_data_dump+'/model.ckpt',global_step=i)
+                save_path = saver.save(sess, path+mdl_dir+'/model.ckpt',global_step=i)
             sess.run(fetches=[merged,train_step], feed_dict=feed_dict_batch)
             #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
-git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
 load_results_dic(results,git_hash=git_hash,dims=dims,mu=mu,std=std,init_constant=init_constant,b_init=b_init,S_init=S_init,\
     init_type=init_type,model=model,bn=bn,path=path,tensorboard_data_dump=tensorboard_data_dump,\
     report_error_freq=report_error_freq,steps=steps,M=M,optimization_alg=optimization_alg,\
