@@ -37,23 +37,36 @@ def load_results_dic(results,**kwargs):
     return results
 
 #path = '/Users/brandomiranda/Documents/MATLAB/hbf_research/om_simulations/tensor_flow_experiments/tf_experiments_scripts/'
-if len(sys.argv) > 1:
-    job_number = sys.argv[1]
-else:
-    job_number = 'test'
-date = datetime.date.today().strftime("%B %d").replace (" ", "_")
-path = '.'
-#path = './om_experiments/'
-#paths
-errors_pretty = '/tmp_errors_file_%s_j%s.txt'%(date,job_number)
-mdl_dir ='/tmp_mdl_%s_j%s'%(date,job_number)
-make_and_check_dir(path=mdl_dir)
-json_file = '/tmp_json_%s_j%s'%(date,job_number)
-# JSON results structure
 results = {'test_errors':[],'train_errors':[]}
+if len(sys.argv) > 1:
+    slurm_jobid = sys.argv[1]
+    slurm_array_task_id = sys.argv[2]
+    job_number = sys.argv[3]
+else:
+    slurm_jobid = '0'
+    slurm_array_task_id = '0'
+    if len(sys.argv) == 2:
+        job_number = sys.argv[1]
+    else:
+        job_number = 'test'
+results['job_number'] = job_number
+results['job_number'] = job_number
+results['job_number'] = job_number
+date = datetime.date.today().strftime("%B %d").replace (" ", "_")
+path = './tmp_test_experiemtns/tmp_%s_j%s'%(date,job_number)
+#path = './om_experiments/'
+make_and_check_dir(path)
+#paths
+errors_pretty = '/tmp_errors_file_%s_slurm_j%s.txt'%(date,slurm_array_task_id)
+mdl_dir ='/tmp_mdl_%s_slurm_j%s'%(date,slurm_array_task_id)
+json_file = '/tmp_json_%s_slurm_j%s'%(date,slurm_array_task_id)
+tensorboard_data_dump = '/tmp_tensorboard_mdl'
+#
+make_and_check_dir(path=path+mdl_dir)
+make_and_check_dir(path=path+tensorboard_data_dump)
+# JSON results structure
 results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(), results=results)
 results['date'] = date
-results['job_number'] = job_number
 
 ## Data sets
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
@@ -73,9 +86,6 @@ S_init = b_init
 init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
-#init_args = ns.FrozenNamespace(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
-#model = 'summed_nn'
-#model = 'summed_hbf'
 model = 'standard_nn'
 model = 'hbf'
 
@@ -93,16 +103,10 @@ print( '-----> Running model: %s. (nb_hidden_layers = %d, nb_layers = %d)' % (mo
 print( '-----> Units: %s)' % (dims) )
 if model == 'standard_nn':
     #tensorboard_data_dump = '/tmp/standard_nn_logs'
-    tensorboard_data_dump = '/tmp_standard_nn_logs'
     (inits_C,inits_W,inits_b) = mtf.get_initilizations_standard_NN(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
     with tf.name_scope("standardNN") as scope:
         mdl = mtf.build_standard_NN(x,dims,(inits_C,inits_W,inits_b),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
-# elif model == 'summed_nn':
-#     tensorboard_data_dump = '/tmp/summed_nn_logs'
-#     (inits_C,inits_W,inits_b) = mtf.get_initilizations_summed_NN(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
-#     with tf.name_scope("summNN") as scope:
-#         mdl = mtf.build_summed_NN(x,dims,(inits_C,inits_W,inits_b),phase_train)
 elif model == 'hbf':
     #tensorboard_data_dump = '/tmp/hbf_logs'
     tensorboard_data_dump = '/tmp_hbf_logs'
@@ -110,11 +114,6 @@ elif model == 'hbf':
     with tf.name_scope("HBF") as scope:
         mdl = mtf.build_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
-# elif model == 'summed_hbf':
-#     tensorboard_data_dump = '/tmp/summed_hbf_logs'
-#     (inits_C,inits_W,inits_S) = mtf.get_initilizations_summed_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
-#     with tf.name_scope("summHBF") as scope:
-#         mdl = mtf.build_summed_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
 
 tensorboard_dump_path = path+tensorboard_data_dump
 make_and_check_dir(path= tensorboard_dump_path)
