@@ -38,10 +38,10 @@ def load_results_dic(results,**kwargs):
 
 #path = '/Users/brandomiranda/Documents/MATLAB/hbf_research/om_simulations/tensor_flow_experiments/tf_experiments_scripts/'
 results = {'test_errors':[],'train_errors':[]}
-if len(sys.argv) > 1:
-    slurm_jobid = sys.argv[1]
-    slurm_array_task_id = sys.argv[2]
-    job_number = sys.argv[3]
+if len(sys.argv) >= 4:
+    slurm_jobid = sys.argv[0]
+    slurm_array_task_id = sys.argv[1]
+    job_number = sys.argv[2]
 else:
     slurm_jobid = '0'
     slurm_array_task_id = '0'
