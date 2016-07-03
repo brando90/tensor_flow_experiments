@@ -1,5 +1,5 @@
 def process_argv(argv):
-    if is_it_tensorboard_run(sys_arg):
+    if is_it_tensorboard_run(argv):
         # python main_nn.py --logdir=/tmp/log_file_name
         prefix = 'tmp'
         slurm_jobid = 'TB'
@@ -35,11 +35,14 @@ def process_argv(argv):
             slurm_array_task_id = '00'
             job_number = argv[1]
         elif len(argv) == 1:
+            prefix='tmp'
+            slurm_jobid = '0'
+            slurm_array_task_id = '00'
             job_number = 'test'
         else:
             raise ValueError('Need to specify 3 paramerers or 2')
     return (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save)
 
-def is_it_tensorboard_run(sys_arg):
-    check_args = [ sys_arg.split('=') for sys_arg in sys.argv]
+def is_it_tensorboard_run(argv):
+    check_args = [ sys_arg.split('=') for sys_arg in argv]
     return '--logdir' in check_args

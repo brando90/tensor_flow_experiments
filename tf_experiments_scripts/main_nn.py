@@ -219,7 +219,6 @@ if mdl_save:
     saver = tf.train.Saver(max_to_keep=max_to_keep)
 start_time = time.time()
 with open(path+errors_pretty, 'w+') as f_err_msgs:
-    f_err_msgs.write(git_hash)
     with tf.Session() as sess:
         merged = tf.merge_all_summaries()
         writer = tf.train.SummaryWriter(path+tensorboard_data_dump, sess.graph)
