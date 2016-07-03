@@ -11,6 +11,16 @@ def put_numpy_seed_in_json_dic(results):
     results['rand_seed'] = rand_seed
     return results
 
+def fill_results_dic_with_np_seed(np_rnd_seed, results={}):
+    '''
+        Puts the numpy seed in the python dictionary
+    '''
+    (rnd0,rnd1,rnd2,rnd3,rnd4) = np_rnd_seed
+    rnd1 = [int(number) for number in rnd1]
+    rand_seed = (rnd0,rnd1,rnd2,rnd3,rnd4)
+    results['rand_seed'] = rand_seed
+    return results
+
 def make_numpy_seed_from(results):
     '''
         Makes a real numpy seed (tuple) from results dict
