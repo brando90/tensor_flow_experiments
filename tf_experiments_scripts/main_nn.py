@@ -1,5 +1,5 @@
-## run cmd to collect model: python main_nn.py --logdir=/tmp/log_file_name
-## show board on browser run cmd: tensorboard --logdir=/tmp/log_file_name
+## run cmd to collect model: python main_nn.py --logdir=/tmp/mdl_logs
+## show board on browser run cmd: tensorboard --logdir=/tmp/mdl_logs
 ## browser: http://localhost:6006/
 
 import numpy as np
@@ -41,7 +41,7 @@ print sys.argv
 results = {'test_errors':[],'train_errors':[]}
 (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save) = mtf.process_argv(sys.argv)
 
-tf_rand_seed = int(os.urandom(64).encode('hex'), 16)
+tf_rand_seed = int(os.urandom(32).encode('hex'), 16)
 results['tf_rand_seed'] = tf_rand_seed
 tf.set_random_seed(tf_rand_seed)
 
@@ -57,14 +57,14 @@ mdl_dir ='/%s_mdl_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
 json_file = '/%s_json_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
 #tensorboard_data_dump = '/%s_tb_mdl_sj%s'%(prefix,slurm_array_task_id)
 tensorboard_data_dump = '/tmp/mdl_logs'
-print '==> tensorboard_data_dump: ', path+tensorboard_data_dump
+print '==> tensorboard_data_dump: ', tensorboard_data_dump
+print 'mdl_save',mdl_save
 #
 make_and_check_dir(path=path)
 make_and_check_dir(path=path+mdl_dir)
-make_and_check_dir(path=path+tensorboard_data_dump)
-make_and_check_dir(path= path+tensorboard_data_dump)
+make_and_check_dir(path=tensorboard_data_dump)
 # delete contents of tensorboard dir
-shutil.rmtree(path+tensorboard_data_dump)
+shutil.rmtree(tensorboard_data_dump)
 # JSON results structure
 results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(), results=results)
 results['date'] = date
@@ -221,7 +221,7 @@ start_time = time.time()
 with open(path+errors_pretty, 'w+') as f_err_msgs:
     with tf.Session() as sess:
         merged = tf.merge_all_summaries()
-        writer = tf.train.SummaryWriter(path+tensorboard_data_dump, sess.graph)
+        writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
 
         sess.run( tf.initialize_all_variables() )
         for i in xrange(steps):
@@ -246,7 +246,7 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
                 # save mdl
                 #save_path = saver.save(sess, path+'/tmp_mdls/model.ckpt',global_step=i)
                 if mdl_save:
-                    save_path = saver.save(sess, path+tensorboard_data_dump+'/model.ckpt',global_step=i)
+                    save_path = saver.save(sess, path+mdl_dir+'/model.ckpt',global_step=i)
             sess.run(fetches=[merged,train_step], feed_dict=feed_dict_batch)
             #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
