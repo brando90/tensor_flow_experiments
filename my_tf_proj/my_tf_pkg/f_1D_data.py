@@ -6,6 +6,13 @@ def get_labels(X,Y,f):
         Y[i] = f(X[i])
     return Y
 
+def get_labels_improved(X,f):
+    N_train = X.shape[0]
+    Y = np.zeros( (N_train,1) )
+    for i in range(N_train):
+        Y[i] = f(X[i])
+    return Y
+
 def generate_data(N_train_var=60000, N_cv_var=60000, N_test_var=60000, low_x_var=-2*np.pi, high_x_var=2*np.pi):
     # f(x) = 2*(2(cos(x)^2 - 1)^2 -1
     f = lambda x: 2*np.power( 2*np.power( np.cos(x) ,2) - 1, 2) - 1

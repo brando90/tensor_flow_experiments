@@ -69,6 +69,7 @@ def get_HBF_layer(l, x, dims, init, phase_train=None, scope="HBFLayer"):
             beta = 0.5*tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
             Z = beta * ( Delta_tilde ) # (M x D^(l))
         if phase_train is not None:
+            #Z = standard_batch_norm(l, Zd , 1,phase_train)
             Z = standard_batch_norm(l, Z , 1,phase_train)
         with tf.name_scope('A'+l):
             layer = tf.exp(Z) # (M x D^(l))
