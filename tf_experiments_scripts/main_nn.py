@@ -74,28 +74,28 @@ results['date'] = date
 (N_train,D) = X_train.shape
 (N_test,D_out) = Y_test.shape
 
-## NN params
-#dims = [D,24,D_out]
-dims = [D,24,24,D_out]
+## HBF/NN params
+dims = [D,16,D_out]
+#dims = [D,24,24,D_out]
 #dims = [D,24,24,24,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
 #std = [None,1,1,1]
-init_constant = 0.1
+init_constant = 1
 #b_init = len(dims)*[init_constant]
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, 1, None]
 S_init = b_init
 init_type = 'truncated_normal'
-#init_type = 'data_init'
-#init_type = 'kern_init'
-model = 'standard_nn'
+init_type = 'data_init'
+init_type = 'kern_init'
+#model = 'standard_nn'
 model = 'hbf'
 #
 max_to_keep = 10
 
-bn = True
+bn = False
 if bn:
     phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 else:
@@ -127,15 +127,15 @@ with tf.name_scope("L2_loss") as scope:
     l2_loss = tf.reduce_mean(tf.square(y_-y))
 
 ## train params
-report_error_freq = 10
+report_error_freq = 1
 steps = 3000
-M = 1000 #batch-size
+M = 3000 #batch-size
 optimization_alg = 'GD'
 optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
 #optimization_alg = 'Adam'
-#optimization_alg = 'Adagrad'
-#optimization_alg = 'RMSProp'
+optimization_alg = 'Adagrad'
+optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:
     starter_learning_rate = 0.0001
     decay_rate = 0.9
