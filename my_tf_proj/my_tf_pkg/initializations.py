@@ -28,6 +28,7 @@ def get_initilizations_standard_NN(init_type,dims,mu,std,b_init,S_init,X_train,Y
 def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
 #def get_initilizations_HBF(args):
     nb_hidden_layers=len(dims)-1
+    print init_type
     if init_type=='truncated_normal':
         inits_W=[None]
         inits_S=[None]
@@ -60,9 +61,24 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
         for l in range(1,nb_hidden_layers):
             inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
 
-            stddev = S_init[1]
+        stddev = S_init[1]
         beta = 0.5*np.power(1.0/stddev,2)
         Kern = np.exp(-beta*euclidean_distances(X=X_train,Y=subsampled_data_points,squared=True))
+        (C,_,_,_) = np.linalg.lstsq(Kern,Y_train)
+        inits_C=[tf.constant(C)]
+    elif init_type=='kpp_init':
+        inits_W=[None]
+        inits_S=[None]
+
+        (centers,W,W_tf) = get_kpp_init(X=X_train,n_clusters=dims[1],random_state=None)
+        inits_W.append( W_tf )
+
+        for l in range(1,nb_hidden_layers):
+            inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
+
+        stddev = S_init[1]
+        beta = 0.5*np.power(1.0/stddev,2)
+        Kern = np.exp(-beta*euclidean_distances(X=X_train,Y=centers,squared=True))
         (C,_,_,_) = np.linalg.lstsq(Kern,Y_train)
         inits_C=[tf.constant(C)]
     return (inits_C,inits_W,inits_S)
@@ -79,8 +95,10 @@ def get_kpp_init(X,n_clusters,random_state=None):
     random_state = None
     random_state = check_random_state(random_state)
     x_squared_norms = row_norms(X, squared=True)
-    centers = sklearn.cluster.k_means_._k_init(X, n_clusters, random_state=random_state,x_squared_norms=x_squared_norms)
-    return centers
+    centers = sklearn.cluster.k_means_._k_init(X, n_clusters, random_state=random_state,x_squared_norms=x_squared_norms) # n_clusters x D
+    W =  np.transpose( centers )  # D x D^(1)
+    W_tf = tf.constant(W)
+    return centers,W,W_tf
 
 # def get_initilizations_summed_NN(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
 # #def get_initilizations_summed_NN(args):

@@ -90,6 +90,7 @@ S_init = b_init
 init_type = 'truncated_normal'
 init_type = 'data_init'
 init_type = 'kern_init'
+init_type = 'kpp_init'
 #model = 'standard_nn'
 model = 'hbf'
 #
