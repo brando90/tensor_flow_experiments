@@ -4,7 +4,7 @@ def get_gauss_coeffs(X,subsampled_data_points,stddev):
     indices=np.random.choice(a=N,size=K,replace=replace) # choose numbers from 0 to D^(1)
     subsampled_data_points=X[indices,:] # M_sub x D
 
-    beta = 0.5*np.power(1.0/stddev,2)
+    beta = np.power(1.0/stddev,2)
     Kern = np.exp(-beta*euclidean_distances(X=X,Y=subsampled_data_points,squared=True))
     (C,_,_,_) = np.linalg.lstsq(Kern,Y)
     return C
@@ -37,10 +37,10 @@ def get_Z_tf(x,W,l='layer'):
     return Delta_tilde
 
 def get_beta_np(S):
-    beta = 0.5*np.power(1.0/S,2)
+    beta = np.power(1.0/S,2)
     return beta
 
 def get_beta_tf(S):
     one = tf.constant(1.0,dtype=tf.float64)
-    beta = 0.5*tf.pow( tf.div(one,S), 2)
+    beta = tf.pow( tf.div(one,S), 2)
     return beta

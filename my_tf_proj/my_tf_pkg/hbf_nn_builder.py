@@ -44,13 +44,6 @@ def build_standard_NN(x, dims, inits, phase_train=None):
 
 ## build layers blocks NN
 
-def get_summation_layer(l, x, init, scope="SumLayer"):
-    with tf.name_scope(scope+l):
-        #print init
-        C = tf.get_variable(name='C'+l, dtype=tf.float64, initializer=init, regularizer=None, trainable=True)
-        layer = tf.matmul(x, C)
-    C = tf.histogram_summary('C'+l, C)
-    return layer
 
 def get_HBF_layer(l, x, dims, init, phase_train=None, layer_name="HBFLayer"):
     (init_W,init_S) = init
@@ -76,6 +69,15 @@ def get_HBF_layer(l, x, dims, init, phase_train=None, layer_name="HBFLayer"):
             layer = tf.exp(Z) # (M x D^(l))
     W = tf.histogram_summary('W'+l, W)
     b = tf.histogram_summary('S'+l, S)
+    return layer
+
+def get_summation_layer(l, x, init, scope="SumLayer"):
+    with tf.name_scope(scope+l):
+        #print init
+        C = tf.get_variable(name='C'+l, dtype=tf.float64, initializer=init, regularizer=None, trainable=True)
+        layer = tf.matmul(x, C)
+    var_prefix = 'vars_'+layer_name+l
+    put_summaries(C, prefix_name=var_prefix+'C'+l, suffix_text = 'C'+l)
     return layer
 
 def build_HBF2(x, dims, inits, phase_train=None):

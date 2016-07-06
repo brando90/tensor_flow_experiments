@@ -79,9 +79,9 @@ results['date'] = date
 (N_test,D_out) = Y_test.shape
 
 ## HBF/NN params
-#dims = [D,16,D_out]
-dims = [D,16,16,D_out]
-#dims = [D,24,24,24,D_out]
+dims = [D,16,D_out]
+#dims = [D,24,24,D_out]
+#dims = [D,16,16,16,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
@@ -133,7 +133,7 @@ with tf.name_scope("L2_loss") as scope:
 
 ## train params
 report_error_freq = 5
-steps = 3000
+steps = 6000
 M = 3000 #batch-size
 # steps = 30
 # M = 30 #batch-size
@@ -145,7 +145,7 @@ optimization_alg = 'Momentum'
 optimization_alg = 'Adagrad'
 optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:
-    starter_learning_rate = 0.01
+    starter_learning_rate = 0.001
     decay_rate = 0.9
     decay_steps = 1000
     staircase = True
@@ -269,11 +269,14 @@ load_results_dic(results,git_hash=git_hash,dims=dims,mu=mu,std=std,init_constant
 
 seconds = (time.time() - start_time)
 minutes = seconds/ 60
+hours = minutes/ 60
 print("--- %s seconds ---" % seconds )
 print("--- %s minutes ---" % minutes )
+print("--- %s hours ---" % hours )
 ## dump results to JSON
 results['seconds'] = seconds
 results['minutes'] = minutes
+results['hours'] = hours
 with open(path+json_file, 'w+') as f_json:
     json.dump(results,f_json,sort_keys=True, indent=2, separators=(',', ': '))
 print '\a' #makes beep
