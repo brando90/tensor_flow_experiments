@@ -122,7 +122,7 @@ elif model == 'hbf':
     #tensorboard_data_dump = '/tmp/hbf_logs'
     (inits_C,inits_W,inits_S) = mtf.get_initilizations_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
     with tf.name_scope("HBF") as scope:
-        mdl = mtf.build_HBF(x,dims,(inits_C,inits_W,inits_S),phase_train)
+        mdl = mtf.build_HBF2(x,dims,(inits_C,inits_W,inits_S),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
 
 ## Output and Loss
@@ -182,21 +182,19 @@ with tf.name_scope("train") as scope:
 with tf.name_scope("l2_loss") as scope:
   ls_scalar_summary = tf.scalar_summary("l2_loss", l2_loss)
 
-# def register_all_variables_and_grads(y):
-#     all_vars = tf.all_variables()
-#     for v in tf.all_variables():
-#         tf.histogram_summary('hist_'+v.name, v)
-#         if v.get_shape() == []:
-#             tf.scalar_summary('scal_'+v.name, v)
-#
-#     grad_vars = opt.compute_gradients(y,all_vars) #[ (T(gradient),variable) ]
-#     for (dldw,v) in grad_vars:
-#         if dldw != None:
-#             tf.histogram_summary('hist_'+v.name+'dW', dldw)
-#             if v.get_shape() == [] or dldw.get_shape() == []:
-#                 tf.scalar_summary('scal_'+v.name+'dW', dldw)
-#             l2norm_dldw = tf.reduce_mean(tf.square(dldw))
-#             tf.scalar_summary('scal_'+v.name+'dW_l2_norm', l2norm_dldw)
+def register_all_variables_and_grads(y):
+    all_vars = tf.all_variables()
+    # for v in tf.all_variables():
+    #     tf.histogram_summary('hist_'+v.name, v)
+    #     if v.get_shape() == []:
+    #         tf.scalar_summary('scal_'+v.name, v)
+
+    grad_vars = opt.compute_gradients(y,all_vars) #[ (gradient,variable) ]
+    for (dldw,v) in grad_vars:
+        if dldw != None:
+            prefix_name = 'derivative_'+v.name
+            suffix_text = 'dJd'+v.name
+            mtf.put_summaries(var=tf.square(dldw),prefix_name=prefix_name,suffix_text=suffix_text)
 
 register_all_variables_and_grads(y)
 ## TRAIN

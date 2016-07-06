@@ -81,6 +81,21 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
         Kern = np.exp(-beta*euclidean_distances(X=X_train,Y=centers,squared=True))
         (C,_,_,_) = np.linalg.lstsq(Kern,Y_train)
         inits_C=[tf.constant(C)]
+    elif init_type=='kpp_trun_norm_lq':
+        inits_W=[None]
+        inits_S=[None]
+
+        (centers,W,W_tf) = get_kpp_init(X=X_train,n_clusters=dims[1],random_state=None)
+        inits_W.append( W_tf )
+
+        for l in range(1,nb_hidden_layers):
+            inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
+
+        stddev = S_init[1]
+        beta = 0.5*np.power(1.0/stddev,2)
+        Kern = np.exp(-beta*euclidean_distances(X=X_train,Y=centers,squared=True))
+        (C,_,_,_) = np.linalg.lstsq(Kern,Y_train)
+        inits_C=[tf.constant(C)]
     return (inits_C,inits_W,inits_S)
 
 def get_centers_from_data(X_train,dims):
