@@ -101,6 +101,7 @@ def train():
       tf.histogram_summary(layer_name + '/activations', activations)
       return activations
 
+#####
   hidden1 = nn_layer(x, 784, 500, 'layer1')
 
   with tf.name_scope('dropout'):
