@@ -22,8 +22,8 @@ def plot_errors(nb_centers, rbf_errors,label='Errors', markersize=3, colour='b')
     plt.ylabel('squared error (l2 loss)')
     plt.plot(nb_centers, rbf_errors, colour, label=label, markersize=3)
 
-def evalaute_models(data, stddevs, nb_centers_list, replace=False):
-    (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
+def evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=1):
+    (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data
     N_train = X_train.shape[0]
 
     C_hats = []
@@ -37,8 +37,8 @@ def evalaute_models(data, stddevs, nb_centers_list, replace=False):
     centers_list = [] # centers tried for init.
     for K in nb_centers_list:
         # get best std using CV
-        mdl_best_params, errors, reconstructions = mtf.get_best_shape_and_mdl(K, data, stddevs, nb_inits=2)
-        (C_hat, centers, best_stddev) = mdl_params
+        mdl_best_params, errors, reconstructions = mtf.get_best_shape_and_mdl(K, data, stddevs, nb_inits=nb_inits)
+        (C_hat, centers, best_stddev) = mdl_best_params
         (train_error, cv_error, test_error) = errors
         (Y_pred_train, Y_pred_cv, Y_pred_test) = reconstructions
 
@@ -62,12 +62,13 @@ def main():
     data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
 
     replace = False # with or without replacement
-    stddevs = np.linspace(start=0.1, stop=4, num=50)
+    stddevs = np.linspace(start=0.1, stop=4, num=10)
     nb_centers_list = [3, 6, 9, 12, 16, 24, 30, 39, 48, 55]
     centers_to_reconstruct_index = [1, 3, 5, 7, 9]
     colours = ['g','r','c','m','y']
 
-    mdl_best_params, errors, reconstructions = evalaute_models(data, stddevs, nb_centers_list, replace=False)
+    nb_inits = 1
+    mdl_best_params, errors, reconstructions = evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
     (C_hats, centers, best_stddevs) = mdl_params
     (train_error, cv_error, test_error) = errors
     (Y_pred_train, Y_pred_cv, Y_pred_test) = reconstructions
@@ -90,7 +91,7 @@ def main():
 
     results = {'mdl_params':mdl_params, 'errors':errors, 'reconstructions':reconstructions}
     path = './'
-    json_file = 'krls_json'
+    json_file = 'tmp_krls_json'
     with open(path+json_file, 'w+') as f_json:
         json.dump(results,f_json,sort_keys=True, indent=2, separators=(',', ': '))
     print '\a' #makes beep
