@@ -42,7 +42,8 @@ def get_best_shape_and_mdl(K, data, stddevs):
     train_error = train_errors(min_index)
     cv_error = min_cv
     test_error = test_errors(min_index)
-    return C_hat, centers, train_error, cv_error, test_error
+    best_stddev = stddev(min_index)
+    return C_hat, centers, best_stddev, train_error, cv_error, test_error
 
 def get_sumsampled_points(X,K,replace=False):
     '''

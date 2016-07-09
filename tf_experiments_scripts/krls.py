@@ -18,7 +18,7 @@ def learn(data, stddevs, K, replace=False):
     N_train = X_train.shape[0]
 
     for K in nb_centers_list:
-        mtf.get_best_shape_and_mdl(K, data, stddevs)
+        C_hat, centers, best_stddev, train_error, cv_error, test_error = mtf.get_best_shape_and_mdl(K, data, stddevs)
         if K in nb_centers_reconstruct:
             rbf_predictions_reconstruct_train.append(Y_pred)
             rbf_predictions_reconstruct_test.append(Y_pred_test)
