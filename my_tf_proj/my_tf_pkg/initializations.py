@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-import sklearn as sk
+import sklearn
 from sklearn.metrics.pairwise import euclidean_distances
 import my_tf_pkg as mtf
 
@@ -62,10 +62,11 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
             inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
 
         stddev = S_init[1]
-        beta = 0.5*np.power(1.0/stddev,2)
+        beta = np.power(1.0/stddev,2)
         Kern = np.exp(-beta*euclidean_distances(X=X_train,Y=subsampled_data_points,squared=True))
         (C,_,_,_) = np.linalg.lstsq(Kern,Y_train)
         inits_C=[tf.constant(C)]
+        print report_RBF_error(Kern, C, Y_train)
     elif init_type=='kpp_init':
         inits_W=[None]
         inits_S=[None]
@@ -77,10 +78,11 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
             inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
 
         stddev = S_init[1]
-        beta = 0.5*np.power(1.0/stddev,2)
+        beta = np.power(1.0/stddev,2)
         Kern = np.exp(-beta*euclidean_distances(X=X_train,Y=centers,squared=True))
         (C,_,_,_) = np.linalg.lstsq(Kern,Y_train)
         inits_C=[tf.constant(C)]
+        print report_RBF_error(Kern, C, Y_train)
     elif init_type=='kpp_trun_norm_lq':
         inits_W=[None]
         inits_S=[None]
@@ -92,7 +94,7 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
             inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
 
         stddev = S_init[1]
-        beta = 0.5*np.power(1.0/stddev,2)
+        beta = np.power(1.0/stddev,2)
         Kern = np.exp(-beta*euclidean_distances(X=X_train,Y=centers,squared=True))
         (C,_,_,_) = np.linalg.lstsq(Kern,Y_train)
         inits_C=[tf.constant(C)]
@@ -114,6 +116,11 @@ def get_kpp_init(X,n_clusters,random_state=None):
     W =  np.transpose( centers )  # D x D^(1)
     W_tf = tf.constant(W)
     return centers,W,W_tf
+
+def report_RBF_error(Kern, C, Y):
+    Y_pred = np.dot( Kern , C )
+    error = sklearn.metrics.mean_squared_error(Y, Y_pred)
+    return error
 
 # def get_initilizations_summed_NN(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
 # #def get_initilizations_summed_NN(args):

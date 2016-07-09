@@ -9,7 +9,6 @@ import my_tf_pkg as mtf
 ## Data sets
 def get_kernel_matrix(x,W,S):
     beta = get_beta_np(S)
-    #beta = 0.5*tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
     Z = -beta*euclidean_distances(X=x,Y=W,squared=True)
     K = np.exp(Z)
     return K
@@ -32,10 +31,11 @@ Y = f(X)
 Y_test = f(X_test)
 
 #stddev = 1
-stddev = 
+stddev = 1.8
 replace = False # with or without replacement
-nb_centers_reconstruct = [4, 8, 16, 24, 48] # number of centers for RBF
-nb_centers = [4, 6, 8, 12, 16, 20, 24, 30, 39, 48]
+nb_centers_reconstruct = [6, 12, 24, 36, 48] # number of centers for RBF
+nb_centers = [3, 6, 9, 12, 16, 24, 30, 39, 48, 55]
+nb_centers = range(2,25)
 colours = ['g','r','c','m','y']
 #
 rbf_predictions_reconstruct_train = []

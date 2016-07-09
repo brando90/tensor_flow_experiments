@@ -42,3 +42,17 @@ def get_data_from_file(file_name="f_1d_cos_no_noise_data"):
     X_test = npzfile['X_test']
     Y_test = npzfile['Y_test']
     return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
+
+def generate_data_from_krls():
+    N = 60000
+    low_x =-2*np.pi
+    high_x=2*np.pi
+    X_train = low_x + (high_x - low_x) * np.random.rand(N,1)
+    X_cv = low_x + (high_x - low_x) * np.random.rand(N,1)
+    X_test = low_x + (high_x - low_x) * np.random.rand(N,1)
+    # f(x) = 2*(2(cos(x)^2 - 1)^2 -1
+    f = lambda x: 2*np.power( 2*np.power( np.cos(x) ,2) - 1, 2) - 1
+    Y_train = f(X_train)
+    Y_cv = f(X_cv)
+    Y_test = f(X_test)
+    return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)

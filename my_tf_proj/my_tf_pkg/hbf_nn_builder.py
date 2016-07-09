@@ -44,35 +44,8 @@ def build_standard_NN(x, dims, inits, phase_train=None):
 
 ## build layers blocks NN
 
-
-def get_HBF_layer(l, x, dims, init, phase_train=None, layer_name="HBFLayer"):
-    (init_W,init_S) = init
-    #i = int(l)
+def get_summation_layer(l, x, init, layer_name="SumLayer"):
     with tf.name_scope(layer_name+l):
-        with tf.name_scope('Z'+l):
-            W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True)
-            S = tf.get_variable(name='S'+l, dtype=tf.float64, initializer=init_S, regularizer=None, trainable=True)
-            # if phase_train is not None:
-            #     x = standard_batch_norm(l+'_', x , 1,phase_train)
-            WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
-            XX =  tf.reduce_sum(x*x, reduction_indices=1, keep_dims=True) # (M x 1) = sum( (M x D^(l-1)), 1 )
-            # -|| x - w ||^2 = -(-2<x,w> + ||x||^2 + ||w||^2) = 2<x,w> - (||x||^2 + ||w||^2)
-            Delta_tilde = 2.0*tf.matmul(x,W) - tf.add(WW, XX) # (M x D^(l)) - (M x D^(l)) = (M x D^(l-1)) * (D^(l-1) x D^(l)) - (M x D^(l))
-            # if phase_train is not None:
-            #     Delta_tilde = standard_batch_norm(l, Delta_tilde, 1,phase_train)
-            beta = 0.5*tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
-            Z = beta * ( Delta_tilde ) # (M x D^(l))
-        if phase_train is not None:
-            #Z = standard_batch_norm(l, Zd , 1,phase_train)
-            Z = standard_batch_norm(l, Z , 1, phase_train)
-        with tf.name_scope('A'+l):
-            layer = tf.exp(Z) # (M x D^(l))
-    W = tf.histogram_summary('W'+l, W)
-    b = tf.histogram_summary('S'+l, S)
-    return layer
-
-def get_summation_layer(l, x, init, scope="SumLayer"):
-    with tf.name_scope(scope+l):
         #print init
         C = tf.get_variable(name='C'+l, dtype=tf.float64, initializer=init, regularizer=None, trainable=True)
         layer = tf.matmul(x, C)
@@ -94,8 +67,7 @@ def get_HBF_layer2(l, x, dims, init, phase_train=None, layer_name='HBFLayer'):
         with tf.name_scope('templates'+l):
             W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True)
         with tf.name_scope('rbf_stddev'+l):
-            S = tf.get_variable(name='S'+l, dtype=tf.float64, initializer=init_S, regularizer=None, trainable=True)
-            #beta = 0.5*tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
+            S = tf.get_variable(name='S'+l, dtype=tf.float64, initializer=init_S, regularizer=None, trainable=False)
             beta = tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
         with tf.name_scope('Z'+l):
             WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) # (1 x D^(l)) = sum( (D^(l-1) x D^(l)), 0 )
@@ -122,12 +94,12 @@ def put_summaries(var, prefix_name, suffix_text = ''):
     prefix_title = prefix_name+'/'
     with tf.name_scope('summaries'):
         mean = tf.reduce_mean(var)
-        tf.scalar_summary(prefix_title+'_mean'+suffix_text, mean)
+        tf.scalar_summary(prefix_title+'mean'+suffix_text, mean)
         with tf.name_scope('stddev'):
             stddev = tf.sqrt(tf.reduce_sum(tf.square(var - mean)))
-        tf.scalar_summary(prefix_title+'_stddev'+suffix_text, stddev)
-        tf.scalar_summary(prefix_title+'_max'+suffix_text, tf.reduce_max(var))
-        tf.scalar_summary(prefix_title+'_min'+suffix_text, tf.reduce_min(var))
+        tf.scalar_summary(prefix_title+'stddev'+suffix_text, stddev)
+        tf.scalar_summary(prefix_title+'max'+suffix_text, tf.reduce_max(var))
+        tf.scalar_summary(prefix_title+'min'+suffix_text, tf.reduce_min(var))
         tf.histogram_summary(prefix_name, var)
 
 def variable_summaries(var, name):
