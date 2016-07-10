@@ -96,6 +96,7 @@ def main():
     nb_inits = 5
     mdl_best_params, errors, reconstructions = evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
     (C_hats, centers, best_stddevs) = mdl_best_params
+    print 'best_stddevs: ',best_stddevs
     (train_errors, cv_errors, test_errors, train_error_stds, cv_error_stds, test_error_stds) = errors
     (Y_preds_trains, Y_preds_cvs, Y_preds_tests) = reconstructions
 

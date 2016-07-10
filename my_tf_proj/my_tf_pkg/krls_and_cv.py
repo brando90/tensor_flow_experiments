@@ -21,6 +21,7 @@ def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
     Y_preds_cvs = [] # for reconstructions
     Y_preds_tests = [] # for reconstructions
     centers_tried = [] # centers tried for init.
+    stddevs_list_for_runs = []
     for _,stddev  in enumerate(stddevs):
         for i in xrange(nb_inits):
             #get subsampled_data_points for centers of RBF
@@ -47,6 +48,8 @@ def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
             Y_preds_tests.append(Y_pred_test)
             test_error = sklearn.metrics.mean_squared_error(Y_test, Y_pred_test)
             test_errors.append(test_error)
+            #
+            stddevs_list_for_runs.append(stddev)
     # get mdl had lowest CV
     min_index, _ = get_min(cv_errors)
     # get statistics of mdl model with best CV
@@ -58,7 +61,7 @@ def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
     cv_error_std = np.std(cv_error)
     test_error_std = np.std(test_error)
     # shape of gaussian
-    best_stddev = stddevs[min_index]
+    best_stddev = stddevs_list_for_runs[min_index]
     # get reconstructions
     Y_pred_train = Y_preds_trains[min_index]
     Y_pred_cv = Y_preds_cvs[min_index]
