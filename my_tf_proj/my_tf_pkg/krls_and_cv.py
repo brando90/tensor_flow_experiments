@@ -50,19 +50,24 @@ def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
     # get mdl had lowest CV
     min_index, _ = get_min(cv_errors)
     # get statistics of mdl model with best CV
-    train_error = train_errors(min_index)
+    train_error = train_errors[min_index]
     cv_error = cv_errors[min_index] #min_cv
-    test_error = test_errors(min_index)
-    best_stddev = stddev(min_index)
+    test_error = test_errors[min_index]
+    # std error
+    train_error_std = np.std(train_error)
+    cv_error_std = np.std(cv_error)
+    test_error_std = np.std(test_error)
+    # shape of gaussian
+    best_stddev = stddevs[min_index]
     # get reconstructions
-    Y_pred_train = Y_preds_trains(min_index)
-    Y_pred_cv = Y_preds_cvs(min_index)
-    Y_pred_test = Y_preds_tests(min_index)
+    Y_pred_train = Y_preds_trains[min_index]
+    Y_pred_cv = Y_preds_cvs[min_index]
+    Y_pred_test = Y_preds_tests[min_index]
     # centers
     centers =centers_tried[min_index]
     # packing
     mdl_best_params = (C_hat, centers, best_stddev)
-    errors = (train_error, cv_error, test_error)
+    errors = (train_error, cv_error, test_error, train_error_std, cv_error_std, test_error_std)
     reconstructions = (Y_pred_train, Y_pred_cv, Y_pred_test)
     return mdl_best_params, errors, reconstructions
 
@@ -81,12 +86,12 @@ def get_subsampled_points(X,K,replace=False):
 def get_kernel_matrix(X,centers, stddev):
     '''
     X = Data set to evaluate Kernel matrix (rows of Kern)
-    subsampled_data_points = the centers that are used for forming kernel function (columns)
+    centers/subsampled_data_points = the centers that are used for forming kernel function (columns)
     stddev = width/shape/std of Gaussian/RBF
     '''
     beta = np.power(1.0/stddev,2) #precision
-    Kern = np.exp(-beta*euclidean_distances(X=X,Y=subsampled_data_points,squared=True)) # N_train x D^1
-    return
+    Kern = np.exp(-beta*euclidean_distances(X=X,Y=centers,squared=True)) # N_train x D^1
+    return Kern
 
 def get_krls_coeffs(Kern, Y):
     '''

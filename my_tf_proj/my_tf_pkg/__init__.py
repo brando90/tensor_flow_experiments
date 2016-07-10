@@ -6,7 +6,7 @@ from my_tf_pkg.f_1D_data import *
 from my_tf_pkg.initializations import *
 from my_tf_pkg.my_rand_lib import *
 from my_tf_pkg.process_sys_argv import *
-from my_tf_pkg.krls_and_cv.py import *
+from my_tf_pkg.krls_and_cv import *
 #having the package name declared
 #from pkg_1.module2 import *
 
