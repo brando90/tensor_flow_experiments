@@ -57,9 +57,9 @@ def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
     cv_error = cv_errors[min_index] #min_cv
     test_error = test_errors[min_index]
     # std error
-    train_error_std = np.std(train_error)
-    cv_error_std = np.std(cv_error)
-    test_error_std = np.std(test_error)
+    train_error_std = np.std(train_errors)
+    cv_error_std = np.std(cv_errors)
+    test_error_std = np.std(test_errors)
     # shape of gaussian
     best_stddev = stddevs_list_for_runs[min_index]
     # get reconstructions

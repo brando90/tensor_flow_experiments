@@ -33,6 +33,10 @@ def evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=1):
         mdl_best_params, errors, reconstructions = mtf.get_best_shape_and_mdl(K, data, stddevs, nb_inits=nb_inits)
         (C_hat, centers, best_stddev) = mdl_best_params
         (train_error, cv_error, test_error, train_error_std, cv_error_std, test_error_std) = errors
+        print 'train_error ', train_error
+        print 'train_error_std', train_error_std
+        print 'test_error', test_error
+        print 'test_error_std', test_error_std
         (Y_pred_train, Y_pred_cv, Y_pred_test) = reconstructions
 
         C_hats.append(C_hat)
@@ -93,7 +97,7 @@ def main():
     centers_to_reconstruct_index = [1, 3, 5, 7, 9]
     colours = ['g','r','c','m','y']
 
-    nb_inits = 5
+    nb_inits = 10
     mdl_best_params, errors, reconstructions = evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
     (C_hats, centers, best_stddevs) = mdl_best_params
     print 'best_stddevs: ',best_stddevs
