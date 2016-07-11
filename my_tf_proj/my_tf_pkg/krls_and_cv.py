@@ -4,8 +4,32 @@ from sklearn.metrics.pairwise import euclidean_distances
 from scipy.interpolate import Rbf
 import matplotlib.pyplot as plt
 import operator
+#import time
+import pdb
+#pdb.set_trace()
 
 import my_tf_pkg as mtf
+
+def find_index_value(list_vals, target):
+    for i,val in enumerate(list_vals):
+        if val ==  target:
+            return i,val
+    return None
+
+def find_closest_to_value(list_vals, target):
+    #min(myList, key=lambda x:abs(x-myNumber))
+    current_dist = abs(target - list_val[0])
+    best_dist = current_dist
+    current_index = 0
+    best_index = 0
+    best_val = list_val[0]
+    for i,val in enumerate(list_vals):
+        current_dist = abs(target - val)
+        if current_dist < best_dist:
+            best_dist = current_dist
+            best_index = i
+            best_val = val
+    return best_index, best_val
 
 def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
     '''
@@ -17,9 +41,12 @@ def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
     train_errors = [] # tp report train error of mdl
     cv_errors = [] # to choose best model
     test_errors = [] # to report true error of mdl
+    #
     Y_preds_trains = [] # for reconstructions
     Y_preds_cvs = [] # for reconstructions
     Y_preds_tests = [] # for reconstructions
+    #
+    C_hats = []
     centers_tried = [] # centers tried for init.
     stddevs_list_for_runs = []
     for _,stddev  in enumerate(stddevs):
@@ -33,6 +60,7 @@ def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
             Kern_test = get_kernel_matrix(X_test,centers,stddev)
             # train RBF
             C_hat = get_krls_coeffs(Kern_train,Y_train)
+            C_hats.append(C_hat)
             # evluate RBF
             Y_pred_train = np.dot(Kern_train,C_hat)
             Y_preds_trains.append(Y_pred_train)
@@ -52,27 +80,56 @@ def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
             stddevs_list_for_runs.append(stddev)
     # get mdl had lowest CV
     min_index, _ = get_min(cv_errors)
-    # get statistics of mdl model with best CV
-    train_error = train_errors[min_index]
-    cv_error = cv_errors[min_index] #min_cv
-    test_error = test_errors[min_index]
-    # std error
+    #mean_index = find_closest_to_value(list_vals=, target=) TODO
+    # best params
+    C_hat_best = C_hats[min_index]
+    centers_best = centers_tried[min_index]
+    best_stddev = stddevs_list_for_runs[min_index]
+    # mean params TODO
+    C_hat_mean = None
+    centers_mean = None
+    mean_stddev = best_stddev
+    # get errors of mdl model with best CV
+    train_error_best = train_errors[min_index]
+    cv_error_best = cv_errors[min_index] #min_cv
+    test_error_best = test_errors[min_index]
+
+    # stats error
+    (i,_) = find_index_value(list_vals=stddevs_list_for_runs, target=best_stddev)
+    train_errors = train_errors[i:i+nb_inits]
+    cv_errors = cv_errors[i:i+nb_inits]
+    test_errors = test_errors[i:i+nb_inits]
+
+    # mean
+    train_error_mean = np.mean(train_errors)
+    cv_error_mean = np.mean(cv_errors)
+    test_error_mean = np.mean(test_errors)
+    # std
     train_error_std = np.std(train_errors)
     cv_error_std = np.std(cv_errors)
     test_error_std = np.std(test_errors)
-    # shape of gaussian
-    best_stddev = stddevs_list_for_runs[min_index]
-    # get reconstructions
-    Y_pred_train = Y_preds_trains[min_index]
-    Y_pred_cv = Y_preds_cvs[min_index]
-    Y_pred_test = Y_preds_tests[min_index]
-    # centers
-    centers =centers_tried[min_index]
+
+    ## get reconstructions
+    # best reconstructions
+    Y_pred_train_best = Y_preds_trains[min_index]
+    Y_pred_cv_best = Y_preds_cvs[min_index]
+    Y_pred_test_best = Y_preds_tests[min_index]
+    # mean reconstructions TODO
+    Y_pred_train_mean = None
+    Y_pred_cv_mean = None
+    Y_pred_test_mean = None
+    # std reconstructions
+    Y_pred_train_std = None
+    Y_pred_cv_std = None
+    Y_pred_test_std = None
     # packing
-    mdl_best_params = (C_hat, centers, best_stddev)
-    errors = (train_error, cv_error, test_error, train_error_std, cv_error_std, test_error_std)
-    reconstructions = (Y_pred_train, Y_pred_cv, Y_pred_test)
-    return mdl_best_params, errors, reconstructions
+    mdl_best_params = (C_hat_best, centers_best, best_stddev)
+    mdl_mean_params = (C_hat_mean, centers_mean, mean_stddev)
+    errors_best = (train_error_best, cv_error_best, test_error_best)
+    errors_stats = (train_error_mean, cv_error_mean, test_error_mean, train_error_std, cv_error_std, test_error_std)
+    reconstructions_best = (Y_pred_train_best, Y_pred_cv_best, Y_pred_test_best)
+    reconstructions_mean = (Y_pred_train_mean, Y_pred_cv_mean, Y_pred_test_mean, Y_pred_train_std, Y_pred_cv_std, Y_pred_test_std)
+    return mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean
 
 def get_subsampled_points(X,K,replace=False):
     '''

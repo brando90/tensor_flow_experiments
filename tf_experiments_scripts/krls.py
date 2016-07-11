@@ -36,12 +36,12 @@ def evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=1):
     Y_preds_cvs_bests = [] # for reconstructions
     Y_preds_tests_bests = [] # for reconstructions
     # TODO
-    Y_pred_train_mean = []
-    Y_pred_cv_mean = []
-    Y_pred_test_mean = []
-    Y_pred_train_std = []
-    Y_pred_cv_std = []
-    Y_pred_test_std = []
+    Y_pred_train_means = []
+    Y_pred_cv_means = []
+    Y_pred_test_means = []
+    Y_pred_train_stds = []
+    Y_pred_cv_stds = []
+    Y_pred_test_stds = []
     for K in nb_centers_list:
         print '----center ', K
         # get best std using CV
@@ -75,9 +75,9 @@ def evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=1):
     mdl_best_params = (C_hat_bests, centers_bests, best_stddevs)
     mdl_mean_params = (C_hat_means, centers_means, mean_stddevs) # TODO
     errors_best = (train_errors_bests, cv_errors_bests, test_errors_bests)
-    errors_stats = (train_errors_means, cv_errors_means, test_errors_means, train_error_stds, cv_error_stds, test_error_stds)
-    reconstructions_best = (Y_pred_train_best, Y_pred_cv_best, Y_pred_test_best)
-    reconstructions_mean = (Y_pred_train_mean, Y_pred_cv_mean, Y_pred_test_mean, Y_pred_train_std, Y_pred_cv_std, Y_pred_test_std) # TODO
+    errors_stats = (train_errors_means, cv_errors_means, test_errors_means, train_errors_stds, cv_errors_stds, test_errors_stds)
+    reconstructions_best = (Y_preds_trains_bests, Y_preds_cvs_bests, Y_preds_tests_bests)
+    reconstructions_mean = (Y_pred_train_means, Y_pred_cv_means, Y_pred_test_means, Y_pred_train_stds, Y_pred_cv_stds, Y_pred_test_stds) # TODO
     return mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean
 
 def plot_reconstruction(fig_num, X_original,Y_original, nb_centers, rbf_predictions, colours, markersize=3, title_name='Reconstruction'):
@@ -85,12 +85,12 @@ def plot_reconstruction(fig_num, X_original,Y_original, nb_centers, rbf_predicti
     plt.xlabel('number of centers')
     plt.ylabel('Reconstruction')
     plt.title(title_name)
+    print X_original.shape
+    print Y_original.shape
     plt.plot(X_original, Y_original,'bo', label='Original data', markersize=markersize)
     for i, Y_pred in enumerate(rbf_predictions):
         colour = colours[i]
         K = nb_centers[i]
-        print Y_original
-        print Y_pred
         plt.plot(X_original, Y_pred, colour+'o', label='RBF'+str(K), markersize=markersize)
 
 def plot_errors(nb_centers, rbf_errors,label='Errors', markersize=3, colour='b'):
@@ -113,7 +113,7 @@ def main():
     data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
 
     replace = False # with or without replacement
-    nb_rbf_shapes = 5
+    nb_rbf_shapes = 2
     stddevs = np.linspace(start=0.1, stop=6, num=nb_rbf_shapes)
     print 'start stddevs: ', stddevs
     #nb_centers_list = [3, 6, 9, 12, 16, 24, 30, 39, 48, 55]
@@ -121,27 +121,26 @@ def main():
     centers_to_reconstruct_index = [1, 3, 5, 7, 9]
     colours = ['g','r','c','m','y']
 
-    nb_inits = 4
+    nb_inits = 2
     mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean = evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
     (C_hat_bests, centers_bests, best_stddevs) = mdl_best_params
     print 'best_stddevs: ',best_stddevs
     (train_errors_bests, _, test_errors_bests) = errors_best
     (train_errors_means,_,test_errors_means, train_error_stds,_,test_error_stds) = errors_stats
-    (Y_pred_train_best, _, Y_pred_test_best) = reconstructions
+    (Y_pred_train_best, _, Y_pred_test_best) = reconstructions_best
 
     # plot errors
     print 'plotting errors'
     plt.figure(3)
-    plot_errors(nb_centers_list, train_errors_bests,label='train_Errors', markersize=3,colour='b')
-    plot_errors(nb_centers_list, test_errors_bests,label='test_Errors', markersize=3,colour='r')
-    plot_errors_and_bars(nb_centers_list, train_errors_means, train_error_stds, label='train_Errors', markersize=3,colour='b')
-    plot_errors_and_bars(nb_centers_list, test_errors_means, test_error_stds, label='test_Errors', markersize=3,colour='r')
+    plot_errors(nb_centers_list, train_errors_bests,label='train_Errors_best', markersize=3,colour='b')
+    plot_errors(nb_centers_list, test_errors_bests,label='test_Errors_best', markersize=3,colour='r')
+    plot_errors_and_bars(nb_centers_list, train_errors_means, train_error_stds, label='train_Errors_average', markersize=3,colour='b')
+    plot_errors_and_bars(nb_centers_list, test_errors_means, test_error_stds, label='test_Errors_average', markersize=3,colour='r')
 
-    # get things to reconstruct
+    # # get things to reconstruct
     nb_centers_reconstruct = [nb_centers_list[i] for i in centers_to_reconstruct_index]
     rbf_predictions_reconstruct_train = [ Y_pred_train_best[i] for i in centers_to_reconstruct_index]
     rbf_predictions_reconstruct_test = [Y_pred_test_best[i] for i in centers_to_reconstruct_index]
-
     # plot reconstructions
     print 'plotting reconstructions'
     plot_reconstruction(fig_num=1, X_original=X_train,Y_original=Y_train, nb_centers=nb_centers_reconstruct, \
