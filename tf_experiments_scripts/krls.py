@@ -85,8 +85,6 @@ def plot_reconstruction(fig_num, X_original,Y_original, nb_centers, rbf_predicti
     plt.xlabel('number of centers')
     plt.ylabel('Reconstruction')
     plt.title(title_name)
-    print X_original.shape
-    print Y_original.shape
     plt.plot(X_original, Y_original,'bo', label='Original data', markersize=markersize)
     for i, Y_pred in enumerate(rbf_predictions):
         colour = colours[i]
@@ -113,15 +111,15 @@ def main():
     data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
 
     replace = False # with or without replacement
-    nb_rbf_shapes = 2
-    stddevs = np.linspace(start=0.1, stop=6, num=nb_rbf_shapes)
+    nb_rbf_shapes = 30
+    stddevs = np.linspace(start=0.1, stop=3, num=nb_rbf_shapes)
     print 'start stddevs: ', stddevs
     #nb_centers_list = [3, 6, 9, 12, 16, 24, 30, 39, 48, 55]
     nb_centers_list = [2, 4, 6, 8, 12, 14, 16, 18, 20, 22]
     centers_to_reconstruct_index = [1, 3, 5, 7, 9]
     colours = ['g','r','c','m','y']
 
-    nb_inits = 2
+    nb_inits = 30
     mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean = evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
     (C_hat_bests, centers_bests, best_stddevs) = mdl_best_params
     print 'best_stddevs: ',best_stddevs
@@ -137,9 +135,10 @@ def main():
     plot_errors_and_bars(nb_centers_list, train_errors_means, train_error_stds, label='train_Errors_average', markersize=3,colour='b')
     plot_errors_and_bars(nb_centers_list, test_errors_means, test_error_stds, label='test_Errors_average', markersize=3,colour='r')
 
-    # # get things to reconstruct
+    # get things to reconstruct
+    print 'plotting reconstruct'
     nb_centers_reconstruct = [nb_centers_list[i] for i in centers_to_reconstruct_index]
-    rbf_predictions_reconstruct_train = [ Y_pred_train_best[i] for i in centers_to_reconstruct_index]
+    rbf_predictions_reconstruct_train = [Y_pred_train_best[i] for i in centers_to_reconstruct_index]
     rbf_predictions_reconstruct_test = [Y_pred_test_best[i] for i in centers_to_reconstruct_index]
     # plot reconstructions
     print 'plotting reconstructions'
