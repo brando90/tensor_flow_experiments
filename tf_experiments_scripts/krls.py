@@ -91,6 +91,13 @@ def plot_reconstruction(fig_num, X_original,Y_original, nb_centers, rbf_predicti
         K = nb_centers[i]
         plt.plot(X_original, Y_pred, colour+'o', label='RBF'+str(K), markersize=markersize)
 
+def plot_one_func(fig_num, X_original,Y_original, markersize=3, title_name='Reconstruction'):
+    fig = plt.figure(fig_num)
+    plt.xlabel('number of centers')
+    plt.ylabel('Reconstruction')
+    plt.title(title_name)
+    plt.plot(X_original, Y_original,'bo', label='Original data', markersize=markersize)
+
 def plot_errors(nb_centers, rbf_errors,label='Errors', markersize=3, colour='b'):
     plt.xlabel('number of centers')
     plt.ylabel('squared error (l2 loss)')
@@ -110,16 +117,19 @@ def main():
     (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
     data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
 
+    plot_one_func(fig_num=1, X_original=X_train,Y_original=Y_train, markersize=3, title_name='Reconstruction')
+
     replace = False # with or without replacement
-    nb_rbf_shapes = 30
+    nb_rbf_shapes = 10
     stddevs = np.linspace(start=0.1, stop=3, num=nb_rbf_shapes)
     print 'start stddevs: ', stddevs
     #nb_centers_list = [3, 6, 9, 12, 16, 24, 30, 39, 48, 55]
     nb_centers_list = [2, 4, 6, 8, 12, 14, 16, 18, 20, 22]
-    centers_to_reconstruct_index = [1, 3, 5, 7, 9]
+    #centers_to_reconstruct_index = [1, 3, 5, 7, 9]
+    centers_to_reconstruct_index = [1, 4, 7] # corresponds to centers 4, 12, 18
     colours = ['g','r','c','m','y']
 
-    nb_inits = 30
+    nb_inits = 10
     mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean = evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
     (C_hat_bests, centers_bests, best_stddevs) = mdl_best_params
     print 'best_stddevs: ',best_stddevs
@@ -140,6 +150,8 @@ def main():
     nb_centers_reconstruct = [nb_centers_list[i] for i in centers_to_reconstruct_index]
     rbf_predictions_reconstruct_train = [Y_pred_train_best[i] for i in centers_to_reconstruct_index]
     rbf_predictions_reconstruct_test = [Y_pred_test_best[i] for i in centers_to_reconstruct_index]
+    colours = colours[0:len(centers_to_reconstruct_index)]
+    #colours = [colours[i] for i in centers_to_reconstruct_index]
     # plot reconstructions
     print 'plotting reconstructions'
     plot_reconstruction(fig_num=1, X_original=X_train,Y_original=Y_train, nb_centers=nb_centers_reconstruct, \

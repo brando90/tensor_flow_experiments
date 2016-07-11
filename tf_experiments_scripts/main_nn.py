@@ -39,29 +39,35 @@ def load_results_dic(results,**kwargs):
 print sys.argv
 
 results = {'test_errors':[],'train_errors':[]}
+# slyurm values and ids
 (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save) = mtf.process_argv(sys.argv)
-
-tf_rand_seed = int(os.urandom(32).encode('hex'), 16)
-results['tf_rand_seed'] = tf_rand_seed
-tf.set_random_seed(tf_rand_seed)
-
 print 'prefix=%s,slurm_jobid=%s,slurm_array_task_id=%s,job_number=%s'%(prefix,slurm_jobid,slurm_array_task_id,job_number)
 results['job_number'] = job_number
 results['slurm_jobid'] = slurm_jobid
 results['slurm_array_task_id'] = slurm_array_task_id
+# randomness
+tf_rand_seed = int(os.urandom(32).encode('hex'), 16)
+tf.set_random_seed(tf_rand_seed)
+results['tf_rand_seed'] = tf_rand_seed
+## directory structure for collecting data for experiments
+path_root = './%s_test_experiments'%(prefix)
+
 date = datetime.date.today().strftime("%B %d").replace (" ", "_")
-path = './%s_test_experiments/%s_%s_j%s'%(prefix,prefix,date,job_number)
-#path = './om_experiments/'
+results['date'] = date
+
+current_experiment_folder = '/%s_%s_j%s'%(prefix,date,job_number)
+path = path_root+current_experiment_folder
+#path = './%s_test_experiments/%s_%s_j%s'%(prefix,prefix,date,job_number)
+## files & folders with data or mdls
 errors_pretty = '/%s_errors_file_%s_slurm_sj%s.txt'%(prefix,date,slurm_array_task_id)
 mdl_dir ='/%s_mdl_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
 json_file = '/%s_json_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
-#tensorboard_data_dump = '/%s_tb_mdl_sj%s'%(prefix,slurm_array_task_id)
 tensorboard_data_dump_train = '/tmp/mdl_logs/train'
 tensorboard_data_dump_test = '/tmp/mdl_logs/test'
 print '==> tensorboard_data_dump_train: ', tensorboard_data_dump_train
 print '==> tensorboard_data_dump_test: ', tensorboard_data_dump_test
 print 'mdl_save',mdl_save
-#
+# try to make directory, if it exists do NOP
 make_and_check_dir(path=path)
 make_and_check_dir(path=path+mdl_dir)
 make_and_check_dir(path=tensorboard_data_dump_train)
@@ -71,7 +77,6 @@ shutil.rmtree(tensorboard_data_dump_train)
 shutil.rmtree(tensorboard_data_dump_test)
 # JSON results structure
 results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(), results=results)
-results['date'] = date
 
 ## Data sets
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
@@ -79,21 +84,21 @@ results['date'] = date
 (N_test,D_out) = Y_test.shape
 
 ## HBF/NN params
-dims = [D,14,D_out]
-#dims = [D,16,16,D_out]
+#dims = [D,4,D_out]
+dims = [D,12,12,D_out]
 #dims = [D,16,16,16,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
 #std = [None,1,1,1]
-init_constant = 1.8
+init_constant = 1.39
 #b_init = len(dims)*[init_constant]
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, 1, None]
 S_init = b_init
 init_type = 'truncated_normal'
 #init_type = 'data_init'
-init_type = 'kern_init'
+#init_type = 'kern_init'
 #init_type = 'kpp_init'
 #model = 'standard_nn'
 model = 'hbf'
@@ -132,8 +137,8 @@ with tf.name_scope("L2_loss") as scope:
     l2_loss = tf.reduce_mean(tf.square(y_-y))
 
 ## train params
-report_error_freq = 1
-steps = 3000
+report_error_freq = 10
+steps = 20000
 M = 2000 #batch-size
 # steps = 30
 # M = 30 #batch-size
@@ -145,10 +150,12 @@ optimization_alg = 'GD'
 #optimization_alg = 'Adagrad'
 optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:
-    starter_learning_rate = 0.0001
+    starter_learning_rate = 0.01
     decay_rate = 0.9
-    decay_steps = 1000
+    decay_steps = 10000
     staircase = True
+    # decay_steps = 10000000
+    # staircase = False
     # decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
     global_step = tf.Variable(0, trainable=False)
     learning_rate = tf.train.exponential_decay(learning_rate=starter_learning_rate, global_step=global_step,decay_steps=decay_steps, decay_rate=decay_rate, staircase=staircase)
