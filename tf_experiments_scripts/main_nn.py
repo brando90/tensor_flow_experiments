@@ -38,7 +38,7 @@ def load_results_dic(results,**kwargs):
 
 print sys.argv
 
-results = {'test_errors':[],'train_errors':[]}
+results = {'train_errors':[], 'cv_errors':[],'test_errors':[]}
 # slyurm values and ids
 (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save) = mtf.process_argv(sys.argv)
 print 'prefix=%s,slurm_jobid=%s,slurm_array_task_id=%s,job_number=%s'%(prefix,slurm_jobid,slurm_array_task_id,job_number)
@@ -84,9 +84,9 @@ results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(
 (N_test,D_out) = Y_test.shape
 
 ## HBF/NN params
-#dims = [D,4,D_out]
-dims = [D,12,12,D_out]
-#dims = [D,16,16,16,D_out]
+dims = [D,6,D_out]
+#dims = [D,16,16,D_out]
+#dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
@@ -98,7 +98,7 @@ b_init = len(dims)*[init_constant]
 S_init = b_init
 init_type = 'truncated_normal'
 #init_type = 'data_init'
-#init_type = 'kern_init'
+init_type = 'kern_init'
 #init_type = 'kpp_init'
 #model = 'standard_nn'
 model = 'hbf'
@@ -138,7 +138,7 @@ with tf.name_scope("L2_loss") as scope:
 
 ## train params
 report_error_freq = 10
-steps = 20000
+steps = 3000
 M = 2000 #batch-size
 # steps = 30
 # M = 30 #batch-size
@@ -203,10 +203,12 @@ register_all_variables_and_grads(y)
 if phase_train is not None:
     #DO BN
     feed_dict_train = {x:X_train, y_:Y_train, phase_train: False}
+    feed_dict_cv = {x:X_cv, y_:Y_cv, phase_train: False}
     feed_dict_test = {x:X_test, y_:Y_test, phase_train: False}
 else:
     #Don't do BN
     feed_dict_train = {x:X_train, y_:Y_train}
+    feed_dict_cv = {x:X_cv, y_:Y_cv}
     feed_dict_test = {x:X_test, y_:Y_test}
 
 def get_batch_feed(X, Y, M, phase_train):
@@ -248,6 +250,7 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
             ## Train
             if i%report_error_freq == 0:
                 (summary_str_train,train_error) = sess.run(fetches=[merged, l2_loss], feed_dict=feed_dict_train)
+                cv_error = sess.run(fetches=l2_loss, feed_dict=feed_dict_cv)
                 (summary_str_test,test_error) = sess.run(fetches=[merged, l2_loss], feed_dict=feed_dict_test)
 
                 train_writer.add_summary(summary_str_train, i)
@@ -258,6 +261,7 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
                 print_messages(loss_msg, mdl_info_msg)
                 # store results
                 results['train_errors'].append(train_error)
+                results['cv_errors'].append(cv_error)
                 results['test_errors'].append(test_error)
                 # write errors to pretty print
                 f_err_msgs.write(loss_msg)
