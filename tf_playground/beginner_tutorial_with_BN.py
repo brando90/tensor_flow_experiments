@@ -3,29 +3,37 @@ import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 
-def batch_norm_layer(x,phase_train):
-    bn_train = batch_norm(phase_train, decay=0.999, center=True, scale=True,
+def batch_norm_layer(x,train_phase,scope_bn):
+    bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
     is_training=True,
-    reuse=True, # is this right?
+    reuse=None, # is this right?
     trainable=True,
-    scope=None)
-    bn_inference = batch_norm(inputs, decay=0.999, center=True, scale=True,
+    scope=scope_bn)
+    bn_inference = batch_norm(x, decay=0.999, center=True, scale=True,
     is_training=False,
     reuse=True, # is this right?
     trainable=True,
-    scope=None)
-    z = tf.cond(placeholder, bn_train, bn_inference)
+    scope=scope_bn)
+    # bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
+    # is_training=True,
+    # reuse=True, # is this right?
+    # trainable=True)
+    # bn_inference = batch_norm(x, decay=0.999, center=True, scale=True,
+    # is_training=False,
+    # reuse=True, # is this right?
+    # trainable=True)
+    z = tf.cond(train_phase, lambda: bn_train, lambda: bn_inference)
     return z
 
-def get_NN_layer(x, input_dim, output_dim, scope, phase_train):
+def get_NN_layer(x, input_dim, output_dim, scope, train_phase):
     with tf.name_scope(scope+'vars'):
         W = tf.Variable(tf.truncated_normal(shape=[input_dim, output_dim], mean=0.0, stddev=0.1))
         b = tf.Variable(tf.constant(0.1, shape=[output_dim]))
     with tf.name_scope(scope+'Z'):
         z = tf.matmul(x,W) + b
     with tf.name_scope(scope+'BN'):
-        if phase_train is not None:
-            z = batch_norm_layer(z)
+        if train_phase is not None:
+            z = batch_norm_layer(z,train_phase,scope+'BN_unit')
     with tf.name_scope(scope+'A'):
         a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
     return a
@@ -37,7 +45,7 @@ x = tf.placeholder(tf.float32, [None, 784])
 train_phase = tf.placeholder(tf.bool, name='phase_train')
 # variables for parameters
 hiden_units = 25
-layer1 = get_NN_layer(x, input_dim=784, output_dim=hiden_units, scope, bn=False)
+layer1 = get_NN_layer(x, input_dim=784, output_dim=hiden_units, scope='layer1', train_phase=train_phase)
 # create model
 W_final = tf.Variable(tf.truncated_normal(shape=[hiden_units, 10], mean=0.0, stddev=0.1))
 b_final = tf.Variable(tf.constant(0.1, shape=[10]))
@@ -58,11 +66,11 @@ with tf.Session() as sess:
             batch_xcv, batch_ycv = mnist.train.next_batch(5000)
             batch_xtest, batch_ytest = mnist.train.next_batch(5000)
             # do inference
-            train_error = sess.run(fetches=l2_loss, feed_dict={x: batch_xs, y_:batch_ys, train_phase: False})
-            cv_error = sess.run(fetches=l2_loss, feed_dict={x: batch_xcv, y_:batch_ycv, train_phase: False})
-            test_error = sess.run(fetches=l2_loss, feed_dict={x: batch_xs, y_:batch_xtest, batch_ytest: False})
+            train_error = sess.run(fetches=cross_entropy, feed_dict={x: batch_xs, y_:batch_ys, train_phase: False})
+            cv_error = sess.run(fetches=cross_entropy, feed_dict={x: batch_xcv, y_:batch_ycv, train_phase: False})
+            test_error = sess.run(fetches=cross_entropy, feed_dict={x: batch_xtest, y_:batch_ytest, train_phase: False})
 
-            def do_stuff_with_errors(args):
+            def do_stuff_with_errors(*args):
                 print args
             do_stuff_with_errors(train_error, cv_error, test_error)
         # Run Train Step
