@@ -9,19 +9,13 @@ def batch_norm_layer(x,train_phase,scope_bn):
     reuse=None, # is this right?
     trainable=True,
     scope=scope_bn)
+
     bn_inference = batch_norm(x, decay=0.999, center=True, scale=True,
     is_training=False,
     reuse=True, # is this right?
     trainable=True,
     scope=scope_bn)
-    # bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
-    # is_training=True,
-    # reuse=True, # is this right?
-    # trainable=True)
-    # bn_inference = batch_norm(x, decay=0.999, center=True, scale=True,
-    # is_training=False,
-    # reuse=True, # is this right?
-    # trainable=True)
+
     z = tf.cond(train_phase, lambda: bn_train, lambda: bn_inference)
     return z
 
@@ -57,14 +51,15 @@ cross_entropy = tf.reduce_mean( -tf.reduce_sum(y_ * tf.log(y), reduction_indices
 train_step = tf.train.GradientDescentOptimizer(0.5).minimize(cross_entropy)
 with tf.Session() as sess:
     sess.run(tf.initialize_all_variables())
-    steps = 30000
+    steps = 3000
     for iter_step in xrange(steps):
         #feed_dict_batch = get_batch_feed(X_train, Y_train, M, phase_train)
         batch_xs, batch_ys = mnist.train.next_batch(100)
         # Collect model statistics
         if iter_step%1000 == 0:
-            batch_xcv, batch_ycv = mnist.train.next_batch(5000)
-            batch_xtest, batch_ytest = mnist.train.next_batch(5000)
+            batch_xstrain, batch_xstrain = batch_xs, batch_ys #simualtes train data
+            batch_xcv, batch_ycv = mnist.test.next_batch(5000) #simualtes CV data
+            batch_xtest, batch_ytest = mnist.test.next_batch(5000) #simualtes test data
             # do inference
             train_error = sess.run(fetches=cross_entropy, feed_dict={x: batch_xs, y_:batch_ys, train_phase: False})
             cv_error = sess.run(fetches=cross_entropy, feed_dict={x: batch_xcv, y_:batch_ycv, train_phase: False})
@@ -75,9 +70,8 @@ with tf.Session() as sess:
             do_stuff_with_errors(train_error, cv_error, test_error)
         # Run Train Step
         sess.run(fetches=train_step, feed_dict={x: batch_xs, y_:batch_ys, train_phase: True})
-
-# list of booleans indicating correct predictions
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
-# accuracy
-accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-print(sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
+    # list of booleans indicating correct predictions
+    correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
+    # accuracy
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+    print(sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels, train_phase: False}))

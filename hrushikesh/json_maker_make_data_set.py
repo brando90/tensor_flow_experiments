@@ -28,7 +28,7 @@ for PtID,_  in patients_data.iteritems():
         else:
             x = current_SensorGLU_list[i:i+m] # vector in R^(m)
             y_1 = current_SensorGLU_list[i+m+T]
-            y_2 = current_SensorGLU_list[i+m+T+1]/10
+            y_2 = (current_SensorGLU_list[i+m+T+1] - current_SensorGLU_list[i+m+T-1]) /10
             y = [y_1, y_2]
             patients_data[PtID]['X'].append(x)
             patients_data[PtID]['Y'].append(y)
