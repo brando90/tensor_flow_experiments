@@ -67,7 +67,7 @@ def get_HBF_layer2(l, x, dims, init, phase_train=None, layer_name='HBFLayer'):
         with tf.name_scope('templates'+l):
             W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True)
         with tf.name_scope('rbf_stddev'+l):
-            S = tf.get_variable(name='S'+l, dtype=tf.float64, initializer=init_S, regularizer=None, trainable=False)
+            S = tf.get_variable(name='S'+l, dtype=tf.float64, initializer=init_S, regularizer=None, trainable=True)
             beta = tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
         with tf.name_scope('Z'+l):
             WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) # (1 x D^(l)) = sum( (D^(l-1) x D^(l)), 0 )
@@ -119,13 +119,15 @@ def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
     with tf.name_scope(scope+l):
         W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True)
         b = tf.get_variable(name='b'+l, dtype=tf.float64, initializer=init_b, regularizer=None, trainable=True)
-        z = tf.matmul(x,W) + b
-        if phase_train is not None:
-            z = standard_batch_norm(l, z, 1, phase_train)
-        layer = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
+        with tf.name_scope('Z'+l):
+            z = tf.matmul(x,W) + b
+            if phase_train is not None:
+                z = standard_batch_norm(l, z, 1, phase_train)
+        with tf.name_scope('A'+l):
+            a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
     W = tf.histogram_summary('W'+l, W)
     b = tf.histogram_summary('b'+l, b)
-    return layer
+    return a
 
 def nn_layer(x, input_dim, output_dim, layer_name, act=tf.nn.relu):
     """Reusable code for making a simple neural net layer.
