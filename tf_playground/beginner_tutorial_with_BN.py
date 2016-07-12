@@ -1,7 +1,7 @@
 import tensorflow as tf
 # download and install the MNIST data automatically
 from tensorflow.examples.tutorials.mnist import input_data
-from tf.contrib.layers.python.layers import batch_norm as batch_norm
+from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 
 def batch_norm_layer(x,phase_train):
     bn_train = batch_norm(phase_train, decay=0.999, center=True, scale=True,
@@ -17,16 +17,16 @@ def batch_norm_layer(x,phase_train):
     z = tf.cond(placeholder, bn_train, bn_inference)
     return z
 
-def get_NN_layer(x, dims, input_dim, output_dim, scope, phase_train):
+def get_NN_layer(x, input_dim, output_dim, scope, phase_train):
     with tf.name_scope(scope+'vars'):
         W = tf.Variable(tf.truncated_normal(shape=[input_dim, output_dim], mean=0.0, stddev=0.1))
         b = tf.Variable(tf.constant(0.1, shape=[output_dim]))
-    with tf.name_scope(scope+'Z')
+    with tf.name_scope(scope+'Z'):
         z = tf.matmul(x,W) + b
-    with tf.name_scope(scope+'BN')
+    with tf.name_scope(scope+'BN'):
         if phase_train is not None:
             z = batch_norm_layer(z)
-    with tf.name_scope(scope+'A')
+    with tf.name_scope(scope+'A'):
         a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
     return a
 
@@ -36,9 +36,12 @@ x = tf.placeholder(tf.float32, [None, 784])
 # placeholder that turns BN during training or off during inference
 train_phase = tf.placeholder(tf.bool, name='phase_train')
 # variables for parameters
-layer1 = get_NN_layer(x, dims, input_dim, output_dim, scope, bn=False)
+hiden_units = 25
+layer1 = get_NN_layer(x, input_dim=784, output_dim=hiden_units, scope, bn=False)
 # create model
-y = tf.nn.softmax(layer1 + b)
+W_final = tf.Variable(tf.truncated_normal(shape=[hiden_units, 10], mean=0.0, stddev=0.1))
+b_final = tf.Variable(tf.constant(0.1, shape=[10]))
+y = tf.nn.softmax(tf.matmul(layer1, W_final) + b_final)
 
 ### training
 y_ = tf.placeholder(tf.float32, [None, 10])
