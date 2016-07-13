@@ -78,13 +78,18 @@ shutil.rmtree(tensorboard_data_dump_test)
 # JSON results structure
 results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(), results=results)
 
-## Data sets
-(X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
+## Data sets and task
+task_name = 'qianli_func'
+#task_name = 'hrushikesh'
+print '----====> TASK NAME: %s' % task_name
+(X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data(task_name)
 (N_train,D) = X_train.shape
 (N_test,D_out) = Y_test.shape
+print '(N_train,D) = ', (N_train,D)
+print '(N_test,D_out) = ', (N_test,D_out)
 
 ## HBF/NN params
-dims = [D,6,D_out]
+dims = [D,12,D_out]
 #dims = [D,16,16,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
@@ -105,11 +110,28 @@ model = 'hbf'
 #
 max_to_keep = 10
 
+## train params
 bn = False
 if bn:
     phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 else:
     phase_train = None
+
+report_error_freq = 10
+steps = 3000
+M = 2000 #batch-size
+
+starter_learning_rate = 0.001
+decay_rate = 0.9
+decay_steps = 1000
+staircase = True
+
+optimization_alg = 'GD'
+#optimization_alg = 'Momentum'
+#optimization_alg = 'Adadelta'
+#optimization_alg = 'Adam'
+#optimization_alg = 'Adagrad'
+optimization_alg = 'RMSProp'
 
 ## Make Model
 x = tf.placeholder(tf.float64, shape=[None, D], name='x-input') # M x D
@@ -136,24 +158,11 @@ y_ = tf.placeholder(tf.float64, shape=[None, D_out]) # (M x D)
 with tf.name_scope("L2_loss") as scope:
     l2_loss = tf.reduce_mean(tf.square(y_-y))
 
-## train params
-report_error_freq = 10
-steps = 3000
-M = 2000 #batch-size
-# steps = 30
-# M = 30 #batch-size
-
-optimization_alg = 'GD'
-#optimization_alg = 'Momentum'
-#optimization_alg = 'Adadelta'
-#optimization_alg = 'Adam'
-#optimization_alg = 'Adagrad'
-optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:
-    starter_learning_rate = 0.01
-    decay_rate = 0.9
-    decay_steps = 10000
-    staircase = True
+    # starter_learning_rate = 0.0000001
+    # decay_rate = 0.9
+    # decay_steps = 100
+    # staircase = True
     # decay_steps = 10000000
     # staircase = False
     # decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
@@ -196,7 +205,7 @@ def register_all_variables_and_grads(y):
         if dldw != None:
             prefix_name = 'derivative_'+v.name
             suffix_text = 'dJd'+v.name
-            mtf.put_summaries(var=tf.square(dldw),prefix_name=prefix_name,suffix_text=suffix_text)
+            mtf.put_summaries(var=tf.sqrt( tf.reduce_sum(tf.square(dldw)) ),prefix_name=prefix_name,suffix_text=suffix_text)
 
 register_all_variables_and_grads(y)
 ## TRAIN
@@ -225,7 +234,7 @@ def get_batch_feed(X, Y, M, phase_train):
 
 def print_messages(*args):
     for i, msg in enumerate(args):
-        print ('-->msg %s: ', msg)
+        print ('>',msg)
 
 if tf.gfile.Exists('/tmp/mdl_logs'):
   tf.gfile.DeleteRecursively('/tmp/mdl_logs')
@@ -256,8 +265,8 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
                 train_writer.add_summary(summary_str_train, i)
                 test_writer.add_summary(summary_str_test, i)
 
-                loss_msg = "Model *%s%s*, step %d/%d, training error %g, test error %g \n"%(model,nb_hidden_layers,i,steps,train_error,test_error)
-                mdl_info_msg = "Opt: %s, BN %s, After %d/%d iteration, Init: %s \n" % (optimization_alg,bn,i,steps,init_type)
+                loss_msg = "Mdl*%s%s*-units%s, task: %s, step %d/%d, train err %g, test err %g"%(model,nb_hidden_layers,dims,task_name,i,steps,train_error,test_error)
+                mdl_info_msg = "Opt:%s, BN %s, After%d/%d iteration,Init: %s" % (optimization_alg,bn,i,steps,init_type)
                 print_messages(loss_msg, mdl_info_msg)
                 # store results
                 results['train_errors'].append(train_error)

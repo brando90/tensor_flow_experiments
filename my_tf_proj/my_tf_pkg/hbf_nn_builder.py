@@ -125,8 +125,9 @@ def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
                 z = standard_batch_norm(l, z, 1, phase_train)
         with tf.name_scope('A'+l):
             a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
-    W = tf.histogram_summary('W'+l, W)
-    b = tf.histogram_summary('b'+l, b)
+        with tf.name_scope('sumarries'+l):
+            W = tf.histogram_summary('W'+l, W)
+            b = tf.histogram_summary('b'+l, b)
     return a
 
 def nn_layer(x, input_dim, output_dim, layer_name, act=tf.nn.relu):

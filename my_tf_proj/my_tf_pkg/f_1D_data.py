@@ -1,4 +1,6 @@
 import numpy as np
+import json
+from sklearn.cross_validation import train_test_split
 
 def get_labels(X,Y,f):
     N_train = X.shape[0]
@@ -55,4 +57,20 @@ def generate_data_from_krls():
     Y_train = f(X_train)
     Y_cv = f(X_cv)
     Y_test = f(X_test)
+    return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
+
+def get_data(task_name):
+    ## Data sets
+    if task_name == 'qianli_func':
+        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
+    elif task_name == 'hrushikesh':
+        with open('../hrushikesh/patient_data_X_Y.json', 'r') as f_json:
+            patients_data = json.load(f_json)
+        X = patients_data['1']['X']
+        Y = patients_data['1']['Y']
+        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.40)
+        X_cv, X_test, Y_cv, Y_test = train_test_split(X_test, Y_test, test_size=0.5)
+        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = ( np.array(X_train), np.array(Y_train), np.array(X_cv), np.array(Y_cv), np.array(X_test), np.array(Y_test) )
+    else:
+        raise ValueError('task_name: %s does not exist. Try experiment that exists'%(task_name))
     return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)

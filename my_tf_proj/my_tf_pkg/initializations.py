@@ -19,6 +19,7 @@ def get_initilizations_standard_NN(init_type,dims,mu,std,b_init,S_init,X_train,Y
             inits_W.append( tf.truncated_normal(shape=[dims[l-1],dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) )
             inits_b.append( tf.constant( b_init[l], shape=[dims[l]], dtype=tf.float64 ) )
         l=len(dims)-1
+        print [dims[l-1],dims[l]]
         inits_C=[ tf.truncated_normal(shape=[dims[l-1],dims[l]], mean=mu, stddev=std, dtype=tf.float64) ]
     elif  init_type=='data_init':
         X_train=X_train
@@ -39,7 +40,7 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
             inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
             #inits_C.append( tf.truncated_normal(shape=[dims[l],1], mean=mu[l], stddev=std[l], dtype=tf.float64) )
         l=len(dims)-1
-        inits_C=[ tf.truncated_normal(shape=[dims[l-1],dims[l]], mean=mu, stddev=std, dtype=tf.float64) ]
+        inits_C=[ tf.truncated_normal(shape=[dims[l-1],dims[l]], mean=mu[l], stddev=std[l], dtype=tf.float64) ]
     elif init_type=='data_init':
         nb_hidden_layers=len(dims)-1
         inits_W=[None]
@@ -98,6 +99,7 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
         Kern = np.exp(-beta*euclidean_distances(X=X_train,Y=centers,squared=True))
         (C,_,_,_) = np.linalg.lstsq(Kern,Y_train)
         inits_C=[tf.constant(C)]
+    print 'DONE INITILIZING'
     return (inits_C,inits_W,inits_S)
 
 def get_centers_from_data(X_train,dims):

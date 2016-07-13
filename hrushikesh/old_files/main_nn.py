@@ -95,8 +95,8 @@ print '(N_train,D)', (N_train,D)
 print '(N_test,D_out)', (N_test,D_out)
 
 ## HBF/NN params
-#dims = [D,50,D_out]
-dims = [D,5,5,D_out]
+#dims = [D,24,D_out]
+dims = [D,3,3,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
@@ -157,7 +157,7 @@ M = 50 #batch-size
 optimization_alg = 'GD'
 #optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-optimization_alg = 'Adam'
+#optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
 #optimization_alg = 'RMSProp'
 with tf.name_scope("train") as scope:
