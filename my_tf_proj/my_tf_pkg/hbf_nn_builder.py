@@ -69,7 +69,6 @@ def get_HBF_layer2(l, x, dims, init, phase_train=None, layer_name='HBFLayer'):
         with tf.name_scope('rbf_stddev'+l):
             print '-->',init_S
             S = tf.get_variable(name='S'+l, dtype=tf.float64, initializer=init_S, regularizer=None, trainable=True)
-            print tf.shape(S)
             beta = tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
         with tf.name_scope('Z'+l):
             WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) # (1 x D^(l)) = sum( (D^(l-1) x D^(l)), 0 )

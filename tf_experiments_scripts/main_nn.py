@@ -10,6 +10,7 @@ import json
 import sys
 import datetime
 import os
+import pdb
 
 import my_tf_pkg as mtf
 #from tensorflow.python import control_flow_ops
@@ -95,9 +96,9 @@ dims = [D,3,3,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
-#std = [None,1,.1,.1]
+#std = [None,2,.25,.1]
 #std = [None,1,1,1]
-init_constant = 0.3
+init_constant = 0.8
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
@@ -106,6 +107,7 @@ init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
 #init_type = 'kpp_init'
+init_type = 'data_trunc_norm_kern'
 #model = 'standard_nn'
 model = 'hbf'
 #
@@ -149,6 +151,8 @@ if model == 'standard_nn':
 elif model == 'hbf':
     #tensorboard_data_dump = '/tmp/hbf_logs'
     (inits_C,inits_W,inits_S) = mtf.get_initilizations_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
+    print inits_W
+    #pdb.set_trace()
     with tf.name_scope("HBF") as scope:
         mdl = mtf.build_HBF2(x,dims,(inits_C,inits_W,inits_S),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
