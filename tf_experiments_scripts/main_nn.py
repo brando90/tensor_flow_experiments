@@ -90,8 +90,8 @@ print '(N_train,D) = ', (N_train,D)
 print '(N_test,D_out) = ', (N_test,D_out)
 
 ## HBF/NN params
-#dims = [D,24,D_out]
-dims = [D,6,6,D_out]
+dims = [D,12,D_out]
+#dims = [D,6,6,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
@@ -103,13 +103,13 @@ b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
 S_init = b_init
-train_S_type = 'multiple_S'
+#train_S_type = 'multiple_S'
 train_S_type = 'single_S'
-init_type = 'truncated_normal'
+#init_type = 'truncated_normal'
 #init_type = 'data_init'
-#init_type = 'kern_init'
+init_type = 'kern_init'
 #init_type = 'kpp_init'
-init_type = 'data_trunc_norm_kern'
+#init_type = 'data_trunc_norm_kern'
 #model = 'standard_nn'
 model = 'hbf'
 #
@@ -123,10 +123,10 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 90000
-M = 3000 #batch-size
+steps = 3000
+M = 2000 #batch-size
 
-starter_learning_rate = 0.01
+starter_learning_rate = 0.1
 decay_rate = 0.9
 decay_steps = 1000
 staircase = True
