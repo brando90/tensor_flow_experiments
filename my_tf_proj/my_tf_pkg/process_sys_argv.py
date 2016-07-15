@@ -27,7 +27,7 @@ def process_argv(argv):
             job_number = argv[3]
             mdl_save = bool(argv[4])
             print 3
-        if len(argv) == 5:
+        elif len(argv) == 5:
             # python main_nn.py      slurm_jobid     slurm_array_task_id     job_number      True
             # python main_nn.py slurm_jobid slurm_array_task_id job_number True
             prefix = 'tmp_om'
