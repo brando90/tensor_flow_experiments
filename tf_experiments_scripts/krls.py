@@ -123,7 +123,7 @@ def main():
     plot_one_func(fig_num=1, X_original=X_train,Y_original=Y_train, markersize=3, title_name='Reconstruction')
 
     replace = False # with or without replacement
-    nb_rbf_shapes = 2 #<--
+    nb_rbf_shapes = 30 #<--
     stddevs = np.linspace(start=0.1, stop=3, num=nb_rbf_shapes)
     print 'number of RBF stddev tried:', len(stddevs)
     print 'start stddevs: ', stddevs
@@ -133,7 +133,7 @@ def main():
     centers_to_reconstruct_index = [1, 4, 7] # corresponds to centers 4, 12, 18
     colours = ['g','r','c','m','y']
 
-    nb_inits = 2 #<--
+    nb_inits = 30 #<--
     mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean = evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
     (C_hat_bests, centers_bests, best_stddevs) = mdl_best_params
     print 'best_stddevs: ',best_stddevs
@@ -163,8 +163,8 @@ def main():
     plot_reconstruction(fig_num=2, X_original=X_test,Y_original=Y_test, nb_centers=nb_centers_reconstruct, \
     rbf_predictions=rbf_predictions_reconstruct_test, colours=colours, markersize=3,title_name='Reconstruction_test')
     #
-    #plt.legend()
-    #plt.show()
+    plt.legend()
+    plt.show()
 
 
     # results = {'mdl_params':mdl_best_params, 'errors':errors, 'reconstructions':reconstructions}

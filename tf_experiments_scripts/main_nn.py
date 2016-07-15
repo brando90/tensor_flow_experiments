@@ -89,21 +89,22 @@ print '(N_train,D) = ', (N_train,D)
 print '(N_test,D_out) = ', (N_test,D_out)
 
 ## HBF/NN params
-dims = [D,12,D_out]
-#dims = [D,16,16,D_out]
+#dims = [D,24,D_out]
+dims = [D,3,3,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
 std = len(dims)*[0.1]
+#std = [None,1,.1,.1]
 #std = [None,1,1,1]
-init_constant = 1.39
-#b_init = len(dims)*[init_constant]
+init_constant = 0.3
 b_init = len(dims)*[init_constant]
+#b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
 S_init = b_init
 init_type = 'truncated_normal'
 #init_type = 'data_init'
-init_type = 'kern_init'
+#init_type = 'kern_init'
 #init_type = 'kpp_init'
 #model = 'standard_nn'
 model = 'hbf'
@@ -121,13 +122,13 @@ report_error_freq = 10
 steps = 3000
 M = 2000 #batch-size
 
-starter_learning_rate = 0.001
+starter_learning_rate = 0.01
 decay_rate = 0.9
 decay_steps = 1000
 staircase = True
 
 optimization_alg = 'GD'
-#optimization_alg = 'Momentum'
+optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
 #optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
@@ -205,7 +206,9 @@ def register_all_variables_and_grads(y):
         if dldw != None:
             prefix_name = 'derivative_'+v.name
             suffix_text = 'dJd'+v.name
-            mtf.put_summaries(var=tf.sqrt( tf.reduce_sum(tf.square(dldw)) ),prefix_name=prefix_name,suffix_text=suffix_text)
+            #mtf.put_summaries(var=tf.sqrt( tf.reduce_sum(tf.square(dldw)) ),prefix_name=prefix_name,suffix_text=suffix_text)
+            mtf.put_summaries(var=tf.abs(dldw),prefix_name=prefix_name,suffix_text='_abs_'+suffix_text)
+            tf.histogram_summary('hist'+prefix_name, dldw)
 
 register_all_variables_and_grads(y)
 ## TRAIN
@@ -268,6 +271,7 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
                 loss_msg = "Mdl*%s%s*-units%s, task: %s, step %d/%d, train err %g, test err %g"%(model,nb_hidden_layers,dims,task_name,i,steps,train_error,test_error)
                 mdl_info_msg = "Opt:%s, BN %s, After%d/%d iteration,Init: %s" % (optimization_alg,bn,i,steps,init_type)
                 print_messages(loss_msg, mdl_info_msg)
+                print 'S: ', inits_S
                 # store results
                 results['train_errors'].append(train_error)
                 results['cv_errors'].append(cv_error)

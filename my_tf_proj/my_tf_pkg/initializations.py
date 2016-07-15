@@ -49,7 +49,8 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
         (subsampled_data_points,W,W_tf)= get_centers_from_data(X_train,dims)
         inits_W.append( W_tf )
         for l in range(1,nb_hidden_layers):
-            inits_S.append( tf.constant( S_init[l], shape=[], dtype=tf.float64 ) )
+            #inits_S.append( tf.constant( S_init[l], shape=[], dtype=tf.float64 ) )
+            inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
         l=len(dims)-1
         inits_C=[ tf.truncated_normal(shape=[dims[l-1],dims[l]], mean=mu, stddev=std, dtype=tf.float64) ]
     elif init_type=='kern_init':
@@ -60,7 +61,8 @@ def get_initilizations_HBF(init_type,dims,mu,std,b_init,S_init,X_train,Y_train):
         inits_W.append( W_tf )
 
         for l in range(1,nb_hidden_layers):
-            inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
+            inits_S.append( tf.constant( S_init[l], shape=[], dtype=tf.float64 ) )
+            #inits_S.append( tf.constant( S_init[l], shape=[dims[l]], dtype=tf.float64 ) )
 
         stddev = S_init[1]
         beta = np.power(1.0/stddev,2)

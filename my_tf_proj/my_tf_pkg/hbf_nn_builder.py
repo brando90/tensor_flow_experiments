@@ -67,7 +67,9 @@ def get_HBF_layer2(l, x, dims, init, phase_train=None, layer_name='HBFLayer'):
         with tf.name_scope('templates'+l):
             W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True)
         with tf.name_scope('rbf_stddev'+l):
+            print '-->',init_S
             S = tf.get_variable(name='S'+l, dtype=tf.float64, initializer=init_S, regularizer=None, trainable=True)
+            print tf.shape(S)
             beta = tf.pow(tf.div( tf.constant(1.0,dtype=tf.float64),S), 2)
         with tf.name_scope('Z'+l):
             WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) # (1 x D^(l)) = sum( (D^(l-1) x D^(l)), 0 )
@@ -101,6 +103,19 @@ def put_summaries(var, prefix_name, suffix_text = ''):
         tf.scalar_summary(prefix_title+'max'+suffix_text, tf.reduce_max(var))
         tf.scalar_summary(prefix_title+'min'+suffix_text, tf.reduce_min(var))
         tf.histogram_summary(prefix_name, var)
+
+# def put_summaries_absolute_val(var, prefix_name, suffix_text = ''):
+#     """Attach a lot of summaries to a Tensor to check is absolute value"""
+#     prefix_title = prefix_name+'/'
+#     with tf.name_scope('summaries'):
+#         mean = tf.reduce_mean(var)
+#         tf.scalar_summary(prefix_title+'mean'+suffix_text, mean)
+#         with tf.name_scope('stddev'):
+#             stddev = tf.sqrt(tf.reduce_sum(tf.square(var - mean)))
+#         tf.scalar_summary(prefix_title+'stddev'+suffix_text, stddev)
+#         tf.scalar_summary(prefix_title+'max'+suffix_text, tf.reduce_max(var))
+#         tf.scalar_summary(prefix_title+'min'+suffix_text, tf.reduce_min(var))
+#         tf.histogram_summary(prefix_name, var)
 
 def variable_summaries(var, name):
     """Attach a lot of summaries to a Tensor."""
