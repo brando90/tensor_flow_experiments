@@ -61,7 +61,7 @@ path = path_root+current_experiment_folder
 #path = './%s_test_experiments/%s_%s_j%s'%(prefix,prefix,date,job_number)
 ## files & folders with data or mdls
 errors_pretty = '/%s_errors_file_%s_slurm_sj%s.txt'%(prefix,date,slurm_array_task_id)
-mdl_dir ='/%s_mdl_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
+mdl_dir ='/mdls_%s_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
 json_file = '/%s_json_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
 tensorboard_data_dump_train = '/tmp/mdl_logs/train'
 tensorboard_data_dump_test = '/tmp/mdl_logs/test'
@@ -123,8 +123,8 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 3000
-M = 2000 #batch-size
+steps = 30
+M = 2 #batch-size
 
 starter_learning_rate = 0.1
 decay_rate = 0.9
