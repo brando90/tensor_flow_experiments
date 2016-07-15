@@ -91,18 +91,20 @@ print '(N_test,D_out) = ', (N_test,D_out)
 
 ## HBF/NN params
 #dims = [D,24,D_out]
-dims = [D,3,3,D_out]
+dims = [D,6,6,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
-std = len(dims)*[0.1]
+std = len(dims)*[0.9]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
-init_constant = 0.8
+init_constant = 1
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
 S_init = b_init
+train_S_type = 'multiple_S'
+train_S_type = 'single_S'
 init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
@@ -121,8 +123,8 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 3000
-M = 2000 #batch-size
+steps = 90000
+M = 3000 #batch-size
 
 starter_learning_rate = 0.01
 decay_rate = 0.9
@@ -150,7 +152,7 @@ if model == 'standard_nn':
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
 elif model == 'hbf':
     #tensorboard_data_dump = '/tmp/hbf_logs'
-    (inits_C,inits_W,inits_S) = mtf.get_initilizations_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train)
+    (inits_C,inits_W,inits_S) = mtf.get_initilizations_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train, train_S_type=train_S_type)
     print inits_W
     #pdb.set_trace()
     with tf.name_scope("HBF") as scope:
