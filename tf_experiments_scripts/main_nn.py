@@ -103,6 +103,7 @@ low_const, high_const = 0.1, 5
 init_constant = np.random.uniform(low=low_const, high=high_const)
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
+print '++> b_init ', b_init
 #b_init = [None, 1, 1, None]
 S_init = b_init
 train_S_type = 'multiple_S'
@@ -130,8 +131,8 @@ M = 2000 #batch-size
 
 low_const, high_const = 0, -5
 log_learning_rate = np.random.uniform(low=low_const, high=high_const)
-print log_learning_rate
 starter_learning_rate = 10**log_learning_rate
+print '++> starter_learning_rate ', starter_learning_rate
 #starter_learning_rate = 0.01
 decay_rate = 0.9
 decay_steps = 1000
