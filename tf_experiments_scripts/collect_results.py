@@ -4,9 +4,9 @@ import os
 
 prefix = 'om_results'
 path_root = './%s_test_experiments'%(prefix)
-date = 'July_15' # <- date
-job_name = 'HBF1_12_multiple_S' # <- job_name
-job_name
+date = 'July_16' # <- date
+#job_name = 'HBF1_12_multiple_S' # <- job_name
+job_name = 'HBF1_12_multiple_S_random_HP'
 current_experiment_folder = '/%s_%s_j%s'%(prefix,date,job_name)
 path = path_root+current_experiment_folder
 #
