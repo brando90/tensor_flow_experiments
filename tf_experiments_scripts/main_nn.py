@@ -108,7 +108,6 @@ print '++> S/b_init ', b_init
 S_init = b_init
 train_S_type = 'multiple_S'
 #train_S_type = 'single_S'
-results['train_S_type'] = train_S_type
 #init_type = 'truncated_normal'
 #init_type = 'data_init'
 init_type = 'kern_init'
@@ -146,6 +145,7 @@ optimization_alg = 'Momentum'
 #optimization_alg = 'Adagrad'
 optimization_alg = 'RMSProp'
 
+results['train_S_type'] = train_S_type
 results['range_learning_rate'] = low_const_learning_rate, high_const_learning_rate
 results['range_constant'] = low_const, high_const
 
