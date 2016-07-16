@@ -126,8 +126,8 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 3000
-M = 2000 #batch-size
+steps = 30
+M =  2 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -5
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
@@ -146,8 +146,8 @@ optimization_alg = 'Momentum'
 optimization_alg = 'RMSProp'
 
 results['train_S_type'] = train_S_type
-results['range_learning_rate'] = low_const_learning_rate, high_const_learning_rate
-results['range_constant'] = low_const, high_const
+results['range_learning_rate'] = [low_const_learning_rate, high_const_learning_rate]
+results['range_constant'] = [low_const, high_const]
 
 ## Make Model
 x = tf.placeholder(tf.float64, shape=[None, D], name='x-input') # M x D
