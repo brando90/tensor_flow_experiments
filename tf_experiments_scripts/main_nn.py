@@ -100,7 +100,7 @@ std = len(dims)*[0.9]
 #std = [None,1,1,1]
 #init_constant = 1.6
 low_const, high_const = 0.1, 5
-#init_constant = np.random.uniform(low=low_const, high=high_const)
+init_constant = np.random.uniform(low=low_const, high=high_const)
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
@@ -108,6 +108,7 @@ print '++> S/b_init ', b_init
 S_init = b_init
 train_S_type = 'multiple_S'
 #train_S_type = 'single_S'
+results['train_S_type'] = train_S_type
 #init_type = 'truncated_normal'
 #init_type = 'data_init'
 init_type = 'kern_init'
@@ -129,9 +130,9 @@ report_error_freq = 10
 steps = 3000
 M = 2000 #batch-size
 
-low_const, high_const = 0, -5
-#log_learning_rate = np.random.uniform(low=low_const, high=high_const)
-#starter_learning_rate = 10**log_learning_rate
+low_const_learning_rate, high_const_learning_rate = 0, -5
+log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
+starter_learning_rate = 10**log_learning_rate
 #starter_learning_rate = 0.01
 print '++> starter_learning_rate ', starter_learning_rate
 decay_rate = 0.9
@@ -144,6 +145,9 @@ optimization_alg = 'Momentum'
 #optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
 optimization_alg = 'RMSProp'
+
+results['range_learning_rate'] = low_const_learning_rate, high_const_learning_rate
+results['range_constant'] = low_const, high_const
 
 ## Make Model
 x = tf.placeholder(tf.float64, shape=[None, D], name='x-input') # M x D
