@@ -98,13 +98,15 @@ mu = len(dims)*[0.0]
 std = len(dims)*[0.9]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
-init_constant = 1
+#init_constant = 1.6
+low_const, high_const = 0.1, 5
+init_constant = np.random.uniform(low=low_const, high=high_const)
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
 S_init = b_init
-#train_S_type = 'multiple_S'
-train_S_type = 'single_S'
+train_S_type = 'multiple_S'
+#train_S_type = 'single_S'
 #init_type = 'truncated_normal'
 #init_type = 'data_init'
 init_type = 'kern_init'
@@ -123,10 +125,14 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 30
-M = 2 #batch-size
+steps = 3000
+M = 2000 #batch-size
 
-starter_learning_rate = 0.1
+low_const, high_const = 0, -5
+log_learning_rate = np.random.uniform(low=low_const, high=high_const)
+print log_learning_rate
+starter_learning_rate = 10**log_learning_rate
+#starter_learning_rate = 0.01
 decay_rate = 0.9
 decay_steps = 1000
 staircase = True
