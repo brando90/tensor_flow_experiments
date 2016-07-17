@@ -90,7 +90,7 @@ print '(N_train,D) = ', (N_train,D)
 print '(N_test,D_out) = ', (N_test,D_out)
 
 ## HBF/NN params
-dims = [D,12,D_out]
+dims = [D,4,D_out]
 #dims = [D,6,6,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
@@ -126,8 +126,8 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 30
-M =  2 #batch-size
+steps = 4000
+M =  2000 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -5
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
