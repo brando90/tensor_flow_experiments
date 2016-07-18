@@ -133,13 +133,15 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 40
-M =  2 #batch-size
+steps = 5000
+M =  2000 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -5
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
 starter_learning_rate = 10**log_learning_rate
-#starter_learning_rate = 0.01
+
+starter_learning_rate = 0.01
+
 print '++> starter_learning_rate ', starter_learning_rate
 decay_rate = 0.9
 decay_steps = 1000
@@ -148,9 +150,9 @@ staircase = True
 optimization_alg = 'GD'
 optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-#optimization_alg = 'Adam'
+optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
-optimization_alg = 'RMSProp'
+#optimization_alg = 'RMSProp'
 
 results['train_S_type'] = train_S_type
 results['range_learning_rate'] = [low_const_learning_rate, high_const_learning_rate]
