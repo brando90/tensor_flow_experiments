@@ -59,12 +59,12 @@ results['date'] = date
 current_experiment_folder = '/%s_%s_j%s'%(prefix,date,job_number)
 path = path_root+current_experiment_folder
 #
-errors_pretty_dir = '/errors_pretty_dir'
+#errors_pretty_dir = '/errors_pretty_dir'
 errors_pretty = '/%s_errors_file_%s_slurm_sj%s.txt'%(prefix,date,slurm_array_task_id)
 #
 mdl_dir ='/mdls_%s_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
 #
-json_dir = '/results_json_dir'
+#json_dir = '/results_json_dir'
 json_file = '/%s_json_%s_slurm_array_id%s_jobid_%s'%(prefix, date, slurm_array_task_id, slurm_jobid)
 #
 tensorboard_data_dump_train = '/tmp/mdl_logs/train'
@@ -74,8 +74,8 @@ print '==> tensorboard_data_dump_test: ', tensorboard_data_dump_test
 print 'mdl_save',mdl_save
 # try to make directory, if it exists do NOP
 make_and_check_dir(path=path)
-make_and_check_dir(path=path+json_dir)
-make_and_check_dir(path=path+errors_pretty_dir)
+#make_and_check_dir(path=path+json_dir)
+#make_and_check_dir(path=path+errors_pretty_dir)
 make_and_check_dir(path=path+mdl_dir)
 make_and_check_dir(path=tensorboard_data_dump_train)
 make_and_check_dir(path=tensorboard_data_dump_test)

@@ -65,6 +65,7 @@ def get_results_for_experiments(path_to_experiments):
     for (experiment_dir, _, potential_runs) in os.walk(path_to_experiments):
         # if current dirpath is a valid experiment and not . (itself)
         if (experiment_dir != path_to_experiments):
+            print experiment_dir
             results_best, best_filename = get_best_results_from_experiment(experiment_dirpath=experiment_dir,list_runs_filenames=potential_runs)
             nb_units = results_best['dims'][1]
             (left, right) = experiment_dir.split('jHBF1_')
@@ -81,24 +82,24 @@ def get_results_for_experiments(path_to_experiments):
     return experiment_results
 
 ##
-experiment = '/HBF1_multiple'
+experiment = '/multiple_S_test'
 path_to_experiments = './om_results_test_experiments'+experiment
 multiple_experiment_results = get_results_for_experiments(path_to_experiments)
 
 #pdb.set_trace()
 
-experiment = '/HBF1_single'
-path_to_experiments = './om_results_test_experiments'+experiment
-single_experiment_results = get_results_for_experiments(path_to_experiments)
+#experiment = '/HBF1_single'
+#path_to_experiments = './om_results_test_experiments'+experiment
+#single_experiment_results = get_results_for_experiments(path_to_experiments)
 #
 list_units_multiple, list_test_errors_multiple = get_list_errors(experiment_results=multiple_experiment_results)
 #print list_units_multiple, list_test_errors_multiple
-list_units_single, list_test_errors_single = get_list_errors(experiment_results=single_experiment_results)
+#list_units_single, list_test_errors_single = get_list_errors(experiment_results=single_experiment_results)
 #print list_units_multiple, list_test_errors_single
 #
 plt.figure(3)
 krls.plot_errors(list_units_multiple, list_test_errors_multiple,label='Errors', markersize=3, colour='b')
-krls.plot_errors(list_units_single, list_test_errors_single,label='Errors', markersize=3, colour='b')
+#krls.plot_errors(list_units_single, list_test_errors_single,label='Errors', markersize=3, colour='b')
 #
-# plt.legend()
-# plt.show()
+plt.legend()
+plt.show()
