@@ -271,7 +271,7 @@ tf.gfile.MakeDirs('/tmp/mdl_logs')
 if mdl_save:
     saver = tf.train.Saver(max_to_keep=max_to_keep)
 start_time = time.time()
-with open(path+errors_pretty_dir+errors_pretty, 'w+') as f_err_msgs:
+with open(path+errors_pretty, 'w+') as f_err_msgs:
     with tf.Session() as sess:
         merged = tf.merge_all_summaries()
         #writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
@@ -325,6 +325,6 @@ print("--- %s hours ---" % hours )
 results['seconds'] = seconds
 results['minutes'] = minutes
 results['hours'] = hours
-with open(path+json_dir+json_file, 'w+') as f_json:
+with open(path+json_file, 'w+') as f_json:
     json.dump(results,f_json,sort_keys=True, indent=2, separators=(',', ': '))
 print '\a' #makes beep
