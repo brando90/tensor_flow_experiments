@@ -67,7 +67,7 @@ def get_results_for_experiments(path_to_experiments):
         if (experiment_dir != path_to_experiments):
             results_best, best_filename = get_best_results_from_experiment(experiment_dirpath=experiment_dir,list_runs_filenames=potential_runs)
             nb_units = results_best['dims'][1]
-            (left, right) = experiment_dir.split('om_results_July_16_jHBF1_')
+            (left, right) = experiment_dir.split('jHBF1_')
             print '--'
             #print experiment_dir.split('om_results_July_16_jHBF1_')
             print right[0]

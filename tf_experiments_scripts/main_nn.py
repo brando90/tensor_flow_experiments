@@ -37,11 +37,12 @@ def load_results_dic(results,**kwargs):
         results[key] = value
     return results
 
-print sys.argv
+print 'print sys.argv =',sys.argv
+print 'len(sys.argv) =',len(sys.argv)
 
 results = {'train_errors':[], 'cv_errors':[],'test_errors':[]}
 # slyurm values and ids
-(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save) = mtf.process_argv(sys.argv)
+(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name) = mtf.process_argv(sys.argv)
 print 'prefix=%s,slurm_jobid=%s,slurm_array_task_id=%s,job_number=%s'%(prefix,slurm_jobid,slurm_array_task_id,job_number)
 results['job_number'] = job_number
 results['slurm_jobid'] = slurm_jobid
@@ -51,18 +52,23 @@ tf_rand_seed = int(os.urandom(32).encode('hex'), 16)
 tf.set_random_seed(tf_rand_seed)
 results['tf_rand_seed'] = tf_rand_seed
 ## directory structure for collecting data for experiments
-path_root = './%s_test_experiments'%(prefix)
+#experiment_name = 'test'
+path_root = './%s_test_experiments/%s'%(prefix,experiment_name)
 
 date = datetime.date.today().strftime("%B %d").replace (" ", "_")
 results['date'] = date
-
+#
 current_experiment_folder = '/%s_%s_j%s'%(prefix,date,job_number)
 path = path_root+current_experiment_folder
-#path = './%s_test_experiments/%s_%s_j%s'%(prefix,prefix,date,job_number)
-## files & folders with data or mdls
+#
+errors_pretty_dir = '/errors_pretty_dir'
 errors_pretty = '/%s_errors_file_%s_slurm_sj%s.txt'%(prefix,date,slurm_array_task_id)
+#
 mdl_dir ='/mdls_%s_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
+#
+json_dir = '/results_json_dir'
 json_file = '/%s_json_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
+#
 tensorboard_data_dump_train = '/tmp/mdl_logs/train'
 tensorboard_data_dump_test = '/tmp/mdl_logs/test'
 print '==> tensorboard_data_dump_train: ', tensorboard_data_dump_train
@@ -70,6 +76,8 @@ print '==> tensorboard_data_dump_test: ', tensorboard_data_dump_test
 print 'mdl_save',mdl_save
 # try to make directory, if it exists do NOP
 make_and_check_dir(path=path)
+make_and_check_dir(path=path+json_dir)
+make_and_check_dir(path=path+errors_pretty_dir)
 make_and_check_dir(path=path+mdl_dir)
 make_and_check_dir(path=tensorboard_data_dump_train)
 make_and_check_dir(path=tensorboard_data_dump_test)
@@ -126,8 +134,8 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 4000
-M =  2000 #batch-size
+steps = 40
+M =  2 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -5
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
@@ -264,7 +272,7 @@ tf.gfile.MakeDirs('/tmp/mdl_logs')
 if mdl_save:
     saver = tf.train.Saver(max_to_keep=max_to_keep)
 start_time = time.time()
-with open(path+errors_pretty, 'w+') as f_err_msgs:
+with open(path+errors_pretty_dir+errors_pretty, 'w+') as f_err_msgs:
     with tf.Session() as sess:
         merged = tf.merge_all_summaries()
         #writer = tf.train.SummaryWriter(tensorboard_data_dump, sess.graph)
@@ -318,6 +326,6 @@ print("--- %s hours ---" % hours )
 results['seconds'] = seconds
 results['minutes'] = minutes
 results['hours'] = hours
-with open(path+json_file, 'w+') as f_json:
+with open(path+json_dir+json_file, 'w+') as f_json:
     json.dump(results,f_json,sort_keys=True, indent=2, separators=(',', ': '))
 print '\a' #makes beep
