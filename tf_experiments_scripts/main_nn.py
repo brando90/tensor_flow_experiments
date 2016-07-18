@@ -66,8 +66,8 @@ errors_pretty = '/%s_errors_file_%s_slurm_sj%s.txt'%(prefix,date,slurm_array_tas
 #
 mdl_dir ='/mdls_%s_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
 #
-json_dir = '/results_json_dir'
-json_file = '/%s_json_%s_slurm_sj%s'%(prefix,date,slurm_array_task_id)
+json_dir = '/results_json_dir_%s'%(slurm_jobid)
+json_file = '/%s_json_%s_slurm_sj%s_jobid_%s'%(prefix,date,slurm_array_task_id,slurm_jobid)
 #
 tensorboard_data_dump_train = '/tmp/mdl_logs/train'
 tensorboard_data_dump_test = '/tmp/mdl_logs/test'
@@ -98,7 +98,7 @@ print '(N_train,D) = ', (N_train,D)
 print '(N_test,D_out) = ', (N_test,D_out)
 
 ## HBF/NN params
-dims = [D,4,D_out]
+dims = [D,12,D_out]
 #dims = [D,6,6,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]

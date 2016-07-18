@@ -22,8 +22,9 @@ def process_argv(argv):
     else:
         mdl_save = True
         if len(argv) == 7:
-            # python main_nn.py      slurm_jobid     slurm_array_task_id     job_number      True      prefix experiment_name
+            # python main_nn.py      slurm_jobid     slurm_array_task_id     job_number      True      prefix      experiment_name
             # python main_nn.py slurm_jobid slurm_array_task_id job_number True prefix experiment_name
+            #
             slurm_jobid = argv[1]
             slurm_array_task_id = argv[2]
             job_number = argv[3]
