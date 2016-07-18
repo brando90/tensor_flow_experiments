@@ -1,0 +1,48 @@
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcublas.so locally
+I tensorflow/stream_executor/dso_loader.cc:102] Couldn't open CUDA library libcudnn.so. LD_LIBRARY_PATH: /cm/shared/openmind/cuda/7.5/lib64:/cm/shared/openmind/cuda/7.5/lib
+I tensorflow/stream_executor/cuda/cuda_dnn.cc:2092] Unable to load cuDNN DSO
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcufft.so locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcuda.so locally
+I tensorflow/stream_executor/dso_loader.cc:108] successfully opened CUDA library libcurand.so locally
+E tensorflow/stream_executor/cuda/cuda_driver.cc:491] failed call to cuInit: CUDA_ERROR_NO_DEVICE
+I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:140] kernel driver does not appear to be running on this host (node013.cm.cluster): /proc/driver/nvidia/version does not exist
+I tensorflow/core/common_runtime/gpu/gpu_init.cc:81] No GPU devices available on machine.
+print sys.argv = ['main_nn.py', '2707739', '3', 'HBF1_4_multiple_S_random_HP_test', 'True', 'om_results', 'multiple_S_test', '4']
+len(sys.argv) = 8
+print argv = ['main_nn.py', '2707739', '3', 'HBF1_4_multiple_S_random_HP_test', 'True', 'om_results', 'multiple_S_test', '4']
+len(argv) = 8
+['main_nn.py', '2707739', '3', 'HBF1_4_multiple_S_random_HP_test', 'True', 'om_results', 'multiple_S_test', '4']
+2.1
+prefix=om_results,slurm_jobid=2707739,slurm_array_task_id=3,job_number=HBF1_4_multiple_S_random_HP_test
+==> tensorboard_data_dump_train:  /tmp/mdl_logs/train
+==> tensorboard_data_dump_test:  /tmp/mdl_logs/test
+mdl_save True
+----====> TASK NAME: qianli_func
+(N_train,D) =  (60000, 1)
+(N_test,D_out) =  (60000, 1)
+++> S/b_init  [2.032694598093001, 2.032694598093001, 2.032694598093001]
+++> starter_learning_rate  0.0109968366435
+-----> Running model: hbf. (nb_hidden_layers = 1, nb_layers = 2)
+-----> Units: [1, 4, 1])
+train_S_type:  multiple_S
+kern_init
+0.498920722204
+DONE INITILIZING
+[None, <tf.Tensor 'Const:0' shape=(1, 4) dtype=float64>]
+--> Tensor("Const_1:0", shape=(4,), dtype=float64)
+('>', 'Mdl*hbf1*-units[1, 4, 1], task: qianli_func, step 0/40, train err 0.498921, test err 0.498769')
+('>', 'Opt:RMSProp, BN False, After0/40 iteration,Init: kern_init')
+S:  [None, <tf.Tensor 'Const_1:0' shape=(4,) dtype=float64>]
+('>', 'Mdl*hbf1*-units[1, 4, 1], task: qianli_func, step 10/40, train err 0.503503, test err 0.504825')
+('>', 'Opt:RMSProp, BN False, After10/40 iteration,Init: kern_init')
+S:  [None, <tf.Tensor 'Const_1:0' shape=(4,) dtype=float64>]
+('>', 'Mdl*hbf1*-units[1, 4, 1], task: qianli_func, step 20/40, train err 0.51792, test err 0.520686')
+('>', 'Opt:RMSProp, BN False, After20/40 iteration,Init: kern_init')
+S:  [None, <tf.Tensor 'Const_1:0' shape=(4,) dtype=float64>]
+('>', 'Mdl*hbf1*-units[1, 4, 1], task: qianli_func, step 30/40, train err 0.541935, test err 0.546111')
+('>', 'Opt:RMSProp, BN False, After30/40 iteration,Init: kern_init')
+S:  [None, <tf.Tensor 'Const_1:0' shape=(4,) dtype=float64>]
+--- 4.88126707077 seconds ---
+--- 0.0813544511795 minutes ---
+--- 0.00135590751966 hours ---
+
