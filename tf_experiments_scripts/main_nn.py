@@ -52,9 +52,7 @@ tf_rand_seed = int(os.urandom(32).encode('hex'), 16)
 tf.set_random_seed(tf_rand_seed)
 results['tf_rand_seed'] = tf_rand_seed
 ## directory structure for collecting data for experiments
-#experiment_name = 'test'
 path_root = './%s_test_experiments/%s'%(prefix,experiment_name)
-
 date = datetime.date.today().strftime("%B %d").replace (" ", "_")
 results['date'] = date
 #
@@ -98,7 +96,7 @@ print '(N_train,D) = ', (N_train,D)
 print '(N_test,D_out) = ', (N_test,D_out)
 
 ## HBF/NN params
-dims = [D,12,D_out]
+dims = [D,5,D_out]
 #dims = [D,6,6,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
