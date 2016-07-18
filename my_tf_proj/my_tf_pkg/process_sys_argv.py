@@ -21,7 +21,20 @@ def process_argv(argv):
             print 2
     else:
         mdl_save = True
-        if len(argv) == 7:
+        if len(argv) == 8:
+            # python main_nn.py      slurm_jobid     slurm_array_task_id     job_number      True      prefix      experiment_name 3,3,3
+            # python main_nn.py slurm_jobid slurm_array_task_id job_number True prefix experiment_name 3
+            #
+            slurm_jobid = argv[1]
+            slurm_array_task_id = argv[2]
+            job_number = argv[3]
+            mdl_save = bool(argv[4])
+            prefix = argv[5]
+            experiment_name = argv[6]
+            units =  argv[7].split(',')
+            units_list = [ int(a) for a in units ]
+            print 2.1
+        elif len(argv) == 7:
             # python main_nn.py      slurm_jobid     slurm_array_task_id     job_number      True      prefix      experiment_name
             # python main_nn.py slurm_jobid slurm_array_task_id job_number True prefix experiment_name
             #
@@ -74,7 +87,7 @@ def process_argv(argv):
             print 8
         else:
             raise ValueError('Need to specify the correct number of params')
-    return (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name)
+    return (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list)
 
 def is_it_tensorboard_run(argv):
     check_args = []

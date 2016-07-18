@@ -42,7 +42,7 @@ print 'len(sys.argv) =',len(sys.argv)
 
 results = {'train_errors':[], 'cv_errors':[],'test_errors':[]}
 # slyurm values and ids
-(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name) = mtf.process_argv(sys.argv)
+(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list) = mtf.process_argv(sys.argv)
 print 'prefix=%s,slurm_jobid=%s,slurm_array_task_id=%s,job_number=%s'%(prefix,slurm_jobid,slurm_array_task_id,job_number)
 results['job_number'] = job_number
 results['slurm_jobid'] = slurm_jobid
@@ -96,7 +96,8 @@ print '(N_train,D) = ', (N_train,D)
 print '(N_test,D_out) = ', (N_test,D_out)
 
 ## HBF/NN params
-dims = [D,5,D_out]
+dims = [D]+units_list+[D_out]
+#dims = [D,5,D_out]
 #dims = [D,6,6,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
