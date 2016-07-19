@@ -42,7 +42,7 @@ print 'len(sys.argv) =',len(sys.argv)
 
 results = {'train_errors':[], 'cv_errors':[],'test_errors':[]}
 # slyurm values and ids
-(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list) = mtf.process_argv(sys.argv)
+(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list,train_S_type) = mtf.process_argv(sys.argv)
 print 'prefix=%s,slurm_jobid=%s,slurm_array_task_id=%s,job_number=%s'%(prefix,slurm_jobid,slurm_array_task_id,job_number)
 results['job_number'] = job_number
 results['slurm_jobid'] = slurm_jobid
@@ -113,7 +113,7 @@ b_init = len(dims)*[init_constant]
 #b_init = [None, 1, 1, None]
 print '++> S/b_init ', b_init
 S_init = b_init
-train_S_type = 'multiple_S'
+#train_S_type = 'multiple_S'
 #train_S_type = 'single_S'
 #init_type = 'truncated_normal'
 #init_type = 'data_init'
@@ -133,8 +133,8 @@ else:
     phase_train = None
 
 report_error_freq = 10
-steps = 5000
-M =  2000 #batch-size
+steps = 20
+M =  2 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -5
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)

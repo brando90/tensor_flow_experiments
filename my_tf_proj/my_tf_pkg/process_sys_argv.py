@@ -2,6 +2,7 @@ def process_argv(argv):
     print 'print argv =',argv
     print 'len(argv) =',len(argv)
     experiment_name = 'tmp_experiment'
+    train_S_type = 'multiple_S'
     if is_it_tensorboard_run(argv):
         if len(argv) == 6:
             # python main_nn.py slurm_jobid slurm_array_task_id job_number True --logdir=/tmp/mdl_logs
@@ -21,7 +22,21 @@ def process_argv(argv):
             print 2
     else:
         mdl_save = True
-        if len(argv) == 8:
+        if len(argv) == 9:
+            # python main_nn.py      slurm_jobid     slurm_array_task_id     job_number      True      prefix      experiment_name 3,3,3  multiple_S/single_S
+            # python main_nn.py slurm_jobid slurm_array_task_id job_number True prefix experiment_name 3 multiple_S/single_S
+            #
+            slurm_jobid = argv[1]
+            slurm_array_task_id = argv[2]
+            job_number = argv[3]
+            mdl_save = bool(argv[4])
+            prefix = argv[5]
+            experiment_name = argv[6]
+            units =  argv[7].split(',')
+            units_list = [ int(a) for a in units ]
+            train_S_type = argv[8] # multiple_S/single_S
+            print 2.1
+        elif len(argv) == 8:
             # python main_nn.py      slurm_jobid     slurm_array_task_id     job_number      True      prefix      experiment_name 3,3,3
             # python main_nn.py slurm_jobid slurm_array_task_id job_number True prefix experiment_name 3
             #
@@ -87,7 +102,7 @@ def process_argv(argv):
             print 8
         else:
             raise ValueError('Need to specify the correct number of params')
-    return (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list)
+    return (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list,train_S_type)
 
 def is_it_tensorboard_run(argv):
     check_args = []
