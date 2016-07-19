@@ -1,0 +1,1 @@
+Mdl*hbf1*-units[1, 4, 1], task: qianli_func, step 0/20, train err 0.498944, test err 0.498791Opt:Adam, BN False, After0/20 iteration,Init: kern_initMdl*hbf1*-units[1, 4, 1], task: qianli_func, step 10/20, train err 0.518299, test err 0.519899Opt:Adam, BN False, After10/20 iteration,Init: kern_init
