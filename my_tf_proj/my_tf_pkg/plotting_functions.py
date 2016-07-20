@@ -22,3 +22,14 @@ def plot_errors(nb_centers, rbf_errors,label='Errors', markersize=3, colour='b')
     plt.ylabel('squared error (l2 loss)')
     plt.plot(nb_centers, rbf_errors, colour, label=label, markersize=3)
     plt.plot(nb_centers, rbf_errors, colour+'o')
+
+##
+
+def plot_surface_example(X,Y,Z):
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+
+    X,Y,Z = mtf.generate_meshgrid_h_add()
+    #Axes3D.plot_trisurf(X, Y, Z)
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)
+    plt.show()

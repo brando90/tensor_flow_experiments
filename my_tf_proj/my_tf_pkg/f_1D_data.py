@@ -57,26 +57,23 @@ def make_mesh_grid_to_data_set(X, Y, Z):
     '''
         want to make data set as:
         ( x = [x1, x2], z = f(x,y) )
-        X = [D, N], Z = [Dout, N] = [1, N]
+        X = [N, D], Z = [Dout, N] = [1, N]
     '''
-    # (dim_x, dim_y) = X.shape
-    # N = dim_x * dim_y
-    # X_data = np.zeros((N,2))
-    # Y_data = np.zeros((N,1))
-    # i = 1
-    # for dx in range(dim_x):
-    #     for dy in range(dim_y):
-    #         x = X(dx, dy)
-    #         y = Y(dx, dy)
-    #         x_data = np.array([x, y])
-    #         y_data = Z(dx, dy)
-    #         X_data[i,:] = x_data
-    #         Y_data[i,:] = y_data
-    #         i=i+1;
-    #     end
-    # end
-    # end
-    return
+    (dim_x, dim_y) = X.shape
+    N = dim_x * dim_y
+    X_data = np.zeros((N,2))
+    Y_data = np.zeros((N,1))
+    i = 0
+    for dx in range(dim_x):
+        for dy in range(dim_y):
+            x = X[dx, dy]
+            y = Y[dx, dy]
+            x_data = np.array([x, y])
+            y_data = Z[dx, dy]
+            X_data[i,:] = x_data
+            Y_data[i,:] = y_data
+            i=i+1;
+    return X_data, Y_data
 
 def generate_data_task2(N_train=60000, N_cv=60000, N_test=60000, low_x_var=-2*np.pi, high_x_var=2*np.pi):
 
