@@ -3,6 +3,7 @@ def process_argv(argv):
     print 'len(argv) =',len(argv)
     experiment_name = 'tmp_experiment'
     train_S_type = 'multiple_S'
+    units_list = [2,2]
     if is_it_tensorboard_run(argv):
         if len(argv) == 6:
             # python main_nn.py slurm_jobid slurm_array_task_id job_number True --logdir=/tmp/mdl_logs
@@ -26,6 +27,8 @@ def process_argv(argv):
             # python main_nn.py      slurm_jobid     slurm_array_task_id     job_number      True      prefix      experiment_name 3,3,3  multiple_S/single_S
             # python main_nn.py slurm_jobid slurm_array_task_id job_number True prefix experiment_name 3 multiple_S/single_S
             #
+            # python main_nn.py slurm_jobid slurm_array_task_id job_number True prefix experiment_name 2,2 multiple_S
+            # python main_nn.py slurm_jobid slurm_array_task_id job_number True prefix experiment_name 2,2 single_S
             slurm_jobid = argv[1]
             slurm_array_task_id = argv[2]
             job_number = argv[3]

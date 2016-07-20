@@ -2,6 +2,27 @@ import numpy as np
 import json
 from sklearn.cross_validation import train_test_split
 
+##
+
+def f1D_task1():
+    # f(x) = 2*(2(cos(x)^2 - 1)^2 -1
+    f = lambda x: 2*np.power( 2*np.power( np.cos(x) ,2) - 1, 2) - 1
+    return f
+
+def f2D_task2(X, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):
+    # input layer
+    X_1, X_2 = X[:,1], X[:,2]
+    # first layer
+    A_1 = np.sin( c*np.multiply(X_1, X_2) )
+    A_2 = np.cos( c2(X_1 + X_2) + np.pi/3 )
+    # recursive layer
+    for l in range(nb_recursive_layers):
+        A_1 = np.multiply(3*A_1, A_2)
+        A_2 = c2(X_1 + X_2) + np.pi/3
+    return
+
+##
+
 def get_labels(X,Y,f):
     N_train = X.shape[0]
     for i in range(N_train):
@@ -15,9 +36,25 @@ def get_labels_improved(X,f):
         Y[i] = f(X[i])
     return Y
 
+def generate_data(D=1, N_train=60000, N_cv=60000, N_test=60000, low_x_var=-2*np.pi, high_x_var=2*np.pi):
+    f = f1D_task1()
+    #
+    low_x = low_x_var
+    high_x = high_x_var
+    # train
+    X_train = low_x + (high_x - low_x) * np.random.rand(N_train,D)
+    Y_train = get_labels(X_train, np.zeros( (N_train,D) ) , f)
+    # CV
+    X_cv = low_x + (high_x - low_x) * np.random.rand(N_cv,D)
+    Y_cv = get_labels(X_cv, np.zeros( (N_cv,D) ), f)
+    # test
+    X_test = low_x + (high_x - low_x) * np.random.rand(N_test,D)
+    Y_test = get_labels(X_test, np.zeros( (N_test,D) ), f)
+    return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
+
 def generate_data(N_train_var=60000, N_cv_var=60000, N_test_var=60000, low_x_var=-2*np.pi, high_x_var=2*np.pi):
-    # f(x) = 2*(2(cos(x)^2 - 1)^2 -1
-    f = lambda x: 2*np.power( 2*np.power( np.cos(x) ,2) - 1, 2) - 1
+    f = f1D_task1()
+    #
     low_x = low_x_var
     high_x = high_x_var
     # train
@@ -34,7 +71,7 @@ def generate_data(N_train_var=60000, N_cv_var=60000, N_test_var=60000, low_x_var
     Y_test = get_labels(X_test, np.zeros( (N_test,1) ), f)
     return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
 
-def get_data_from_file(file_name="f_1d_cos_no_noise_data"):
+def get_data_from_file(file_name):
     npzfile = np.load(file_name)
     # get data
     X_train = npzfile['X_train']
@@ -58,6 +95,8 @@ def generate_data_from_krls():
     Y_cv = f(X_cv)
     Y_test = f(X_test)
     return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
+
+
 
 def get_data(task_name):
     ## Data sets
