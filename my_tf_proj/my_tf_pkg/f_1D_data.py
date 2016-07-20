@@ -2,26 +2,85 @@ import numpy as np
 import json
 from sklearn.cross_validation import train_test_split
 
-##
-
 def f1D_task1():
     # f(x) = 2*(2(cos(x)^2 - 1)^2 -1
     f = lambda x: 2*np.power( 2*np.power( np.cos(x) ,2) - 1, 2) - 1
     return f
 
-def f2D_task2(X, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):
+def f2D_task2(X,Y, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):
     # input layer
-    X_1, X_2 = X[:,1], X[:,2]
+    X_1, X_2 = X[:,1], Y[:,2]
     # first layer
     A_1 = np.sin( c*np.multiply(X_1, X_2) )
     A_2 = np.cos( c2(X_1 + X_2) + np.pi/3 )
     # recursive layer
     for l in range(nb_recursive_layers):
         A_1 = np.multiply(3*A_1, A_2)
-        A_2 = c2(X_1 + X_2) + np.pi/3
-    return
+        A_2 = c2( np.power(X1,2) + np.power(X2,2)) - 1
+    f = 2*A1 + 3*A2
+    return f
+
+def f2D_task2_draft(X,Y, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):
+    # input layer
+    X_1, X_2 = X[:,1], Y[:,2]
+    # first layer
+    A_1 = np.sin( c*np.multiply(X_1, X_2) )
+    A_2 = np.cos( c2(X_1 + X_2) + np.pi/3 )
+    # recursive layer
+    for l in range(nb_recursive_layers):
+        A_1 = np.multiply(3*A_1, A_2)
+        A_2 = c2( np.power(X1,2) + np.power(X2,2)) - 1
+    f = 2*A1 + 3*A2
+    return f
+
+def f2D_task2(X1,X2, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):
+
+
+    return f
 
 ##
+
+def generate_meshgrid_h_add():
+    start_val = -1
+    end_val = 1
+    sqrtN = 245 #N = sqrtN*sqrtN
+    N = sqrtN*sqrtN
+    x_range = np.linspace(start_val, end_val, sqrtN)
+    y_range = np.linspace(start_val, end_val, sqrtN)
+    ## make meshgrid
+    (X,Y) = np.meshgrid(x_range, y_range)
+    #Z = sin(2*pi*X) + 4*(Y - 0.5).^2; %% h_add
+    Z = np.sin(2*np.pi*X) + 4*np.power(Y - 0.5, 2) # h_add
+    return X,Y,Z
+
+def make_mesh_grid_to_data_set(X, Y, Z):
+    '''
+        want to make data set as:
+        ( x = [x1, x2], z = f(x,y) )
+        X = [D, N], Z = [Dout, N] = [1, N]
+    '''
+    # (dim_x, dim_y) = X.shape
+    # N = dim_x * dim_y
+    # X_data = np.zeros((N,2))
+    # Y_data = np.zeros((N,1))
+    # i = 1
+    # for dx in range(dim_x):
+    #     for dy in range(dim_y):
+    #         x = X(dx, dy)
+    #         y = Y(dx, dy)
+    #         x_data = np.array([x, y])
+    #         y_data = Z(dx, dy)
+    #         X_data[i,:] = x_data
+    #         Y_data[i,:] = y_data
+    #         i=i+1;
+    #     end
+    # end
+    # end
+    return
+
+def generate_data_task2(N_train=60000, N_cv=60000, N_test=60000, low_x_var=-2*np.pi, high_x_var=2*np.pi):
+
+    return
 
 def get_labels(X,Y,f):
     N_train = X.shape[0]
@@ -42,6 +101,7 @@ def generate_data(D=1, N_train=60000, N_cv=60000, N_test=60000, low_x_var=-2*np.
     low_x = low_x_var
     high_x = high_x_var
     # train
+
     X_train = low_x + (high_x - low_x) * np.random.rand(N_train,D)
     Y_train = get_labels(X_train, np.zeros( (N_train,D) ) , f)
     # CV
