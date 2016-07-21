@@ -91,11 +91,38 @@ def make_mesh_grid_to_data_set(X, Y, Z):
     i = 0
     for dx in range(dim_x):
         for dy in range(dim_y):
+            # input val
             x = X[dx, dy]
             y = Y[dx, dy]
             x_data = np.array([x, y])
-            y_data = Z[dx, dy]
+            # func val
+            z = Z[dx, dy]
+            y_data = z
+            # load data set
             X_data[i,:] = x_data
             Y_data[i,:] = y_data
             i=i+1;
     return X_data, Y_data
+
+def make_meshgrid_data_from_training_data(X_data, Y_data):
+    N, _ = X_data.shape
+    sqrtN = np.ceil(N**0.5)
+    dim_y = sqrtN
+    dim_x = dim_y
+    X = zeros(sqrtN,sqrtN)
+    Y = zeros(sqrtN,sqrtN)
+    Z = zeros(sqrtN,sqrtN)
+    i = 1
+    for dx in range(dim_x):
+        for dy in range(dim_y):
+            #x_vec = X_data[:,i]
+            #x,y = x_vec(1),x_vec(2)
+            x,y = X_data[:,i]
+            #x = x_vec(1);
+            #y = x_vec(2);
+            z = Y_data[:,i]
+            X[dx,dy] = x
+            Y[dx,dy] = y
+            Z[dx,dy] = z
+            i = i+1;
+    return

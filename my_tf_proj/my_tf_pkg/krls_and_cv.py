@@ -160,6 +160,31 @@ def get_krls_coeffs(Kern, Y):
     (C,_,_,_) = np.linalg.lstsq(Kern,Y)
     return C
 
+def get_RBF(X, K, stddev, Y):
+    centers,_ = get_subsampled_points(X,K,replace=False)
+    Kern = get_kernel_matrix(X,centers, stddev)
+    C = get_krls_coeffs(Kern, Y)
+    return C, Kern, centers
+
+def rbf_predict(X_data, C, centers, stddev):
+        Kern = get_kernel_matrix(X_data,centers, stddev) # N_train x D^1
+        Kern_cv = get_kernel_matrix(X_cv,centers,stddev)
+        Kern_test = get_kernel_matrix(X_test,centers,stddev)
+        # train RBF
+        C_hat = get_krls_coeffs(Kern_train,Y_train)
+        C_hats.append(C_hat)
+        # evluate RBF
+        Y_pred_train = np.dot(Kern_train,C_hat)
+        Y_preds_trains.append(Y_pred_train)
+        train_error = sklearn.metrics.mean_squared_error(Y_train, Y_pred_train)
+        train_errors.append(train_error)
+
+        Y_pred_cv = np.dot(Kern_cv,C_hat)
+        Y_preds_cvs.append(Y_pred_cv)
+    return Y_pred
+
+##
+
 def get_min(values):
     min_index, min_value = min(enumerate(values), key=operator.itemgetter(1))
     return min_index, min_value
