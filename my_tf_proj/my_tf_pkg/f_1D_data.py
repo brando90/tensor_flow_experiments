@@ -7,78 +7,6 @@ def f1D_task1():
     f = lambda x: 2*np.power( 2*np.power( np.cos(x) ,2) - 1, 2) - 1
     return f
 
-def f2D_task2(X,Y, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):
-    # input layer
-    X_1, X_2 = X[:,1], Y[:,2]
-    # first layer
-    A_1 = np.sin( c*np.multiply(X_1, X_2) )
-    A_2 = np.cos( c2(X_1 + X_2) + np.pi/3 )
-    # recursive layer
-    for l in range(nb_recursive_layers):
-        A_1 = np.multiply(3*A_1, A_2)
-        A_2 = c2( np.power(X1,2) + np.power(X2,2)) - 1
-    f = 2*A1 + 3*A2
-    return f
-
-def f2D_task2_draft(X,Y, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):
-    # input layer
-    X_1, X_2 = X[:,1], Y[:,2]
-    # first layer
-    A_1 = np.sin( c*np.multiply(X_1, X_2) )
-    A_2 = np.cos( c2(X_1 + X_2) + np.pi/3 )
-    # recursive layer
-    for l in range(nb_recursive_layers):
-        A_1 = np.multiply(3*A_1, A_2)
-        A_2 = c2( np.power(X1,2) + np.power(X2,2)) - 1
-    f = 2*A1 + 3*A2
-    return f
-
-def f2D_task2(X1,X2, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):
-
-
-    return f
-
-##
-
-def generate_meshgrid_h_add():
-    start_val = -1
-    end_val = 1
-    sqrtN = 245 #N = sqrtN*sqrtN
-    N = sqrtN*sqrtN
-    x_range = np.linspace(start_val, end_val, sqrtN)
-    y_range = np.linspace(start_val, end_val, sqrtN)
-    ## make meshgrid
-    (X,Y) = np.meshgrid(x_range, y_range)
-    #Z = sin(2*pi*X) + 4*(Y - 0.5).^2; %% h_add
-    Z = np.sin(2*np.pi*X) + 4*np.power(Y - 0.5, 2) # h_add
-    return X,Y,Z
-
-def make_mesh_grid_to_data_set(X, Y, Z):
-    '''
-        want to make data set as:
-        ( x = [x1, x2], z = f(x,y) )
-        X = [N, D], Z = [Dout, N] = [1, N]
-    '''
-    (dim_x, dim_y) = X.shape
-    N = dim_x * dim_y
-    X_data = np.zeros((N,2))
-    Y_data = np.zeros((N,1))
-    i = 0
-    for dx in range(dim_x):
-        for dy in range(dim_y):
-            x = X[dx, dy]
-            y = Y[dx, dy]
-            x_data = np.array([x, y])
-            y_data = Z[dx, dy]
-            X_data[i,:] = x_data
-            Y_data[i,:] = y_data
-            i=i+1;
-    return X_data, Y_data
-
-def generate_data_task2(N_train=60000, N_cv=60000, N_test=60000, low_x_var=-2*np.pi, high_x_var=2*np.pi):
-
-    return
-
 def get_labels(X,Y,f):
     N_train = X.shape[0]
     for i in range(N_train):
@@ -159,6 +87,8 @@ def get_data(task_name):
     ## Data sets
     if task_name == 'qianli_func':
         (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
+    elif task_name == 'f_2D_task2':
+        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='save_data_task2')
     elif task_name == 'hrushikesh':
         with open('../hrushikesh/patient_data_X_Y.json', 'r') as f_json:
             patients_data = json.load(f_json)
