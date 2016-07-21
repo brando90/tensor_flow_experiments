@@ -1,3 +1,6 @@
+import sys
+import pdb
+
 import numpy as np
 import sklearn
 from sklearn.metrics.pairwise import euclidean_distances
@@ -113,29 +116,36 @@ def plot_errors_and_bars(nb_centers, rbf_errors, rbf_error_std, label='Errors', 
     plt.errorbar(nb_centers, rbf_errors, yerr=rbf_error_std)
     plt.title("Erors vs units")
 
-def main():
+def main(argv):
+    (_, task_name, result_loc, nb_inits, nb_rbf_shapes, units)  = argv
+    nb_inits, nb_rbf_shapes = int(nb_inits), int(nb_rbf_shapes)
+    units_list =  units.split(',')
+    nb_centers_list = [ int(a) for a in units_list ]
+
+    print 'task_name ', task_name
+    #pdb.set_trace()
     #(X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
     #task_name = 'qianli_func'
     #task_name = 'hrushikesh'
-    task_name = 'f_2D_task2'
+    #task_name = 'f_2D_task2'
     (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data(task_name)
     data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
 
-    plot_one_func(fig_num=1, X_original=X_train,Y_original=Y_train, markersize=3, title_name='Reconstruction')
-
     replace = False # with or without replacement
-    nb_rbf_shapes = 10 #<--
+    #nb_rbf_shapes = 2 #<--
     stddevs = np.linspace(start=0.1, stop=3, num=nb_rbf_shapes)
     print 'number of RBF stddev tried:', len(stddevs)
     print 'start stddevs: ', stddevs
     #nb_centers_list = [3, 6, 9, 12, 16, 24, 30, 39, 48, 55]
-    #nb_centers_list = [2, 4, 6, 8, 12, 14, 16, 18, 20, 22, 24]
-    nb_centers_list = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
+    #nb_centers_list = [2, 4, 6, 8, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30]
+    #nb_centers_list = [2, 4]
+    #nb_centers_list = [4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096]
     #centers_to_reconstruct_index = [1, 3, 5, 7, 9]
-    centers_to_reconstruct_index = [1, 4, 7] # corresponds to centers 4, 12, 18
-    colours = ['g','r','c','m','y']
+    #centers_to_reconstruct_index = [1, 4, 7] # corresponds to centers 4, 12, 18
+    #colours = ['g','r','c','m','y']
 
-    nb_inits = 5 #<--
+    #nb_inits = 2 #<--
+
     mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean = evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
     (C_hat_bests, centers_bests, best_stddevs) = mdl_best_params
     print 'best_stddevs: ',best_stddevs
@@ -152,8 +162,9 @@ def main():
     plot_errors_and_bars(nb_centers_list, test_errors_means, test_error_stds, label='test_Errors_average', markersize=3,colour='r')
 
     # get things to reconstruct
-    print 'plotting reconstruct'
     if task_name == 'qianli_func':
+        plot_one_func(fig_num=1, X_original=X_train,Y_original=Y_train, markersize=3, title_name='Reconstruction')
+        print 'plotting reconstruct for task %s'%task_name
         nb_centers_reconstruct = [nb_centers_list[i] for i in centers_to_reconstruct_index]
         rbf_predictions_reconstruct_train = [Y_pred_train_best[i] for i in centers_to_reconstruct_index]
         rbf_predictions_reconstruct_test = [Y_pred_test_best[i] for i in centers_to_reconstruct_index]
@@ -166,23 +177,23 @@ def main():
         plot_reconstruction(fig_num=2, X_original=X_test,Y_original=Y_test, nb_centers=nb_centers_reconstruct, \
         rbf_predictions=rbf_predictions_reconstruct_test, colours=colours, markersize=3,title_name='Reconstruction_test')
     elif task_name == 'f_2D_task2':
+        print 'HERE'
         pass
-    #
+        print 'plotting reconstruct for task %s'%task_name
+    # plot show
     plt.legend()
     plt.show()
 
-
-    # results = {'mdl_params':mdl_best_params, 'errors':errors, 'reconstructions':reconstructions}
-    # path = './'
-    # json_file = 'tmp_krls_json'
-    # with open(path+json_file, 'w+') as f_json:
-    #     json.dump(results,f_json,sort_keys=True, indent=2, separators=(',', ': '))
-    # print '\a' #makes beep
-    msg = 'KRLS'
-    mtf.save_workspace(filename='./tmp_test_experiments/tmp_krls_workspace',names_of_spaces_to_save=dir(),dict_of_values_to_save=locals())
+    #result_loc = './tmp_test_experiments/tmp_krls_workspace'
+    mtf.save_workspace(filename=result_loc,names_of_spaces_to_save=dir(),dict_of_values_to_save=locals())
+    print '\a' #makes beep
 
 ##
 
 if __name__ == '__main__':
-    main()
+    # frameworkpython krls.py f_2D_task2 om_krls_f_2D_task2_results nb_inits nb_rbf_shapes units_list
+    # frameworkpython krls.py f_2D_task2 om_krls_f_2D_task2_results 30 30 2,4,6,8,12,14,16,18,20,22,24,26,28,30
+    # frameworkpython krls.py f_2D_task2 om_krls_f_2D_task2_results 3 3 2,3,4
+    argv = sys.argv
+    main(argv)
     print '\a' #makes beep

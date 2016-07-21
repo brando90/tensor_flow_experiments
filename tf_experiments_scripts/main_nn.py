@@ -42,7 +42,7 @@ print 'len(sys.argv) =',len(sys.argv)
 
 results = {'train_errors':[], 'cv_errors':[],'test_errors':[]}
 # slyurm values and ids
-(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list,train_S_type) = mtf.process_argv(sys.argv)
+(prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list,train_S_type,task_name) = mtf.process_argv(sys.argv)
 print 'prefix=%s,slurm_jobid=%s,slurm_array_task_id=%s,job_number=%s'%(prefix,slurm_jobid,slurm_array_task_id,job_number)
 results['job_number'] = job_number
 results['slurm_jobid'] = slurm_jobid
@@ -88,7 +88,7 @@ results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(
 ## Data sets and task
 #task_name = 'qianli_func'
 #task_name = 'hrushikesh'
-task_name = 'f_2D_task2'
+#task_name = 'f_2D_task2'
 print '----====> TASK NAME: %s' % task_name
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data(task_name)
 (N_train,D) = X_train.shape
@@ -106,17 +106,17 @@ mu = len(dims)*[0.0]
 std = len(dims)*[1.0]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
-# low_const, high_const = 0.1, 5
+low_const, high_const = 0.1, 5
 # init_constant = np.random.uniform(low=low_const, high=high_const)
-# init_constant = 1.0
-#b_init = len(dims)*[init_constant]
+init_constant = 0.5
+b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
-low_const, high_const = 0.1, 2
-b_init_1 = np.random.uniform(low=low_const, high=high_const)
-b_init_1 = 0.6
-b_init_2 = 1.0
-b_init = [None, b_init_1, b_init_2, None]
+#low_const, high_const = 0.1, 2
+#b_init_1 = np.random.uniform(low=low_const, high=high_const)
+#b_init_1 = 0.6
+#b_init_2 = 1.0
+#b_init = [None, b_init_1, b_init_2, None]
 print '++> S/b_init ', b_init
 S_init = b_init
 #train_S_type = 'multiple_S'
@@ -156,7 +156,7 @@ staircase = True
 optimization_alg = 'GD'
 optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-optimization_alg = 'Adam'
+#optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
 #optimization_alg = 'RMSProp'
 
