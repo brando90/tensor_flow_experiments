@@ -37,9 +37,9 @@ def main3(argv):
         print '\a' #makes beep
 
 if __name__ == '__main__':
-    # frameworkpython krls.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results nb_inits nb_rbf_shapes units_list
-    # frameworkpython krls.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results 30 30 2,4,6,8,12,14,16,18,20,22,24,26,28,30
-    # frameworkpython krls.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results 3 3 2,3,4
+    # python krls_collect_data.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results nb_inits nb_rbf_shapes units_list
+    # python krls_collect_data.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results 30 30 2,4,6,8,12,14,16,18,20,22,24,26,28,30
+    # python krls_collect_data.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results 3 3 2,3,4
     argv = sys.argv
     main3(argv)
     print '\a' #makes beep
