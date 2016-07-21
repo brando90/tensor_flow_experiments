@@ -28,7 +28,6 @@ def plot_errors(nb_centers, rbf_errors,label='Errors', markersize=3, colour='b')
 def plot_surface_example(X,Y,Z):
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-
     X,Y,Z = mtf.generate_meshgrid_h_add()
     #Axes3D.plot_trisurf(X, Y, Z)
     surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)

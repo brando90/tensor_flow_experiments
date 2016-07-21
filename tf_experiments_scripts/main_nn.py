@@ -86,8 +86,9 @@ shutil.rmtree(tensorboard_data_dump_test)
 results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(), results=results)
 
 ## Data sets and task
-task_name = 'qianli_func'
+#task_name = 'qianli_func'
 #task_name = 'hrushikesh'
+task_name = 'f_2D_task2'
 print '----====> TASK NAME: %s' % task_name
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data(task_name)
 (N_train,D) = X_train.shape

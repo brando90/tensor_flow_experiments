@@ -2,6 +2,8 @@ import numpy as np
 import json
 from sklearn.cross_validation import train_test_split
 
+import pdb
+
 def f1D_task1():
     # f(x) = 2*(2(cos(x)^2 - 1)^2 -1
     f = lambda x: 2*np.power( 2*np.power( np.cos(x) ,2) - 1, 2) - 1
@@ -88,7 +90,7 @@ def get_data(task_name):
     if task_name == 'qianli_func':
         (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
     elif task_name == 'f_2D_task2':
-        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='save_data_task2')
+        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_2d_task2_ml_data_and_mesh.npz')
     elif task_name == 'hrushikesh':
         with open('../hrushikesh/patient_data_X_Y.json', 'r') as f_json:
             patients_data = json.load(f_json)
