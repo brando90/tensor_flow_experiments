@@ -32,11 +32,6 @@ def make_and_check_dir(path):
         #    raise
         pass
 
-def load_results_dic(results,**kwargs):
-    for key, value in kwargs.iteritems():
-        results[key] = value
-    return results
-
 print 'print sys.argv =',sys.argv
 print 'len(sys.argv) =',len(sys.argv)
 
@@ -317,7 +312,7 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
             sess.run(fetches=[merged,train_step], feed_dict=feed_dict_batch) #sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
 
 git_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
-load_results_dic(results,git_hash=git_hash,dims=dims,mu=mu,std=std,init_constant=init_constant,b_init=b_init,S_init=S_init,\
+mtf.load_results_dic(results,git_hash=git_hash,dims=dims,mu=mu,std=std,init_constant=init_constant,b_init=b_init,S_init=S_init,\
     init_type=init_type,model=model,bn=bn,path=path,\
     tensorboard_data_dump_test=tensorboard_data_dump_test,tensorboard_data_dump_train=tensorboard_data_dump_train,\
     report_error_freq=report_error_freq,steps=steps,M=M,optimization_alg=optimization_alg,\

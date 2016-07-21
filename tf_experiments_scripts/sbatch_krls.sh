@@ -7,6 +7,4 @@
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=rene_sax14@yahoo.com
 
-python krls_collect_data.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results 50 50 2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,34
-
-python krls_collect_data.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results 3 3 2,3,4
+python krls_collect_data.py f_2D_task2 tmp_krls krls_experiment_name_test 50 50 6,12,24,48,96

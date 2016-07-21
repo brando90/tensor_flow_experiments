@@ -1,4 +1,42 @@
 import shelve
+import numpy as np
+import os
+
+def load_results_dic(results,**kwargs):
+    for key, value in kwargs.iteritems():
+        results[key] = value
+    return results
+
+def numpy_save_example():
+    file_name = 'some_filename'
+    np.savez(file_name, X_train=X_train,Y_train=Y_train, X_cv=X_cv,Y_cv=Y_cv, X_test=X_test,Y_test=Y_test, X_mesh_train=X_mesh_train,Y_mesh_train=Y_mesh_train,Z_mesh_train=Z_mesh_train, X_mesh_cv=X_mesh_cv,Y_mesh_cv=Y_mesh_cv,Z_mesh_cv=Z_mesh_cv, X_mesh_test=X_mesh_test,Y_mesh_test=Y_mesh_test,Z_mesh_test=Z_mesh_test)
+
+def get_data_from_numpy_file(file_name):
+    npzfile = np.load(file_name)
+    # get data
+    X_train = npzfile['X_train']
+    Y_train = npzfile['Y_train']
+    X_cv = npzfile['X_cv']
+    Y_cv = npzfile['Y_cv']
+    X_test = npzfile['X_test']
+    Y_test = npzfile['Y_test']
+    return (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
+
+#
+
+def make_and_check_dir(path):
+    '''
+        tries to make dir/file, if it exists already does nothing else creates it.
+    '''
+    try:
+        os.makedirs(path)
+    except OSError:
+        # uncomment to make it raise an error when path is not a directory
+        #if not os.path.isdir(path):
+        #    raise
+        pass
+
+#
 
 def save_workspace(filename, names_of_spaces_to_save, dict_of_values_to_save):
     '''
