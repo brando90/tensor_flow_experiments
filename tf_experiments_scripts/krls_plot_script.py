@@ -12,7 +12,7 @@ import my_tf_pkg as mtf
 import my_tf_pkg.plotting_1D as plt1d
 import matplotlib.pyplot as plt
 
-def main3(argv):
+def main(argv):
     _, filename = argv
     load_workspace(filename, globals())
 
@@ -36,8 +36,7 @@ def main3(argv):
     # plot show
     plt1d.show()
 
-
 if __name__ == '__main__':
     # frameworkpython krls.py ./om_result_krls_f_2D_task2_results
-    main3(sys.argv)
+    main(sys.argv)
     print '\a' #makes beep

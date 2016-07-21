@@ -11,7 +11,7 @@ import json
 import my_tf_pkg as mtf
 #import my_tf_pkg.plotting_1D as plt1d
 
-def main3(argv):
+def main(argv):
         (_, task_name, result_loc, nb_inits, nb_rbf_shapes, units)  = argv
         nb_inits, nb_rbf_shapes = int(nb_inits), int(nb_rbf_shapes)
         units_list =  units.split(',')
@@ -41,5 +41,5 @@ if __name__ == '__main__':
     # python krls_collect_data.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results 30 30 2,4,6,8,12,14,16,18,20,22,24,26,28,30
     # python krls_collect_data.py f_2D_task2 ./tmp_result_krls_f_2D_task2_results 3 3 2,3,4
     argv = sys.argv
-    main3(argv)
+    main(argv)
     print '\a' #makes beep
