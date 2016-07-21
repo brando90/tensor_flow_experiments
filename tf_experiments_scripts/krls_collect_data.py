@@ -5,7 +5,6 @@ import numpy as np
 import sklearn
 from sklearn.metrics.pairwise import euclidean_distances
 from scipy.interpolate import Rbf
-# matplotlib.pyplot as plt
 import json
 
 import my_tf_pkg as mtf
