@@ -106,12 +106,12 @@ def make_mesh_grid_to_data_set(X, Y, Z):
 
 def make_meshgrid_data_from_training_data(X_data, Y_data):
     N, _ = X_data.shape
-    sqrtN = np.ceil(N**0.5)
+    sqrtN = int(np.ceil(N**0.5))
     dim_y = sqrtN
     dim_x = dim_y
-    X = zeros(sqrtN,sqrtN)
-    Y = zeros(sqrtN,sqrtN)
-    Z = zeros(sqrtN,sqrtN)
+    X = np.zeros(sqrtN,sqrtN)
+    Y = np.zeros(sqrtN,sqrtN)
+    Z = np.zeros(sqrtN,sqrtN)
     i = 1
     for dx in range(dim_x):
         for dy in range(dim_y):
@@ -125,4 +125,4 @@ def make_meshgrid_data_from_training_data(X_data, Y_data):
             Y[dx,dy] = y
             Z[dx,dy] = z
             i = i+1;
-    return
+    return X,Y,Z
