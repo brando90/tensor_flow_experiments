@@ -30,6 +30,79 @@ def find_closest_to_value(list_vals, target):
             best_val = val
     return best_index, best_val
 
+def evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=1):
+    print 'evalauting models, nb_inits %s '%(nb_inits)
+    (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = data
+    N_train = X_train.shape[0]
+
+    # errors of best models
+    train_errors_bests = []
+    cv_errors_bests = []
+    test_errors_bests = []
+    # stats
+    train_errors_means = []
+    cv_errors_means = []
+    test_errors_means = []
+    train_errors_stds = []
+    cv_errors_stds = []
+    test_errors_stds = []
+    # models
+    C_hat_bests = []
+    centers_bests = []
+    best_stddevs = []
+    # models TODO
+    C_hat_means = []
+    centers_means = []
+    mean_stddevs = []
+    # reconstructions for each center
+    Y_preds_trains_bests = [] # for reconstructions
+    Y_preds_cvs_bests = [] # for reconstructions
+    Y_preds_tests_bests = [] # for reconstructions
+    # TODO
+    Y_pred_train_means = []
+    Y_pred_cv_means = []
+    Y_pred_test_means = []
+    Y_pred_train_stds = []
+    Y_pred_cv_stds = []
+    Y_pred_test_stds = []
+    for K in nb_centers_list:
+        print '----center ', K
+        # get best std using CV
+        mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean = mtf.get_best_shape_and_mdl(K, data, stddevs, nb_inits=nb_inits)
+        (C_hat_best, centers_best, best_stddev) = mdl_best_params
+        (C_hat_mean, centers_mean, mean_stddev) = mdl_mean_params
+        (train_error_best, cv_error_best, test_error_best) = errors_best
+        (train_error_mean, cv_error_mean, test_error_mean, train_error_std, cv_error_std, test_error_std) = errors_stats
+        (Y_pred_train_best, Y_pred_cv_best, Y_pred_test_best) = reconstructions_best
+        (Y_pred_train_mean, Y_pred_cv_mean, Y_pred_test_mean, Y_pred_train_std, Y_pred_cv_std, Y_pred_test_std) = reconstructions_mean
+        # record best
+        train_errors_bests.append(train_error_best)
+        cv_errors_bests.append(cv_error_best)
+        test_errors_bests.append(test_error_best)
+        # record mean
+        train_errors_means.append(train_error_mean)
+        cv_errors_means.append(cv_error_mean)
+        test_errors_means.append(test_error_mean)
+        train_errors_stds.append(train_error_std)
+        cv_errors_stds.append(cv_error_std)
+        test_errors_stds.append(test_error_std)
+        # record best models
+        C_hat_bests.append(C_hat_best)
+        centers_bests.append(centers_best)
+        best_stddevs.append(best_stddev)
+        # reconstructions
+        Y_preds_trains_bests.append(Y_pred_train_best)
+        Y_preds_cvs_bests.append(Y_pred_cv_best)
+        Y_preds_tests_bests.append(Y_pred_test_best)
+    # packing
+    mdl_best_params = (C_hat_bests, centers_bests, best_stddevs)
+    mdl_mean_params = (C_hat_means, centers_means, mean_stddevs) # TODO
+    errors_best = (train_errors_bests, cv_errors_bests, test_errors_bests)
+    errors_stats = (train_errors_means, cv_errors_means, test_errors_means, train_errors_stds, cv_errors_stds, test_errors_stds)
+    reconstructions_best = (Y_preds_trains_bests, Y_preds_cvs_bests, Y_preds_tests_bests)
+    reconstructions_mean = (Y_pred_train_means, Y_pred_cv_means, Y_pred_test_means, Y_pred_train_stds, Y_pred_cv_stds, Y_pred_test_stds) # TODO
+    return mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean
+
 def get_best_shape_and_mdl(K, data, stddevs, nb_inits=1):
     '''
     get best shape (hypothesis class) and mdl/hypothesis for fixed number of centers.
