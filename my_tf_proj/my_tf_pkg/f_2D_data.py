@@ -130,14 +130,14 @@ def make_meshgrid_data_from_training_data(X_data, Y_data):
 
 ##
 
-def random_gen_h_add(N=60000,start_val=-1,end_val=1):
-    sqrtN = int(np.ceil(N**0.5)) #N = sqrtN*sqrtN
-    N = sqrtN*sqrtN
-    x_range = np.random.uniform(low=start_val, high=end_val, size=sqrtN)
-    y_range = np.random.uniform(low=start_val, high=end_val, size=sqrtN)
-    (X,Y) = np.meshgrid(x_range, y_range)
-    Z = np.sin(2*np.pi*X) + 4*np.power(Y - 0.5, 2) # h_add
-    return X,Y,Z
+# def random_gen_h_add(N=60000,start_val=-1,end_val=1):
+#     sqrtN = int(np.ceil(N**0.5)) #N = sqrtN*sqrtN
+#     N = sqrtN*sqrtN
+#     x_range = np.random.uniform(low=start_val, high=end_val, size=sqrtN)
+#     y_range = np.random.uniform(low=start_val, high=end_val, size=sqrtN)
+#     (X,Y) = np.meshgrid(x_range, y_range)
+#     Z = np.sin(2*np.pi*X) + 4*np.power(Y - 0.5, 2) # h_add
+#     return X,Y,Z
 
 ##
 
@@ -159,4 +159,9 @@ def generate_data_task2():
     N_test = 60150
     X_surf_test,Y_surf_test,Z_surf_test = mtf.generate_meshgrid_f2D_task2(N=N_test,start_val=-10,end_val=10, nb_recursive_layers=nb_recursive_layers)
     X_test, Y_test = mtf.make_mesh_grid_to_data_set(X_surf_test, Y_surf_test, Z_surf_test)
-    return
+    return (X_train_whole, Y_train_whole), (X_train, Y_train, X_cv, Y_cv, X_test, Y_test), (X_surf_train,Y_surf_train,Z_surf_train, X_surf_cv,Y_surf_cv,Z_surf_cv, X_surf_test,Y_surf_test,Z_surf_test)
+
+def save_data_task2():
+    (X_train_whole, Y_train_whole), (X_train, Y_train, X_cv, Y_cv, X_test, Y_test), (X_surf_train,Y_surf_train,Z_surf_train, X_surf_cv,Y_surf_cv,Z_surf_cv, X_surf_test,Y_surf_test,Z_surf_test) = generate_data_task2()
+    file_name = 'f_2d_task2_data_and_more' #.npz will be appended
+    numpy.savez(file_name, X_train_whole, Y_train_whole, X_train, Y_train, X_cv, Y_cv, X_test, Y_test, X_surf_train,Y_surf_train,Z_surf_train, X_surf_cv,Y_surf_cv,Z_surf_cv, X_surf_test,Y_surf_test,Z_surf_test)
