@@ -1,0 +1,1 @@
+Mdl*hbf1*-units[2, 2, 1], task: f_2D_task2, step 0/20, train err 17.4012, test err 17.4676Opt:Momentum, BN False, After0/20 iteration,Init: kern_initMdl*hbf1*-units[2, 2, 1], task: f_2D_task2, step 10/20, train err 17.4003, test err 17.4664Opt:Momentum, BN False, After10/20 iteration,Init: kern_init
