@@ -23,7 +23,7 @@ def main(argv):
         data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
 
         replace = False # with or without replacement
-        stddevs = np.linspace(start=0.1, stop=3, num=nb_rbf_shapes)
+        stddevs = np.linspace(start=0.01, stop=10, num=nb_rbf_shapes)
         print 'number of RBF stddev tried:', len(stddevs)
         print 'start stddevs: ', stddevs
 
@@ -40,7 +40,8 @@ def main(argv):
         mtf.make_and_check_dir(dir_path)
         # save rbf
         rbf_params_loc = dir_path+'/rbf_params_%s_%s'%(date,experiment_name)
-        np.savez(rbf_params_loc,{'C_hat_bests':C_hat_bests, 'centers_bests':centers_bests, 'best_stddevs':best_stddevs, 'units_list':np.array(nb_centers_list)})
+        #np.savez(rbf_params_loc,{'C_hat_bests':C_hat_bests, 'centers_bests':centers_bests, 'best_stddevs':best_stddevs, 'units_list':np.array(nb_centers_list)})
+        np.savez(rbf_params_loc,C_hat_bests=C_hat_bests,centers_bests=centers_bests,best_stddevs=best_stddevs,units_list=np.array(nb_centers_list))
         # save errors
         result_loc = dir_path+'/results_json_%s_%s'%(date,experiment_name)
         results = {'nb_centers_list':nb_centers_list}

@@ -13,9 +13,10 @@ import my_tf_pkg as mtf
 import my_tf_pkg.plotting_1D as plt1d
 import matplotlib.pyplot as plt
 
-def main(filename,task_name):
+def main(rbf_params_filename,errors_filename,task_name):
     #_, filename = argv
-    with open(filename) as data_file:
+    print 'errors_filename: ', errors_filename
+    with open(errors_filename) as data_file:
         results = json.load(data_file)
     #
     nb_centers_list = results['nb_centers_list']
@@ -27,6 +28,11 @@ def main(filename,task_name):
 
     train_error_stds = results['train_error_stds']
     test_error_stds = results['test_error_stds']
+
+    # best stddevs
+    npzfile = np.load(rbf_params_filename)
+    best_stddevs = npzfile['best_stddevs']
+    print 'best_stddevs: ', best_stddevs
 
     # plot errors
     print 'plotting errors'
@@ -52,10 +58,22 @@ if __name__ == '__main__':
     # frameworkpython krls_plot_errrors_script.py
     task_name = 'f_2D_task2'
 
-    experiments_root = './om_krls_experiments'
-    experiment_dir = '/July_21_krls_experiment_name_test'
-    results_filename = '/results_json_July_21_krls_experiment_name_test'
+    experiments_root = './tmp_krls_experiments'
 
-    main(experiments_root+experiment_dir+results_filename,task_name)
+    experiment_dir = '/July_22_krls_experiment_name_test'
+    results_filename = '/results_json_July_22_krls_experiment_name_test'
+    rbf_params_filename = '/rbf_params_July_22_krls_experiment_name_test.npz'
+
+    #experiments_root = './om_krls_experiments'
+
+    #experiment_dir = '/July_21_krls_experiment_5_5_D_6_12_24_48_96'
+
+    #experiment_dir = '/July_21_krls_experiment_15_15_D_6_12_24_48_96'
+    #results_filename = '/results_json_July_21_krls_experiment_15_15_D_6_12_24_48_96'
+    #rbf_params_filename = '/rbf_params_July_21_krls_experiment_15_15_D_6_12_24_48_96.npz'
+
+    #experiment_dir = '/July_21_krls_experiment_30_5_D_6_12_24_48_96'
+
+    main(rbf_params_filename=experiments_root+experiment_dir+rbf_params_filename,errors_filename=experiments_root+experiment_dir+results_filename, task_name=task_name)
     #main(sys.argv)
     print '\a' #makes beep
