@@ -40,17 +40,16 @@ def main(argv):
         mtf.make_and_check_dir(dir_path)
         # save rbf
         rbf_params_loc = dir_path+'/rbf_params_%s_%s'%(date,experiment_name)
-        np.savez(rbf_params_loc,{'C_hat_bests':C_hat_bests, 'centers_bests':centers_bests, 'best_stddevs':best_stddevs})
+        np.savez(rbf_params_loc,{'C_hat_bests':C_hat_bests, 'centers_bests':centers_bests, 'best_stddevs':best_stddevs, 'units_list':np.array(nb_centers_list)})
         # save errors
         result_loc = dir_path+'/results_json_%s_%s'%(date,experiment_name)
-        results = {}
+        results = {'nb_centers_list':nb_centers_list}
         mtf.load_results_dic(results,train_errors_bests=train_errors_bests,cv_errors_bests=cv_errors_bests,test_errors_bests=test_errors_bests, train_errors_means=train_errors_means,cv_errors_means=cv_errors_means,test_errors_means=test_errors_means, train_error_stds=train_error_stds,cv_error_stds=cv_error_stds,test_error_stds=test_error_stds)
         with open(result_loc, 'w+') as f_json:
             json.dump(results,f_json,sort_keys=True, indent=2, separators=(',', ': '))
         #mtf.save_workspace(filename=result_loc,names_of_spaces_to_save=dir(),dict_of_values_to_save=locals())
 
 if __name__ == '__main__':
-    # python krls_collect_data.py f_2D_task2 tmp_krls krls_experiment_name_test 2 2 2,3,4
     # python krls_collect_data.py f_2D_task2 tmp_krls krls_experiment_name_test 2 2 2,3,4
     argv = sys.argv
     main(argv)

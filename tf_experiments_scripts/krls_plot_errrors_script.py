@@ -1,5 +1,6 @@
 import sys
 import pdb
+import json
 
 import numpy as np
 import sklearn
@@ -14,7 +15,11 @@ import matplotlib.pyplot as plt
 
 def main(argv):
     _, filename = argv
-    load_workspace(filename, globals())
+    with open('data.json') as data_file:
+        results = json.load(data_file)
+    #
+    
+
 
     # plot errors
     print 'plotting errors'
