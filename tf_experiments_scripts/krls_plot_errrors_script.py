@@ -13,13 +13,20 @@ import my_tf_pkg as mtf
 import my_tf_pkg.plotting_1D as plt1d
 import matplotlib.pyplot as plt
 
-def main(argv):
-    _, filename = argv
-    with open('data.json') as data_file:
+def main(filename,task_name):
+    #_, filename = argv
+    with open(filename) as data_file:
         results = json.load(data_file)
     #
-    
+    nb_centers_list = results['nb_centers_list']
+    train_errors_bests = results['train_errors_bests']
+    test_errors_bests = results['test_errors_bests']
 
+    train_errors_means = results['train_errors_means']
+    test_errors_means = results['test_errors_means']
+
+    train_error_stds = results['train_error_stds']
+    test_error_stds = results['test_error_stds']
 
     # plot errors
     print 'plotting errors'
@@ -42,6 +49,13 @@ def main(argv):
     plt1d.show()
 
 if __name__ == '__main__':
-    # frameworkpython krls.py ./om_result_krls_f_2D_task2_results
-    main(sys.argv)
+    # frameworkpython krls_plot_errrors_script.py
+    task_name = 'f_2D_task2'
+
+    experiments_root = './om_krls_experiments'
+    experiment_dir = '/July_21_krls_experiment_name_test'
+    results_filename = '/results_json_July_21_krls_experiment_name_test'
+
+    main(experiments_root+experiment_dir+results_filename,task_name)
+    #main(sys.argv)
     print '\a' #makes beep
