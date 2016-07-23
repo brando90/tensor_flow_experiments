@@ -49,8 +49,35 @@ from sklearn.cross_validation import train_test_split
 #     X_test, Y_test = make_mesh_grid_to_data_set(X_surf_test, Y_surf_test, Z_surf_test)
 #     return (X_train_whole, Y_train_whole), (X_train, Y_train, X_cv, Y_cv, X_test, Y_test), (X_surf_train,Y_surf_train,Z_surf_train, X_surf_cv,Y_surf_cv,Z_surf_cv, X_surf_test,Y_surf_test,Z_surf_test)
 
-
 #
+
+def f2D_func_task2_2(x_1,x_2,nb_recursive_layers=2):
+    #first layer
+    c_h1 = 2*np.pi
+    c_h2 = 1
+    a,b,c,d,e,f = 0,0,0,0,0,0
+    xx2 = x_1 - x_2
+    xx3 = x_1*x_2
+    h_1, h_2 = np.sin(c_h1*(x_1 + x_2)), np.cos(c_h2*(xx3))
+    # recursive layer
+    c_a1, c_a2 = 0, 1.2
+    A = c_a1*h_1 + c_a2*h_2
+    for l in range(nb_recursive_layers):
+        A = 0.5*(1*A**2+1.01*A + 1.1)**0.6
+    return A
+
+def f2D_func_task2_3(x_1,x_2,nb_recursive_layers=2):
+    #first layer
+    c_h1 = 0.5*np.pi
+    c_h2 = 1
+    xx3 = x_1*x_2
+    h_1, h_2 = np.sin(c_h1*(x_1 + x_2)), np.cos(c_h2*(xx3))
+    # recursive layer
+    c_a1, c_a2 = 1.5, 0.9
+    A = c_a1*h_1 + c_a2*h_2
+    for l in range(nb_recursive_layers):
+        A = 0.5*(1*A**2+1.01*A + 1.1)**0.6
+    return A
 
 def f2D_func(x_1,x_2, nb_recursive_layers=2,c1=0.03*np.pi,c2=0.04*np.pi,c3=np.pi/3):
     # first layer
@@ -75,6 +102,30 @@ def generate_meshgrid_h_add(N=60000,start_val=-1,end_val=1):
     (X,Y) = generate_meshgrid(N,start_val,end_val)
     #Z = sin(2*pi*X) + 4*(Y - 0.5).^2; %% h_add
     Z = np.sin(2*np.pi*X) + 4*np.power(Y - 0.5, 2) # h_add
+    return X,Y,Z
+
+def generate_meshgrid_f2D_task2_2(N=60000,start_val=-1,end_val=1, nb_recursive_layers=2):
+    (X,Y) = generate_meshgrid(N,start_val,end_val)
+    (dim_x, dim_y) = X.shape
+    Z = np.zeros(X.shape)
+    for dx in range(dim_x):
+        for dy in range(dim_y):
+            x = X[dx, dy]
+            y = Y[dx, dy]
+            f = f2D_func_task2_2(x_1=x,x_2=y,nb_recursive_layers=nb_recursive_layers)
+            Z[dx, dy] = f
+    return X,Y,Z
+
+def generate_meshgrid_f2D_task2_func(func,N=60000,start_val=-1,end_val=1,nb_recursive_layers=2):
+    (X,Y) = generate_meshgrid(N,start_val,end_val)
+    (dim_x, dim_y) = X.shape
+    Z = np.zeros(X.shape)
+    for dx in range(dim_x):
+        for dy in range(dim_y):
+            x = X[dx, dy]
+            y = Y[dx, dy]
+            f = func(x_1=x,x_2=y,nb_recursive_layers=nb_recursive_layers)
+            Z[dx, dy] = f
     return X,Y,Z
 
 def generate_meshgrid_f2D_task2(N=60000,start_val=-1,end_val=1, nb_recursive_layers=2, c1=0.3*np.pi, c2=0.4*np.pi ):

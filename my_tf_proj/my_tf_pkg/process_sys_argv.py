@@ -3,7 +3,8 @@ def process_argv(argv):
     print 'len(argv) =',len(argv)
     experiment_name = 'tmp_experiment'
     train_S_type = 'multiple_S'
-    units_list = [2,2]
+    units_list = [6,6]
+    #units_list = [96,96]
     #task_name = 'qianli_func'
     #task_name = 'hrushikesh'
     task_name = 'f_2D_task2'

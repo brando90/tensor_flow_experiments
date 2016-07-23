@@ -13,24 +13,7 @@ import os
 import pdb
 
 import my_tf_pkg as mtf
-#from tensorflow.python import control_flow_ops
 import time
-
-#import namespaces as ns
-
-#import winsound
-
-def make_and_check_dir(path):
-    '''
-        tries to make dir/file, if it exists already does nothing else creates it.
-    '''
-    try:
-        os.makedirs(path)
-    except OSError:
-        # uncomment to make it raise an error when path is not a directory
-        #if not os.path.isdir(path):
-        #    raise
-        pass
 
 print 'print sys.argv =',sys.argv
 print 'len(sys.argv) =',len(sys.argv)
@@ -68,12 +51,12 @@ print '==> tensorboard_data_dump_train: ', tensorboard_data_dump_train
 print '==> tensorboard_data_dump_test: ', tensorboard_data_dump_test
 print 'mdl_save',mdl_save
 # try to make directory, if it exists do NOP
-make_and_check_dir(path=path)
+mtf.make_and_check_dir(path=path)
 #make_and_check_dir(path=path+json_dir)
 #make_and_check_dir(path=path+errors_pretty_dir)
-make_and_check_dir(path=path+mdl_dir)
-make_and_check_dir(path=tensorboard_data_dump_train)
-make_and_check_dir(path=tensorboard_data_dump_test)
+mtf.make_and_check_dir(path=path+mdl_dir)
+mtf.make_and_check_dir(path=tensorboard_data_dump_train)
+mtf.make_and_check_dir(path=tensorboard_data_dump_test)
 # delete contents of tensorboard dir
 shutil.rmtree(tensorboard_data_dump_train)
 shutil.rmtree(tensorboard_data_dump_test)
@@ -98,12 +81,13 @@ dims = [D]+units_list+[D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
-std = len(dims)*[1.0]
+std = len(dims)*[0.05]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
-low_const, high_const = 0.1, 5
+low_const, high_const = 1, 5
 # init_constant = np.random.uniform(low=low_const, high=high_const)
-init_constant = 0.5
+init_constant = 0.1
+#b_init = list(np.random.uniform(low=low_const, high=high_const,size=len(dims)))
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
@@ -116,18 +100,18 @@ print '++> S/b_init ', b_init
 S_init = b_init
 #train_S_type = 'multiple_S'
 #train_S_type = 'single_S'
-#init_type = 'truncated_normal'
+init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
 #init_type = 'kpp_init'
-init_type = 'data_trunc_norm_kern'
-#model = 'standard_nn'
-model = 'hbf'
+#init_type = 'data_trunc_norm_kern'
+model = 'standard_nn'
+#model = 'hbf'
 #
 max_to_keep = 10
 
 ## train params
-bn = False
+bn = True
 if bn:
     phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 else:
@@ -135,13 +119,13 @@ else:
 
 report_error_freq = 10
 steps = 3000
-M =  2000 #batch-size
+M = 3000 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -5
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
 starter_learning_rate = 10**log_learning_rate
 
-starter_learning_rate = 0.01
+starter_learning_rate = 0.0001
 
 print '++> starter_learning_rate ', starter_learning_rate
 decay_rate = 0.9
@@ -151,7 +135,7 @@ staircase = True
 optimization_alg = 'GD'
 optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-#optimization_alg = 'Adam'
+optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
 #optimization_alg = 'RMSProp'
 
@@ -171,6 +155,7 @@ if model == 'standard_nn':
     with tf.name_scope("standardNN") as scope:
         mdl = mtf.build_standard_NN(x,dims,(inits_C,inits_W,inits_b),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
+    inits_S = inits_b
 elif model == 'hbf':
     #tensorboard_data_dump = '/tmp/hbf_logs'
     (inits_C,inits_W,inits_S) = mtf.get_initilizations_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train, train_S_type=train_S_type)
@@ -330,4 +315,5 @@ results['minutes'] = minutes
 results['hours'] = hours
 with open(path+json_file, 'w+') as f_json:
     json.dump(results,f_json,sort_keys=True, indent=2, separators=(',', ': '))
+print '\a' #makes beep
 print '\a' #makes beep

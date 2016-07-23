@@ -12,9 +12,17 @@ import my_tf_pkg as mtf
 ## get mesh data
 #X,Y,Z = mtf.generate_meshgrid_h_add()
 #X,Y,Z = mtf.generate_meshgrid_h_gabor()
-nb_recursive_layers = 1
+func = mtf.f2D_func_task2_2
+#func = mtf.f2D_func_task2_3
+nb_recursive_layers = 3
 #X,Y,Z = mtf.generate_meshgrid_f2D_task2(N=120000,start_val=-10,end_val=10, nb_recursive_layers=nb_recursive_layers)
-X,Y,Z = mtf.generate_meshgrid_f2D_task2_2(N=120000,start_val=-20,end_val=20, nb_recursive_layers=nb_recursive_layers)
+data_sets = [None]
+for l in range(1,nb_recursive_layers+1):
+    (X,Y,Z) = mtf.generate_meshgrid_f2D_task2_func(func=func,N=120000,start_val=-3,end_val=3, nb_recursive_layers=l)
+    #(X,Y,Z) =  mesh
+    mesh = (X,Y,Z)
+    data_sets.append(mesh)
+
 ## get data
 X_data, Y_data = mtf.make_mesh_grid_to_data_set(X, Y, Z)
 ## get rbf
@@ -28,9 +36,12 @@ X_data, Y_data = mtf.make_mesh_grid_to_data_set(X, Y, Z)
 # plt.title('RBF prediction')
 
 #plt.title('nb_recursive_layers f2D_task2, nb_recursive_layers=%s'%nb_recursive_layers)
-fig = plt.figure()
-ax = fig.gca(projection='3d')
-surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)
-plt.title('Original function layers = %d'%nb_recursive_layers)
+for l in range(1,nb_recursive_layers+1):
+    (X,Y,Z) =  data_sets[l]
+    #
+    fig = plt.figure()
+    ax = fig.gca(projection='3d')
+    surf = ax.plot_surface(X, Y, Z, cmap=cm.coolwarm)
+    plt.title('Original function depth = %d'%l)
 
 plt.show()

@@ -1,0 +1,1 @@
+Mdl*hbf1*-units[2, 2, 1], task: f_2D_task2, step 0/3000, train err 17.1279, test err 17.1298Opt:RMSProp, BN False, After0/3000 iteration,Init: kern_initMdl*hbf1*-units[2, 2, 1], task: f_2D_task2, step 10/3000, train err 17.1275, test err 17.1299Opt:RMSProp, BN False, After10/3000 iteration,Init: kern_init

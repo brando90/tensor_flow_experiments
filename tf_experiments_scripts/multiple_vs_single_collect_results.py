@@ -22,6 +22,24 @@ def get_list_errors(experiment_results):
     list_units, list_test_errors = zip(*sorted(zip(list_units, list_test_errors)))
     return list_units, list_test_errors
 
+def get_list_errors2(experiment_results):
+    # experiment_results : units->results
+    list_units = []
+    list_train_errors = []
+    list_test_errors = []
+    for nb_units, results in experiment_results.iteritems():
+        #print 'nb_units ', nb_units
+        train_error, cv_error, test_error = get_errors_from(results)
+        print '--nb_units', nb_units
+        print 'train_error, cv_error, test_error ', train_error, cv_error, test_error
+        list_units.append(nb_units)
+        list_test_errors.append(test_error)
+        list_train_errors.append(train_error)
+    # sort based on first list
+    _, list_train_errors = zip(*sorted(zip(list_units, list_train_errors)))
+    list_units, list_test_errors = zip(*sorted(zip(list_units, list_test_errors)))
+    return list_units, list_train_errors, list_test_errors
+
 ##
 
 def get_errors_from(results):
@@ -231,4 +249,27 @@ def display_results_HBF1_vs_HBF1():
     plt.legend()
     plt.show()
 
-display_results_HBF1_vs_HBF1()
+def display_results_HBF1_task2():
+    ##
+    experiment = '/multiple_S_task2_HP_hbf2'
+    path_to_experiments = './om_results_test_experiments'+experiment
+    hbf1_multiple_experiment_results = get_results_for_experiments(path_to_experiments,verbose=True)
+    #mean_train_errors, std_train_errors, mean_test_errors_multiple, std_test_errors_multiple = get_error_stats(multiple_experiment_results)
+
+    #
+    list_units, list_train_errors, list_test_errors = get_list_errors2(experiment_results=hbf1_multiple_experiment_results)
+    #hbf1_list_units_single, hbf1_list_test_errors_single = get_list_errors(experiment_results=hbf1_single_experiment_results)
+
+    #
+    plt.figure(3)
+    print 'hbf1_list_units_multiple: ', list_units
+    print 'list_train_errors: ', list_train_errors
+    print 'list_test_errors: ', list_test_errors
+    krls.plot_errors(list_units, list_train_errors,label='HBF1 not shared HBF shape', markersize=3, colour='b')
+    krls.plot_errors(list_units, list_test_errors,label='HBF1 not shared HBF shape', markersize=3, colour='r')
+
+    plt.legend()
+    plt.show()
+
+if __name__ == '__main__':
+    display_results_HBF1_task2()

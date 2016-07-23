@@ -29,6 +29,10 @@ def main(rbf_params_filename,errors_filename,task_name):
     train_error_stds = results['train_error_stds']
     test_error_stds = results['test_error_stds']
 
+    print 'nb_centers_list: ', nb_centers_list
+    print 'train_errors_bests: ', train_errors_bests
+    print 'test_errors_bests: ', test_errors_bests
+
     # best stddevs
     npzfile = np.load(rbf_params_filename)
     best_stddevs = npzfile['best_stddevs']
@@ -58,21 +62,21 @@ if __name__ == '__main__':
     # frameworkpython krls_plot_errrors_script.py
     task_name = 'f_2D_task2'
 
-    experiments_root = './tmp_krls_experiments'
+    #experiments_root = './tmp_krls_experiments'
 
-    experiment_dir = '/July_22_krls_experiment_name_test'
-    results_filename = '/results_json_July_22_krls_experiment_name_test'
-    rbf_params_filename = '/rbf_params_July_22_krls_experiment_name_test.npz'
+    #experiment_dir = '/July_22_krls_experiment_name_test'
+    #results_filename = '/results_json_July_22_krls_experiment_name_test'
+    #rbf_params_filename = '/rbf_params_July_22_krls_experiment_name_test.npz'
 
-    #experiments_root = './om_krls_experiments'
+    experiments_root = './om_krls_experiments'
 
-    #experiment_dir = '/July_21_krls_experiment_5_5_D_6_12_24_48_96'
+    experiment_dir = '/July_22_krls_experiment_30_30_D_6_12_24_48_96'
+    results_filename = '/results_json_July_22_krls_experiment_30_30_D_6_12_24_48_96'
+    rbf_params_filename = '/rbf_params_July_22_krls_experiment_30_30_D_6_12_24_48_96.npz'
 
-    #experiment_dir = '/July_21_krls_experiment_15_15_D_6_12_24_48_96'
-    #results_filename = '/results_json_July_21_krls_experiment_15_15_D_6_12_24_48_96'
-    #rbf_params_filename = '/rbf_params_July_21_krls_experiment_15_15_D_6_12_24_48_96.npz'
-
-    #experiment_dir = '/July_21_krls_experiment_30_5_D_6_12_24_48_96'
+    #experiment_dir = '/July_22_krls_experiment_10_10_D_6_12_24_48_96_units_search'
+    #results_filename = '/results_json_July_22_krls_experiment_10_10_D_6_12_24_48_96_units_search'
+    #rbf_params_filename = '/rbf_params_July_22_krls_experiment_10_10_D_6_12_24_48_96_units_search.npz'
 
     main(rbf_params_filename=experiments_root+experiment_dir+rbf_params_filename,errors_filename=experiments_root+experiment_dir+results_filename, task_name=task_name)
     #main(sys.argv)

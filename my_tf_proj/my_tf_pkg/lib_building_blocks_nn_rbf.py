@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 
 def get_Gaussian_layer(x,W,S,C, phase_train=None):
     with tf.name_scope("Z-pre_acts") as scope:
@@ -32,7 +33,8 @@ def get_NN_layer(x, laters_dimensions, phase_train=None, scope="NNLayer"):
         b = tf.Variable(tf.constant(1.0, shape=[D_l]), trainable=True)
         z = tf.matmul(x,W) + b
         if phase_train is not None:
-            z = standard_batch_norm(z, 1, phase_train)
+            #z = standard_batch_norm(z, 1, phase_train)
+            z = batch_norm_layer(z, phase_train, scope_bn=scope+'BN')
         layer = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
     return layer
 
@@ -79,3 +81,33 @@ def standard_batch_norm(x, n_out, phase_train, scope='bn'):
         mean, var = tf.cond(phase_train, mean_var_with_update, lambda: (ema.average(batch_mean), ema.average(batch_var)))
         normed = tf.nn.batch_normalization(x, mean, var, beta, gamma, 1e-3)
     return normed
+
+def batch_norm_layer(x,train_phase,scope_bn):
+    bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
+    is_training=True,
+    reuse=None, # is this right?
+    trainable=True,
+    scope=scope_bn)
+    bn_inference = batch_norm(x, decay=0.999, center=True, scale=True,
+    is_training=False,
+    reuse=True, # is this right?
+    trainable=True,
+    scope=scope_bn)
+    z = tf.cond(train_phase, lambda: bn_train, lambda: bn_inference)
+    return z
+
+def BatchNorm_my_github_ver(inputT, is_training=True, scope=None):
+    # Note: is_training is tf.placeholder(tf.bool) type
+    return tf.cond(is_training,
+                lambda: batch_norm(inputT, is_training=True,
+                                   center=False, updates_collections=None, scope=scope),
+                lambda: batch_norm(inputT, is_training=False,
+                                   updates_collections=None, center=False, scope=scope, reuse = True))
+
+def BatchNorm_GitHub_Ver(inputT, is_training=True, scope=None):
+    # Note: is_training is tf.placeholder(tf.bool) type
+    return tf.cond(is_training,
+                lambda: batch_norm(inputT, is_training=True,
+                                   center=False, updates_collections=None, scope=scope),
+                lambda: batch_norm(inputT, is_training=False,
+                                   updates_collections=None, center=False, scope=scope, reuse = True))
