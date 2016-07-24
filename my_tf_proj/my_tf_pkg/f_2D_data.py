@@ -73,7 +73,8 @@ def f2D_func_task2_2(x_1,x_2,nb_recursive_layers=2):
         #A = A*np.sin(1.0/A)/2
         #A = A*np.sin( 0.5*np.pi*np.abs(A)**(-0.37) )/2
         A = 0.99*A*np.sin( 0.1*np.pi*np.log(np.abs(A)) )
-    return A
+    f = 60*A
+    return f
 
 def f2D_func_task2_3(x_1,x_2,nb_recursive_layers=2):
     #first layer

@@ -2,6 +2,8 @@ import numpy as np
 import json
 from sklearn.cross_validation import train_test_split
 
+from tensorflow.examples.tutorials.mnist import input_data
+
 import pdb
 
 def f1D_task1():
@@ -95,6 +97,11 @@ def get_data(task_name):
         (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_2d_task2_ml_xsinlog1_x_depth_2data_and_mesh.npz')
     elif task_name == 'f_2d_task2_xsinglog1_x_depth3':
         (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_2d_task2_ml_xsinlog1_x_depth_3data_and_mesh.npz')
+    elif task_name == 'MNIST_flat':
+        mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
+        X_train, Y_train = mnist.train.images, mnist.train.labels
+        X_cv, Y_cv = mnist.validation.images, mnist.validation.labels
+        X_test, Y_test = mnist.test.images, mnist.test.labels
     elif task_name == 'hrushikesh':
         with open('../hrushikesh/patient_data_X_Y.json', 'r') as f_json:
             patients_data = json.load(f_json)
