@@ -91,6 +91,10 @@ def get_data(task_name):
         (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_1d_cos_no_noise_data.npz')
     elif task_name == 'f_2D_task2':
         (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_2d_task2_ml_data_and_mesh.npz')
+    elif task_name == 'f_2d_task2_xsinglog1_x_depth2':
+        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_2d_task2_ml_xsinlog1_x_depth_2data_and_mesh.npz')
+    elif task_name == 'f_2d_task2_xsinglog1_x_depth3':
+        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = get_data_from_file(file_name='./f_2d_task2_ml_xsinlog1_x_depth_3data_and_mesh.npz')
     elif task_name == 'hrushikesh':
         with open('../hrushikesh/patient_data_X_Y.json', 'r') as f_json:
             patients_data = json.load(f_json)
