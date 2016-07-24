@@ -24,19 +24,19 @@ for l in range(1,nb_recursive_layers+1):
     data_sets.append(mesh)
 
 ## get data
-for l in range(1, nb_recursive_layers+1):
-    (X,Y,Z) =  data_sets[l]
-    X_data, Y_data = mtf.make_mesh_grid_to_data_set(X, Y, Z)
-    # get rbf
-    K, stddev = (100, 1)
-    C, Kern, centers = mtf.get_RBF(X=X_data, K=K, stddev=stddev, Y=Y_data)
-    Y_pred = mtf.rbf_predict(X_data, C, centers, stddev)
-    _,_,Z_pred = mtf.make_meshgrid_data_from_training_data(X_data=X_data, Y_data=Y_pred)
-    #
-    fig = plt.figure()
-    ax = fig.gca(projection='3d')
-    surf = ax.plot_surface(X, Y, Z_pred, cmap=cm.coolwarm)
-    plt.title('RBF prediction')
+# for l in range(1, nb_recursive_layers+1):
+#     (X,Y,Z) =  data_sets[l]
+#     X_data, Y_data = mtf.make_mesh_grid_to_data_set(X, Y, Z)
+#     # get rbf
+#     K, stddev = (100, 1)
+#     C, Kern, centers = mtf.get_RBF(X=X_data, K=K, stddev=stddev, Y=Y_data)
+#     Y_pred = mtf.rbf_predict(X_data, C, centers, stddev)
+#     _,_,Z_pred = mtf.make_meshgrid_data_from_training_data(X_data=X_data, Y_data=Y_pred)
+#     #
+#     fig = plt.figure()
+#     ax = fig.gca(projection='3d')
+#     surf = ax.plot_surface(X, Y, Z_pred, cmap=cm.coolwarm)
+#     plt.title('RBF prediction')
 
 #plt.title('nb_recursive_layers f2D_task2, nb_recursive_layers=%s'%nb_recursive_layers)
 for l in range(1,nb_recursive_layers+1):
