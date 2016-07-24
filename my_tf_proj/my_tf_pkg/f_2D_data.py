@@ -53,17 +53,26 @@ from sklearn.cross_validation import train_test_split
 
 def f2D_func_task2_2(x_1,x_2,nb_recursive_layers=2):
     #first layer
-    c_h1 = 2*np.pi
-    c_h2 = 1
-    a,b,c,d,e,f = 0,0,0,0,0,0
-    xx2 = x_1 - x_2
-    xx3 = x_1*x_2
-    h_1, h_2 = np.sin(c_h1*(x_1 + x_2)), np.cos(c_h2*(xx3))
+    #c_h = 0.2*np.pi
+    #c_h = 0.01*np.pi
+    c_h = 1.2*np.pi
+    #h = np.cos(c_h*( x_1+x_2))
+    #h = np.cos(c_h*( x_1*x_2))
+    h = np.cos(c_h*( x_1*x_2**2))
     # recursive layer
-    c_a1, c_a2 = 0, 1.2
-    A = c_a1*h_1 + c_a2*h_2
+    c_a1 = 1.2
+    A = c_a1*h
     for l in range(nb_recursive_layers):
-        A = 0.5*(1*A**2+1.01*A + 1.1)**0.6
+        #A = (1.01*A**2+1.01*A+1.1)**.5
+        #A = A+1.1*A**2+(A**2+0.5*A**4)**.5
+        #A = A*0.5*(1.01*A**2+1.01*A + 1.1)**0.5
+        #A = A*np.log(A**2)
+        #A = (np.abs(A) )**1.1
+        #A = (A**2+0.5*A**4)**0.5
+        #A = 1.01*np.sin(0.1*np.pi*A)*(1.01*A**2+1.01*A + 1.1)**0.4
+        #A = A*np.sin(1.0/A)/2
+        #A = A*np.sin( 0.5*np.pi*np.abs(A)**(-0.37) )/2
+        A = 0.99*A*np.sin( 0.1*np.pi*np.log(np.abs(A)) )
     return A
 
 def f2D_func_task2_3(x_1,x_2,nb_recursive_layers=2):
