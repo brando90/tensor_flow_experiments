@@ -60,19 +60,21 @@ def main(rbf_params_filename,errors_filename,task_name):
 
 if __name__ == '__main__':
     # frameworkpython krls_plot_errrors_script.py
-    task_name = 'f_2D_task2'
+    #task_name = 'f_2D_task2'
+    task_name = 'f_2d_task2_xsinglog1_x_depth2'
+    # task_name = 'f_2d_task2_xsinglog1_x_depth3'
 
-    #experiments_root = './tmp_krls_experiments'
+    experiments_root = './tmp_krls_experiments'
 
-    #experiment_dir = '/July_22_krls_experiment_name_test'
-    #results_filename = '/results_json_July_22_krls_experiment_name_test'
-    #rbf_params_filename = '/rbf_params_July_22_krls_experiment_name_test.npz'
+    experiment_dir = '/July_23_krls_f_2d_task2_xsinglog1_x_depth2'
+    results_filename = '/results_json_July_23_krls_f_2d_task2_xsinglog1_x_depth2'
+    rbf_params_filename = '/rbf_params_July_23_krls_f_2d_task2_xsinglog1_x_depth2.npz'
 
-    experiments_root = './om_krls_experiments'
+    #experiments_root = './om_krls_experiments'
 
-    experiment_dir = '/July_22_krls_experiment_30_30_D_6_12_24_48_96'
-    results_filename = '/results_json_July_22_krls_experiment_30_30_D_6_12_24_48_96'
-    rbf_params_filename = '/rbf_params_July_22_krls_experiment_30_30_D_6_12_24_48_96.npz'
+    #experiment_dir = '/July_22_krls_experiment_30_30_D_6_12_24_48_96'
+    #results_filename = '/results_json_July_22_krls_experiment_30_30_D_6_12_24_48_96'
+    #rbf_params_filename = '/rbf_params_July_22_krls_experiment_30_30_D_6_12_24_48_96.npz'
 
     #experiment_dir = '/July_22_krls_experiment_10_10_D_6_12_24_48_96_units_search'
     #results_filename = '/results_json_July_22_krls_experiment_10_10_D_6_12_24_48_96_units_search'

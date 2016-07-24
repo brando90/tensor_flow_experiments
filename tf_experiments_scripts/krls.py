@@ -11,6 +11,31 @@ import json
 import my_tf_pkg as mtf
 import my_tf_pkg.plotting_1D as plt1d
 
+def main3(agv):
+        (_, task_name, result_loc, nb_inits, nb_rbf_shapes, units)  = argv
+        nb_inits, nb_rbf_shapes = int(nb_inits), int(nb_rbf_shapes)
+        units_list =  units.split(',')
+        nb_centers_list = [ int(a) for a in units_list ]
+
+        print 'task_name ', task_name
+        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data(task_name)
+        data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
+
+        replace = False # with or without replacement
+        stddevs = np.linspace(start=0.1, stop=3, num=nb_rbf_shapes)
+        print 'number of RBF stddev tried:', len(stddevs)
+        print 'start stddevs: ', stddevs
+
+        mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean = mtf.evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
+        (C_hat_bests, centers_bests, best_stddevs) = mdl_best_params
+        print 'best_stddevs: ',best_stddevs
+        (train_errors_bests, _, test_errors_bests) = errors_best
+        (train_errors_means,_,test_errors_means, train_error_stds,_,test_error_stds) = errors_stats
+        #(Y_pred_train_best, _, Y_pred_test_best) = reconstructions_best
+
+        #mtf.save_workspace(filename=result_loc,names_of_spaces_to_save=dir(),dict_of_values_to_save=locals())
+        print '\a' #makes beep
+
 def plot_reconstruction(fig_num, X_original,Y_original, nb_centers, rbf_predictions, colours, markersize=3, title_name='Reconstruction'):
     fig = plt.figure(fig_num)
     plt.xlabel('number of units')
@@ -116,7 +141,7 @@ def main(argv):
     mtf.save_workspace(filename=result_loc,names_of_spaces_to_save=dir(),dict_of_values_to_save=locals())
     print '\a' #makes beep
 
-def main2(argv):
+def main(argv):
     (_, task_name, result_loc, nb_inits, nb_rbf_shapes, units)  = argv
     nb_inits, nb_rbf_shapes = int(nb_inits), int(nb_rbf_shapes)
     units_list =  units.split(',')
@@ -162,31 +187,6 @@ def main2(argv):
     mtf.save_workspace(filename=result_loc,names_of_spaces_to_save=dir(),dict_of_values_to_save=locals())
     print '\a' #makes beep
 
-def main3(agv):
-        (_, task_name, result_loc, nb_inits, nb_rbf_shapes, units)  = argv
-        nb_inits, nb_rbf_shapes = int(nb_inits), int(nb_rbf_shapes)
-        units_list =  units.split(',')
-        nb_centers_list = [ int(a) for a in units_list ]
-
-        print 'task_name ', task_name
-        (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data(task_name)
-        data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
-
-        replace = False # with or without replacement
-        stddevs = np.linspace(start=0.1, stop=3, num=nb_rbf_shapes)
-        print 'number of RBF stddev tried:', len(stddevs)
-        print 'start stddevs: ', stddevs
-
-        mdl_best_params, mdl_mean_params, errors_best, errors_stats, reconstructions_best, reconstructions_mean = mtf.evalaute_models(data, stddevs, nb_centers_list, replace=False, nb_inits=nb_inits)
-        (C_hat_bests, centers_bests, best_stddevs) = mdl_best_params
-        print 'best_stddevs: ',best_stddevs
-        (train_errors_bests, _, test_errors_bests) = errors_best
-        (train_errors_means,_,test_errors_means, train_error_stds,_,test_error_stds) = errors_stats
-        #(Y_pred_train_best, _, Y_pred_test_best) = reconstructions_best
-
-        #mtf.save_workspace(filename=result_loc,names_of_spaces_to_save=dir(),dict_of_values_to_save=locals())
-        print '\a' #makes beep
-
 ##
 
 if __name__ == '__main__':
@@ -194,6 +194,9 @@ if __name__ == '__main__':
     # frameworkpython krls.py f_2D_task2 ./om_result_krls_f_2D_task2_results 30 30 2,4,6,8,12,14,16,18,20,22,24,26,28,30
     # frameworkpython krls.py f_2D_task2 ./om_result_krls_f_2D_task2_results 2 2 2,4,6,8,12,14,16,18,20,22,24,26,28,30
     # frameworkpython krls.py f_2D_task2 ./om_result_krls_f_2D_task2_results 3 3 2,3,4
+
+    # f_2d_task2_xsinglog1_x_depth2
+    # task_name = f_2d_task2_xsinglog1_x_depth3
     argv = sys.argv
     main2(argv)
     print '\a' #makes beep
