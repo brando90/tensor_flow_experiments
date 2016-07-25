@@ -84,14 +84,15 @@ dims = [D]+units_list+[D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
-std = np.random.uniform(low=0.001, high=0.8,size=len(dims))
+std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
 #std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
 #std = len(dims)*[0.25]
 #std = len(dims)*[std_init]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
+init_constant = None
 low_const, high_const = 0.1, 0.8
-# init_constant = np.random.uniform(low=low_const, high=high_const)
+#init_constant = np.random.uniform(low=low_const, high=high_const)
 #init_constant = 0.62163
 b_init = list(np.random.uniform(low=low_const, high=high_const,size=len(dims)))
 #b_init = len(dims)*[init_constant]
@@ -124,8 +125,8 @@ else:
     phase_train = None
 
 report_error_freq = 25
-steps = 8000
-M = 3000 #batch-size
+steps = 51
+M = 3 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -6
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
