@@ -67,6 +67,9 @@ results_dic = mtf.fill_results_dic_with_np_seed(np_rnd_seed=np.random.get_state(
 #task_name = 'qianli_func'
 #task_name = 'hrushikesh'
 #task_name = 'f_2D_task2'
+# task_name = 'f_2d_task2_xsinglog1_x_depth2
+# task_name = 'f_2d_task2_xsinglog1_x_depth3
+# task_name = 'MNIST_flat'
 print '----====> TASK NAME: %s' % task_name
 (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data(task_name)
 (N_train,D) = X_train.shape
@@ -81,14 +84,17 @@ dims = [D]+units_list+[D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
-std = len(dims)*[0.05]
+std_init = np.random.uniform(low=0.001, high=0.8,size=len(dims))
+#std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
+#std = len(dims)*[0.25]
+std = len(dims)*[std_init]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
-low_const, high_const = 1, 5
+low_const, high_const = 0.1, 0.8
 # init_constant = np.random.uniform(low=low_const, high=high_const)
-init_constant = 0.1
-#b_init = list(np.random.uniform(low=low_const, high=high_const,size=len(dims)))
-b_init = len(dims)*[init_constant]
+#init_constant = 0.62163
+b_init = list(np.random.uniform(low=low_const, high=high_const,size=len(dims)))
+#b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
 #low_const, high_const = 0.1, 2
@@ -100,32 +106,32 @@ print '++> S/b_init ', b_init
 S_init = b_init
 #train_S_type = 'multiple_S'
 #train_S_type = 'single_S'
-init_type = 'truncated_normal'
+#init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
 #init_type = 'kpp_init'
-#init_type = 'data_trunc_norm_kern'
-model = 'standard_nn'
-#model = 'hbf'
+init_type = 'data_trunc_norm_kern'
+#model = 'standard_nn'
+model = 'hbf'
 #
 max_to_keep = 10
 
 ## train params
-bn = True
+bn = False
 if bn:
     phase_train = tf.placeholder(tf.bool, name='phase_train') ##BN ON
 else:
     phase_train = None
 
-report_error_freq = 10
-steps = 3000
+report_error_freq = 25
+steps = 8000
 M = 3000 #batch-size
 
-low_const_learning_rate, high_const_learning_rate = 0, -5
+low_const_learning_rate, high_const_learning_rate = 0, -6
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
 starter_learning_rate = 10**log_learning_rate
 
-starter_learning_rate = 0.0001
+#starter_learning_rate = 0.00005
 
 print '++> starter_learning_rate ', starter_learning_rate
 decay_rate = 0.9
@@ -133,11 +139,11 @@ decay_steps = 1000
 staircase = True
 
 optimization_alg = 'GD'
-optimization_alg = 'Momentum'
+#optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-optimization_alg = 'Adam'
+#optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
-#optimization_alg = 'RMSProp'
+optimization_alg = 'RMSProp'
 
 results['train_S_type'] = train_S_type
 results['range_learning_rate'] = [low_const_learning_rate, high_const_learning_rate]
