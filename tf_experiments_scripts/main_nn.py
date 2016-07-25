@@ -84,10 +84,10 @@ dims = [D]+units_list+[D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
 mu = len(dims)*[0.0]
-std_init = np.random.uniform(low=0.001, high=0.8,size=len(dims))
+std = np.random.uniform(low=0.001, high=0.8,size=len(dims))
 #std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
 #std = len(dims)*[0.25]
-std = len(dims)*[std_init]
+#std = len(dims)*[std_init]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
 low_const, high_const = 0.1, 0.8
