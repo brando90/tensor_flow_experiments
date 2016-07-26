@@ -2,6 +2,8 @@ import numpy as np
 import tensorflow as tf
 from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 
+import pdb
+
 def get_Gaussian_layer(x,W,S,C, phase_train=None):
     with tf.name_scope("Z-pre_acts") as scope:
         WW =  tf.reduce_sum(W*W, reduction_indices=0, keep_dims=True) #( 1 x D^(l)= sum( (D^(l-1) x D^(l)), 0 )
@@ -41,6 +43,7 @@ def get_NN_layer(x, laters_dimensions, phase_train=None, scope="NNLayer"):
 def get_summation_layer(x, dimensions_list, phase_train=None, scope="SumLayer"):
     #D_in = len(x)
     (D_in, D_out) = (dimensions_list[0], dimensions_list[-1])
+    print 'get_summation_layer'
     with tf.name_scope(scope):
         C = tf.Variable( tf.truncated_normal(shape=[D_in,D_out]) )
         a = tf.matmul(x, C)

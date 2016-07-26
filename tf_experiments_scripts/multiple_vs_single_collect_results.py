@@ -30,12 +30,14 @@ def get_list_errors2(experiment_results):
     for nb_units, results in experiment_results.iteritems():
         #print 'nb_units ', nb_units
         train_error, cv_error, test_error = get_errors_from(results)
-        print '--nb_units', nb_units
-        print 'train_error, cv_error, test_error ', train_error, cv_error, test_error
+        #print '--nb_units', nb_units
+        #print 'train_error, cv_error, test_error ', train_error, cv_error, test_error
         list_units.append(nb_units)
         list_test_errors.append(test_error)
         list_train_errors.append(train_error)
     # sort based on first list
+    print len(list_train_errors)
+    print len(list_test_errors)
     _, list_train_errors = zip(*sorted(zip(list_units, list_train_errors)))
     list_units, list_test_errors = zip(*sorted(zip(list_units, list_test_errors)))
     return list_units, list_train_errors, list_test_errors
@@ -89,11 +91,11 @@ def get_results_for_experiments(path_to_experiments, verbose=False, split_string
     '''
         Returns a dictionary containing the best results for each experiment
     '''
+    print path_to_experiments
     experiment_results = {} # maps units -> results_best_mdl e.g {'4':{'results_best_mdl':results_best_mdl}}
     for (experiment_dir, _, potential_runs) in os.walk(path_to_experiments):
         # if current dirpath is a valid experiment and not . (itself)
         if (experiment_dir != path_to_experiments):
-            print experiment_dir
             results_best, best_filename, final_train_errors, final_cv_errors, final_test_errors = get_best_results_from_experiment(experiment_dirpath=experiment_dir,list_runs_filenames=potential_runs)
             nb_units = results_best['dims'][1]
             #(left, right) = experiment_dir.split('jHBF1_')
@@ -251,10 +253,14 @@ def display_results_HBF1_vs_HBF1():
 
 def display_results_HBF1_task2():
     ##
-    experiment = '/multiple_S_task2_HP_hbf2'
-    path_to_experiments = './om_results_test_experiments'+experiment
-    hbf1_multiple_experiment_results = get_results_for_experiments(path_to_experiments,verbose=True)
+    # experiment = '/multiple_S_task2_HP_hbf2'
+    # path_to_experiments = './om_results_test_experiments'+experiment
+    # hbf1_multiple_experiment_results = get_results_for_experiments(path_to_experiments,verbose=True)
     #mean_train_errors, std_train_errors, mean_test_errors_multiple, std_test_errors_multiple = get_error_stats(multiple_experiment_results)
+
+    path_to_experiments = './om_results_test_experiments/multiple_S_task2_HP_hbf2'
+    hbf1_multiple_experiment_results = get_results_for_experiments(path_to_experiments,verbose=True)
+    #print hbf1_multiple_experiment_results
 
     #
     list_units, list_train_errors, list_test_errors = get_list_errors2(experiment_results=hbf1_multiple_experiment_results)

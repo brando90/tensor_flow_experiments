@@ -1,21 +1,15 @@
 import numpy as np
-import tensorflow as tf
+
 import sklearn as sk
 from sklearn.metrics.pairwise import euclidean_distances
+
+import tensorflow as tf
+from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 
 def hello_world():
     print "Hello World!"
 
 ## builders for Networks
-
-def build_summed_HBF(x, dims, inits, phase_train=None):
-    (inits_C,inits_W,inits_S) = inits
-    layer = x
-    nb_hidden_layers = len(dims)-1
-    for l in xrange(1,nb_hidden_layers): # from 1 to L-1
-        layer = get_HBF_layer(l=str(l),x=layer,init=(inits_W[l],inits_S[l]),dims=(dims[l-1],dims[l]),phase_train=phase_train)
-        layer = get_summation_layer(str(l),layer,inits_C[l])
-    return layer
 
 def build_HBF(x, dims, inits, phase_train=None):
     (_,inits_W,inits_S) = inits
@@ -23,15 +17,6 @@ def build_HBF(x, dims, inits, phase_train=None):
     nb_hidden_layers = len(dims)-1
     for l in xrange(1,nb_hidden_layers): # from 1 to L-1
         layer = get_HBF_layer(l=str(l),x=layer,init=(inits_W[l],inits_S[l]),dims=(dims[l-1],dims[l]),phase_train=phase_train)
-    return layer
-
-def build_summed_NN(x, dims, inits, phase_train=None):
-    (inits_C,inits_W,inits_b) = inits
-    layer = x
-    nb_hidden_layers = len(dims)-1
-    for l in xrange(1,nb_hidden_layers): # from 1 to L-1
-        layer = get_NN_layer(str(l),layer,dims,(inits_W[l],inits_b[l]), phase_train=None)
-        layer = get_summation_layer(str(l),layer,inits_C[l])
     return layer
 
 def build_standard_NN(x, dims, inits, phase_train=None):
@@ -43,15 +28,6 @@ def build_standard_NN(x, dims, inits, phase_train=None):
     return layer
 
 ## build layers blocks NN
-
-def get_summation_layer(l, x, init, layer_name="SumLayer"):
-    with tf.name_scope(layer_name+l):
-        #print init
-        C = tf.get_variable(name='C'+l, dtype=tf.float64, initializer=init, regularizer=None, trainable=True)
-        layer = tf.matmul(x, C)
-    var_prefix = 'vars_'+layer_name+l
-    put_summaries(C, prefix_name=var_prefix+'C'+l, suffix_text = 'C'+l)
-    return layer
 
 def build_HBF2(x, dims, inits, phase_train=None):
     (_,inits_W,inits_S) = inits
@@ -131,18 +107,28 @@ def variable_summaries(var, name):
 def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
     (init_W,init_b) = init
     with tf.name_scope(scope+l):
-        W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True)
+        W = get_W(init_W, l, x, dims, init, phase_train=None)
         b = tf.get_variable(name='b'+l, dtype=tf.float64, initializer=init_b, regularizer=None, trainable=True)
         with tf.name_scope('Z'+l):
             z = tf.matmul(x,W) + b
             if phase_train is not None:
-                z = standard_batch_norm(l, z, 1, phase_train)
+                #z = standard_batch_norm(l, z, 1, phase_train)
+                z = add_batch_norm_layer(l, z, phase_train)
         with tf.name_scope('A'+l):
             a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
         with tf.name_scope('sumarries'+l):
             W = tf.histogram_summary('W'+l, W)
             b = tf.histogram_summary('b'+l, b)
     return a
+
+def get_W(init_W, l, x, dims, init, phase_train=None):
+    (dim_input,dim_out) = dims
+    if isinstance(init_W, tf.python.framework.ops.Tensor):
+        print 'isinstance'
+        W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True)
+    else:
+        W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True, shape=[dim_input,dim_out])
+    return W
 
 def nn_layer(x, input_dim, output_dim, layer_name, act=tf.nn.relu):
     """Reusable code for making a simple neural net layer.
@@ -165,6 +151,13 @@ def nn_layer(x, input_dim, output_dim, layer_name, act=tf.nn.relu):
         A = act(Z, 'activation')
         tf.histogram_summary(layer_name + '/activations', A)
         return A
+
+def add_batch_norm_layer(l, x, phase_train, n_out=1, scope='BN'):
+    #bn_layer = standard_batch_norm(l, x, n_out, phase_train, scope='BN')
+    #bn_layer = batch_norm_layer(x,phase_train,scope_bn=scope+l)
+    bn_layer = batch_norm_layer(x,phase_train,scope_bn=scope+l,trainable=True)
+    #bn_layer = batch_norm_layer(x,phase_train,scope_bn=scope+l,trainable=False)
+    return bn_layer
 
 def standard_batch_norm(l, x, n_out, phase_train, scope='BN'):
     """
@@ -195,3 +188,62 @@ def standard_batch_norm(l, x, n_out, phase_train, scope='BN'):
         mean, var = tf.cond(phase_train, mean_var_with_update, lambda: (ema.average(batch_mean), ema.average(batch_var)))
         normed = tf.nn.batch_normalization(x, mean, var, beta, gamma, 1e-3)
     return normed
+
+def batch_norm_layer(x,phase_train,scope_bn,trainable=True):
+    bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
+    is_training=True,
+    reuse=None, # is this right?
+    trainable=trainable,
+    scope=scope_bn)
+    bn_inference = batch_norm(x, decay=0.999, center=True, scale=True,
+    is_training=False,
+    reuse=True, # is this right?
+    trainable=trainable,
+    scope=scope_bn)
+    z = tf.cond(phase_train, lambda: bn_train, lambda: bn_inference)
+    return z
+
+def BatchNorm_my_github_ver(inputT, is_training=True, scope=None):
+    # Note: is_training is tf.placeholder(tf.bool) type
+    return tf.cond(is_training,
+                lambda: batch_norm(inputT, is_training=True,
+                                   center=False, updates_collections=None, scope=scope),
+                lambda: batch_norm(inputT, is_training=False,
+                                   updates_collections=None, center=False, scope=scope, reuse = True))
+
+def BatchNorm_GitHub_Ver(inputT, is_training=True, scope=None):
+    # Note: is_training is tf.placeholder(tf.bool) type
+    return tf.cond(is_training,
+                lambda: batch_norm(inputT, is_training=True,
+                                   center=False, updates_collections=None, scope=scope),
+                lambda: batch_norm(inputT, is_training=False,
+                                   updates_collections=None, center=False, scope=scope, reuse = True))
+
+##
+
+def build_summed_NN(x, dims, inits, phase_train=None):
+    (inits_C,inits_W,inits_b) = inits
+    layer = x
+    nb_hidden_layers = len(dims)-1
+    for l in xrange(1,nb_hidden_layers): # from 1 to L-1
+        layer = get_NN_layer(str(l),layer,dims,(inits_W[l],inits_b[l]), phase_train=None)
+        layer = get_summation_layer(str(l),layer,inits_C[l])
+    return layer
+
+def build_summed_HBF(x, dims, inits, phase_train=None):
+    (inits_C,inits_W,inits_S) = inits
+    layer = x
+    nb_hidden_layers = len(dims)-1
+    for l in xrange(1,nb_hidden_layers): # from 1 to L-1
+        layer = get_HBF_layer(l=str(l),x=layer,init=(inits_W[l],inits_S[l]),dims=(dims[l-1],dims[l]),phase_train=phase_train)
+        layer = get_summation_layer(str(l),layer,inits_C[l])
+    return layer
+
+def get_summation_layer(l, x, init, layer_name="SumLayer"):
+    with tf.name_scope(layer_name+l):
+        #print init
+        C = tf.get_variable(name='C', dtype=tf.float64, initializer=init, regularizer=None, trainable=True)
+        layer = tf.matmul(x, C)
+    var_prefix = 'vars_'+layer_name+l
+    put_summaries(C, prefix_name=var_prefix+'C', suffix_text = 'C')
+    return layer

@@ -18,6 +18,9 @@ import time
 print 'print sys.argv =',sys.argv
 print 'len(sys.argv) =',len(sys.argv)
 
+re_train = None
+#re_train = 're_train'
+
 results = {'train_errors':[], 'cv_errors':[],'test_errors':[]}
 # slyurm values and ids
 (prefix,slurm_jobid,slurm_array_task_id,job_number,mdl_save,experiment_name,units_list,train_S_type,task_name) = mtf.process_argv(sys.argv)
@@ -83,19 +86,21 @@ dims = [D]+units_list+[D_out]
 #dims = [D,6,6,D_out]
 #dims = [D,4,4,4,D_out]
 #dims = [D,24,24,24,24,D_out]
-mu = len(dims)*[0.0]
-std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
+mu_init = 0.0
+mu = len(dims)*[mu_init]
 #std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
-#std = len(dims)*[0.25]
-#std = len(dims)*[std_init]
+#std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
+std_init = 0.01
+std = len(dims)*[std_init]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
-init_constant = None
+#init_constant = None
 low_const, high_const = 0.1, 0.8
 #init_constant = np.random.uniform(low=low_const, high=high_const)
 #init_constant = 0.62163
-b_init = list(np.random.uniform(low=low_const, high=high_const,size=len(dims)))
-#b_init = len(dims)*[init_constant]
+#b_init = list(np.random.uniform(low=low_const, high=high_const,size=len(dims)))
+init_constant = 0.1
+b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
 #low_const, high_const = 0.1, 2
@@ -107,13 +112,14 @@ print '++> S/b_init ', b_init
 S_init = b_init
 #train_S_type = 'multiple_S'
 #train_S_type = 'single_S'
-#init_type = 'truncated_normal'
+init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
 #init_type = 'kpp_init'
-init_type = 'data_trunc_norm_kern'
-#model = 'standard_nn'
-model = 'hbf'
+#init_type = 'data_trunc_norm_kern'
+init_type = 'xavier'
+model = 'standard_nn'
+#model = 'hbf'
 #
 max_to_keep = 10
 
@@ -125,26 +131,26 @@ else:
     phase_train = None
 
 report_error_freq = 25
-steps = 51
-M = 3 #batch-size
+steps = 6000
+M = 20000 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -6
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
 starter_learning_rate = 10**log_learning_rate
 
-#starter_learning_rate = 0.00005
+starter_learning_rate = 0.0005
 
 print '++> starter_learning_rate ', starter_learning_rate
-decay_rate = 0.9
-decay_steps = 1000
-staircase = True
+decay_rate = 0.85
+decay_steps = 150
+staircase = False
 
 optimization_alg = 'GD'
-#optimization_alg = 'Momentum'
+optimization_alg = 'Momentum'
 #optimization_alg = 'Adadelta'
-#optimization_alg = 'Adam'
+optimization_alg = 'Adam'
 #optimization_alg = 'Adagrad'
-optimization_alg = 'RMSProp'
+#optimization_alg = 'RMSProp'
 
 results['train_S_type'] = train_S_type
 results['range_learning_rate'] = [low_const_learning_rate, high_const_learning_rate]
@@ -167,7 +173,6 @@ elif model == 'hbf':
     #tensorboard_data_dump = '/tmp/hbf_logs'
     (inits_C,inits_W,inits_S) = mtf.get_initilizations_HBF(init_type=init_type,dims=dims,mu=mu,std=std,b_init=b_init,S_init=S_init, X_train=X_train, Y_train=Y_train, train_S_type=train_S_type)
     print inits_W
-    #pdb.set_trace()
     with tf.name_scope("HBF") as scope:
         mdl = mtf.build_HBF2(x,dims,(inits_C,inits_W,inits_S),phase_train)
         mdl = mtf.get_summation_layer(l=str(nb_layers),x=mdl,init=inits_C[0])
@@ -192,29 +197,32 @@ with tf.name_scope("train") as scope:
     # Passing global_step to minimize() will increment it at each step.
     if optimization_alg == 'GD':
         opt = tf.train.GradientDescentOptimizer(learning_rate)
-        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'Momentum':
         momentum = 0.9
         opt = tf.train.MomentumOptimizer(learning_rate=learning_rate,momentum=momentum)
-        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'Adadelta':
         rho = 0.95
-        opt = tf.train.AdadeltaOptimizer(learning_rate=learning_rate, rho=rho, epsilon=1e-08, name='Adadelta')
-        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'Adam':
         beta1=0.9
         beta2=0.999
         opt = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2, epsilon=1e-08, name='Adam')
-        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'Adagrad':
         opt = tf.train.AdagradOptimizer(learning_rate)
-        train_step = opt.minimize(l2_loss, global_step=global_step)
     elif optimization_alg == 'RMSProp':
         decay = 0.9
         momentum = 0.0
         opt = tf.train.RMSPropOptimizer(learning_rate=learning_rate, decay=decay, momentum=momentum, epsilon=1e-10, name='RMSProp')
-        train_step = opt.minimize(l2_loss, global_step=global_step)
 
+##
+if re_train == 're_train' and task_name == 'hrushikesh':
+    print 'task_name: ', task_name
+    print 're_train: ', re_train
+    var_list = [v for v in tf.all_variables() if v.name == 'C:0']
+    #train_step = opt.minimize(l2_loss, var_list=var_list)
+else:
+    train_step = opt.minimize(l2_loss, global_step=global_step)
+
+##
 with tf.name_scope("l2_loss") as scope:
   ls_scalar_summary = tf.scalar_summary("l2_loss", l2_loss)
 

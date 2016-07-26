@@ -3,11 +3,15 @@ def process_argv(argv):
     print 'len(argv) =',len(argv)
     experiment_name = 'tmp_experiment'
     train_S_type = 'multiple_S'
-    units_list = [6,6]
-    #units_list = [96,96]
-    #task_name = 'qianli_func'
-    #task_name = 'hrushikesh'
-    task_name = 'f_2D_task2'
+    units_list = [12]
+    # units_list = [96,96]
+    # task_name = 'qianli_func'
+    # task_name = 'hrushikesh'
+    # re_train = None
+    # task_name = 'f_2D_task2'
+    task_name = 'f_2d_task2_xsinglog1_x_depth2'
+    # task_name = 'f_2d_task2_xsinglog1_x_depth3'
+    # task_name = 'MNIST_flat'
     if is_it_tensorboard_run(argv):
         if len(argv) == 6:
             # python main_nn.py slurm_jobid slurm_array_task_id job_number True --logdir=/tmp/mdl_logs

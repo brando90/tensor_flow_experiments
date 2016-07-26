@@ -21,6 +21,7 @@ def main(argv):
 
         (X_train, Y_train, X_cv, Y_cv, X_test, Y_test) = mtf.get_data(task_name)
         data = (X_train, Y_train, X_cv, Y_cv, X_test, Y_test)
+        print X_train.shape
 
         replace = False # with or without replacement
         stddevs = np.linspace(start=0.01, stop=10, num=nb_rbf_shapes)
@@ -35,6 +36,7 @@ def main(argv):
         (train_errors_bests, cv_errors_bests, test_errors_bests) = [ list(err_list) for err_list in errors_best]
         (train_errors_means,cv_errors_means,test_errors_means, train_error_stds,cv_error_stds,test_error_stds) = [ list(err_list) for err_list in errors_stats]
         #(Y_pred_train_best, _, Y_pred_test_best) = reconstructions_best
+        print 'train_errors_means: ', train_errors_means
 
         dir_path = './%s_experiments/%s_%s'%(prefix,date,experiment_name)
         mtf.make_and_check_dir(dir_path)
@@ -53,6 +55,7 @@ if __name__ == '__main__':
     # python krls_collect_data.py f_2D_task2 tmp_krls krls_experiment_name_test 2 2 2,3,4
     # python krls_collect_data.py f_2d_task2_xsinglog1_x_depth2 tmp_krls krls_f_2d_task2_xsinglog1_x_depth2 2 2 2,3,4
     # python krls_collect_data.py f_2d_task2_xsinglog1_x_depth3 tmp_krls krls_f_2d_task3_xsinglog1_x_depth2 2 2 2,3,4
+    # python krls_collect_data.py hrushikesh tmp_krls krls_hrushikesh 2 2 2,3,4
 
     # task_name = f_2d_task2_xsinglog1_x_depth2
     # task_name = f_2d_task2_xsinglog1_x_depth3
