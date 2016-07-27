@@ -116,6 +116,7 @@ def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
                 z = add_batch_norm_layer(l, z, phase_train)
         with tf.name_scope('A'+l):
             a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
+            #a = tf.sigmoid(z)
         with tf.name_scope('sumarries'+l):
             W = tf.histogram_summary('W'+l, W)
             b = tf.histogram_summary('b'+l, b)
@@ -190,6 +191,7 @@ def standard_batch_norm(l, x, n_out, phase_train, scope='BN'):
     return normed
 
 def batch_norm_layer(x,phase_train,scope_bn,trainable=True):
+    print '======> official BN'
     bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
     is_training=True,
     reuse=None, # is this right?

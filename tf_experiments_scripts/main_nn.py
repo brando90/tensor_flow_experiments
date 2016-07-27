@@ -99,7 +99,7 @@ low_const, high_const = 0.1, 0.8
 #init_constant = np.random.uniform(low=low_const, high=high_const)
 #init_constant = 0.62163
 #b_init = list(np.random.uniform(low=low_const, high=high_const,size=len(dims)))
-init_constant = 0.1
+init_constant = 0.01
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
@@ -130,26 +130,42 @@ if bn:
 else:
     phase_train = None
 
-report_error_freq = 25
-steps = 6000
-M = 20000 #batch-size
+report_error_freq = 50
+steps = 3000
+M = 17000 #batch-size
 
 low_const_learning_rate, high_const_learning_rate = 0, -6
 log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_const_learning_rate)
 starter_learning_rate = 10**log_learning_rate
 
-starter_learning_rate = 0.0005
+#starter_learning_rate = 0.0003
+starter_learning_rate = 0.00035
+#starter_learning_rate = 0.001
 
 print '++> starter_learning_rate ', starter_learning_rate
-decay_rate = 0.85
-decay_steps = 150
+# decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
+decay_rate = 0.72
+decay_steps = 210
+# decay_rate = 0.9
+# decay_steps = 500
 staircase = False
 
 optimization_alg = 'GD'
-optimization_alg = 'Momentum'
+
+#momentum = 0.9
+#optimization_alg = 'Momentum'
+
+#rho = 0.95
 #optimization_alg = 'Adadelta'
-optimization_alg = 'Adam'
+
+beta1=0.9 # m = b1m + (1 - b1)m
+beta2=0.999 # v = b2 v + (1 - b2)v
+optimization_alg = 'Adam' # w := w - m/(sqrt(v)+eps)
+
 #optimization_alg = 'Adagrad'
+
+#decay = 0.001
+#momentum = 0.0
 #optimization_alg = 'RMSProp'
 
 results['train_S_type'] = train_S_type
@@ -198,19 +214,14 @@ with tf.name_scope("train") as scope:
     if optimization_alg == 'GD':
         opt = tf.train.GradientDescentOptimizer(learning_rate)
     elif optimization_alg == 'Momentum':
-        momentum = 0.9
         opt = tf.train.MomentumOptimizer(learning_rate=learning_rate,momentum=momentum)
     elif optimization_alg == 'Adadelta':
-        rho = 0.95
+        tf.train.AdadeltaOptimizer(learning_rate=learning_rate, rho=rho, epsilon=1e-08, use_locking=False, name='Adadelta')
     elif optimization_alg == 'Adam':
-        beta1=0.9
-        beta2=0.999
         opt = tf.train.AdamOptimizer(learning_rate=learning_rate, beta1=beta1, beta2=beta2, epsilon=1e-08, name='Adam')
     elif optimization_alg == 'Adagrad':
         opt = tf.train.AdagradOptimizer(learning_rate)
     elif optimization_alg == 'RMSProp':
-        decay = 0.9
-        momentum = 0.0
         opt = tf.train.RMSPropOptimizer(learning_rate=learning_rate, decay=decay, momentum=momentum, epsilon=1e-10, name='RMSProp')
 
 ##
@@ -295,7 +306,7 @@ with open(path+errors_pretty, 'w+') as f_err_msgs:
                 train_writer.add_summary(summary_str_train, i)
                 test_writer.add_summary(summary_str_test, i)
 
-                loss_msg = "Mdl*%s%s*-units%s, task: %s, step %d/%d, train err %g, test err %g"%(model,nb_hidden_layers,dims,task_name,i,steps,train_error,test_error)
+                loss_msg = "Mdl*%s%s*-units%s, task: %s, step %d/%d, train err %g, cv err: %g test err %g"%(model,nb_hidden_layers,dims,task_name,i,steps,train_error,cv_error,test_error)
                 mdl_info_msg = "Opt:%s, BN %s, After%d/%d iteration,Init: %s" % (optimization_alg,bn,i,steps,init_type)
                 print_messages(loss_msg, mdl_info_msg)
                 print 'S: ', inits_S
