@@ -90,7 +90,7 @@ mu_init = 0.0
 mu = len(dims)*[mu_init]
 #std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
 #std = list(np.random.uniform(low=0.001, high=0.8,size=len(dims)))
-std_init = 0.01
+std_init = 0.1
 std = len(dims)*[std_init]
 #std = [None,2,.25,.1]
 #std = [None,1,1,1]
@@ -99,7 +99,7 @@ low_const, high_const = 0.1, 0.8
 #init_constant = np.random.uniform(low=low_const, high=high_const)
 #init_constant = 0.62163
 #b_init = list(np.random.uniform(low=low_const, high=high_const,size=len(dims)))
-init_constant = 0.01
+init_constant = 0.1
 b_init = len(dims)*[init_constant]
 #b_init = [None, 1, .1, None]
 #b_init = [None, 1, 1, None]
@@ -112,7 +112,7 @@ print '++> S/b_init ', b_init
 S_init = b_init
 #train_S_type = 'multiple_S'
 #train_S_type = 'single_S'
-init_type = 'truncated_normal'
+#init_type = 'truncated_normal'
 #init_type = 'data_init'
 #init_type = 'kern_init'
 #init_type = 'kpp_init'
@@ -139,16 +139,16 @@ log_learning_rate = np.random.uniform(low=low_const_learning_rate, high=high_con
 starter_learning_rate = 10**log_learning_rate
 
 #starter_learning_rate = 0.0003
-starter_learning_rate = 0.00035
+#starter_learning_rate = 0.00035
 #starter_learning_rate = 0.001
 
 print '++> starter_learning_rate ', starter_learning_rate
 # decayed_learning_rate = learning_rate * decay_rate ^ (global_step / decay_steps)
-decay_rate = 0.72
-decay_steps = 210
 # decay_rate = 0.9
 # decay_steps = 500
-staircase = False
+decay_rate = np.random.uniform(low=0.2, high=0.99)
+decay_steps = np.random.randint(low=report_error_freq, high=M/2.0)
+staircase = True
 
 optimization_alg = 'GD'
 
@@ -158,8 +158,10 @@ optimization_alg = 'GD'
 #rho = 0.95
 #optimization_alg = 'Adadelta'
 
-beta1=0.9 # m = b1m + (1 - b1)m
-beta2=0.999 # v = b2 v + (1 - b2)v
+# beta1=0.9 # m = b1m + (1 - b1)m
+# beta2=0.999 # v = b2 v + (1 - b2)v
+beta1=np.random.uniform(low=0.7, high=0.99) # m = b1m + (1 - b1)m
+beta2=np.random.uniform(low=0.8, high=0.999) # v = b2 v + (1 - b2)v
 optimization_alg = 'Adam' # w := w - m/(sqrt(v)+eps)
 
 #optimization_alg = 'Adagrad'
