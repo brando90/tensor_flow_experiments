@@ -54,12 +54,12 @@ def softmax_layer(l, x, dims, init):
 def build_NN_two_hidden_layers(x, phase_train):
     ## first layer
     shape_layer1 = [784,50]
-    init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float64), tf.constant(0.1, shape=shape_layer1)
-    A1 = get_NN_layer(l=1, x, dims=shape_layer1, init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
+    init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float64), tf.constant(0.1, shape=shape_layer1[1])
+    A1 = get_NN_layer(l=1, x=x, dims=shape_layer1, init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
     ## second layer
     shape_layer2 = [50,49]
-    init_W,init_b = (tf.contrib.layers.xavier_initializer(dtype=tf.float64), tf.constant(0.1, shape=shape_layer2)
-    A2 = get_NN_layer(l=2, x, dims=shape_layer1, init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
+    init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float64), tf.constant(0.1, shape=shape_layer2[1])
+    A2 = get_NN_layer(l=2, x=x, dims=shape_layer1, init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
     ## final layer
     y = softmax_layer(A2)
     return y
@@ -77,10 +77,29 @@ sess = tf.Session()
 #run opt to initialize
 sess.run(init)
 
+##BN ON or OFF
+bn = False
+phase_train = tf.placeholder(tf.bool, name='phase_train') if bn else  phase_train ##BN ON
+
+if phase_train is not None:
+    #DO BN
+    feed_dict_train, feed_dict_cv, feed_dict_test = {x:X_train, y_:Y_train, phase_train: False}, {x:X_cv, y_:Y_cv, phase_train: False}, {x:X_test, y_:Y_test, phase_train: False}
+else:
+    #Don't do BN
+    feed_dict_train, feed_dict_cv, feed_dict_test = {x:X_train, y_:Y_train}, {x:X_cv, y_:Y_cv}, {x:X_test, y_:Y_test}
+
+def get_batch_feed(M, phase_train):
+    batch_xs, batch_ys = mnist.train.next_batch(100)
+    feed_dict = {x: Xminibatch, y_: Yminibatch, phase_train: True} if (phase_train is not None) else {x: Xminibatch, y_: Yminibatch}
+    return feed_dict
+
 # we'll run the training step 1000 times
 for i in range(1000):
-  batch_xs, batch_ys = mnist.train.next_batch(100)
-  sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+#batch_xs, batch_ys = mnist.train.next_batch(100)
+    batch_xs, batch_ys = get_batch_feed(M, phase_train)
+    get_batch_feed(X_train, Y_train, M, phase_train)
+    sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+
 # list of booleans indicating correct predictions
 correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
 # accuracy
