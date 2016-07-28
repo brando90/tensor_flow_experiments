@@ -4,12 +4,13 @@ from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
-def add_batch_norm_layer(l, x, phase_train, n_out=1, scope='BN'):
-    bn_layer = batch_norm_layer(x,phase_train,scope_bn=scope+l,trainable=True)
+def add_batch_norm_layer(l, x, phase_train, trainable=True, scope='BN'):
+    bn_layer = batch_norm_layer(x,phase_train,scope_bn=scope+l,trainable=trainable)
     return bn_layer
 
 def batch_norm_layer(x,phase_train,scope_bn,trainable=True):
     print '======> official BN'
+    print 'trainable', trainable
     bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
     is_training=True,
     reuse=None, # is this right?
@@ -23,7 +24,7 @@ def batch_norm_layer(x,phase_train,scope_bn,trainable=True):
     z = tf.cond(phase_train, lambda: bn_train, lambda: bn_inference)
     return z
 
-def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
+def get_NN_layer(l, x, dims, init, trainable_bn, phase_train=None, scope="NNLayer"):
     init_W,init_b = init
     dim_input,dim_out = dims
     with tf.name_scope(scope+l):
@@ -32,7 +33,7 @@ def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
         with tf.name_scope('Z'+l):
             z = tf.matmul(x,W) + b
             if phase_train is not None:
-                z = add_batch_norm_layer(l, z, phase_train)
+                z = add_batch_norm_layer(l, z, phase_train, trainable_bn)
         with tf.name_scope('A'+l):
             a = tf.nn.relu(z) # (M x D1) = (M x D) * (D x D1)
             #a = tf.sigmoid(z)
@@ -52,15 +53,15 @@ def softmax_layer(l, x, dims, init):
 ###
 ###
 
-def build_NN_two_hidden_layers(x, phase_train):
+def build_NN_two_hidden_layers(x, phase_train, trainable_bn):
     ## first layer
     [D_in,D_out] = [784,50]
     init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float32), tf.constant(0.1, shape=[D_out])
-    A1 = get_NN_layer(l='1', x=x, dims=[D_in,D_out], init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
+    A1 = get_NN_layer(l='1', x=x, dims=[D_in,D_out], init=(init_W,init_b), trainable_bn=trainable_bn, phase_train=phase_train, scope="NNLayer")
     ## second layer
     [D_in,D_out] = [50,49]
     init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float32), tf.constant(0.1, shape=[D_out])
-    A2 = get_NN_layer(l='2', x=A1, dims=[D_in,D_out], init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
+    A2 = get_NN_layer(l='2', x=A1, dims=[D_in,D_out], init=(init_W,init_b),  trainable_bn=trainable_bn, phase_train=phase_train, scope="NNLayer")
     ## final layer
     [D_in,D_out] = [49,10]
     init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float32), tf.constant(0.1, shape=[D_out])
@@ -95,10 +96,11 @@ def get_MNIST_data_sets():
 def main():
     ##BN ON or OFF
     bn = True
+    trainable_bn = False
     phase_train = tf.placeholder(tf.bool, name='phase_train') if bn else  None
     ##
     x = tf.placeholder(tf.float32, [None, 784])
-    y = build_NN_two_hidden_layers(x, phase_train)
+    y = build_NN_two_hidden_layers(x, phase_train, trainable_bn)
     ### training
     # new placeholder to input the correct answers
     y_ = tf.placeholder(tf.float32, [None, 10])
