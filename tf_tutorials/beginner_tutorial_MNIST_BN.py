@@ -26,8 +26,8 @@ def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
     init_W,init_b = init
     dim_input,dim_out = dims
     with tf.name_scope(scope+l):
-        W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True, shape=[dim_input,dim_out])
-        b = tf.get_variable(name='b'+l, dtype=tf.float64, initializer=init_b, regularizer=None, trainable=True)
+        W = tf.get_variable(name='W'+l, dtype=tf.float32, initializer=init_W, regularizer=None, trainable=True, shape=[dim_input,dim_out])
+        b = tf.get_variable(name='b'+l, dtype=tf.float32, initializer=init_b, regularizer=None, trainable=True)
         with tf.name_scope('Z'+l):
             z = tf.matmul(x,W) + b
             if phase_train is not None:
@@ -41,8 +41,8 @@ def softmax_layer(l, x, dims, init):
     init_W,init_b = init
     dim_input,dim_out = dims
     with tf.name_scope('Z'+l):
-        W = tf.get_variable(name='W'+l, dtype=tf.float64, initializer=init_W, regularizer=None, trainable=True, shape=[dim_input,dim_out])
-        b = tf.get_variable(name='b'+l, dtype=tf.float64, initializer=init_b, regularizer=None, trainable=True)
+        W = tf.get_variable(name='W'+l, dtype=tf.float32, initializer=init_W, regularizer=None, trainable=True, shape=[dim_input,dim_out])
+        b = tf.get_variable(name='b'+l, dtype=tf.float32, initializer=init_b, regularizer=None, trainable=True)
         z = tf.matmul(x,W) + b
     with tf.name_scope('y'):
         y = tf.nn.softmax(tf.matmul(x, W) + b)
@@ -51,23 +51,27 @@ def softmax_layer(l, x, dims, init):
 ###
 ###
 
+def build_NN_two_hidden_layers(x, phase_train):
+    ## first layer
+    [D_in,D_out] = [784,50]
+    init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float32), tf.constant(0.1, shape=[D_out])
+    A1 = get_NN_layer(l='1', x=x, dims=[D_in,D_out], init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
+    ## second layer
+    [D_in,D_out] = [50,49]
+    init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float32), tf.constant(0.1, shape=[D_out])
+    A2 = get_NN_layer(l='2', x=A1, dims=[D_in,D_out], init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
+    ## final layer
+    [D_in,D_out] = [49,10]
+    init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float32), tf.constant(0.1, shape=[D_out])
+    y = softmax_layer(l='3', x=A2, dims=[D_in,D_out], init=(init_W,init_b))
+    return y
+
+##
+
 def get_batch_feed(M, phase_train, x,y_):
     batch_xs, batch_ys = mnist.train.next_batch(100)
     feed_dict = {x: batch_xs, y_: batch_ys, phase_train: True} if (phase_train is not None) else {x: batch_xs, y_: batch_ys}
     return feed_dict
-
-def build_NN_two_hidden_layers(x, phase_train):
-    ## first layer
-    [D_in,D_out] = [784,50]
-    init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float64), tf.constant(0.1, shape=[D_out])
-    A1 = get_NN_layer(l='1', x=x, dims=[D_in,D_out], init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
-    ## second layer
-    [D_in,D_out] = [50,49]
-    init_W,init_b = tf.contrib.layers.xavier_initializer(dtype=tf.float64), tf.constant(0.1, shape=[D_out])
-    A2 = get_NN_layer(l='2', x=x, dims=[D_in,D_out], init=(init_W,init_b), phase_train=phase_train, scope="NNLayer")
-    ## final layer
-    y = softmax_layer(A2)
-    return y
 
 def get_feed_for_learning(phase_train, X_train,X_cv,X_test, Y_train,Y_cv,Y_test,  x,y_):
     '''
@@ -85,16 +89,18 @@ def get_MNIST_data_sets():
     X_test, Y_test = mnist.test.images, mnist.test.labels
     return X_train,X_cv,X_test, Y_train,Y_cv,Y_test
 
+##
+
 def main():
     ##BN ON or OFF
     bn = False
     phase_train = tf.placeholder(tf.bool, name='phase_train') if bn else  None
     ##
-    x = tf.placeholder(tf.float64, [None, 784])
+    x = tf.placeholder(tf.float32, [None, 784])
     y = build_NN_two_hidden_layers(x, phase_train)
     ### training
     # new placeholder to input the correct answers
-    y_ = tf.placeholder(tf.float64, [None, 10])
+    y_ = tf.placeholder(tf.float32, [None, 10])
     # loss function
     cross_entropy = tf.reduce_mean( -tf.reduce_sum(y_ * tf.log(y), reduction_indices=[1]) )
     # single training step opt.
@@ -106,18 +112,20 @@ def main():
     #run opt to initialize
     sess.run(init)
 
+    X_train,X_cv,X_test, Y_train,Y_cv,Y_test = get_MNIST_data_sets()
     feed_dict_train, feed_dict_cv, feed_dict_test = get_feed_for_learning(phase_train, X_train,X_cv,X_test, Y_train,Y_cv,Y_test, x,y_)
 
     # we'll run the training step 1000 times
     for i in range(1000):
         #batch_xs, batch_ys = mnist.train.next_batch(100)
-        batch_xs, batch_ys = get_batch_feed(M, phase_train)
-        sess.run(train_step, feed_dict={x: batch_xs, y_: batch_ys})
+        M = 100
+        batch_feed = get_batch_feed(M, phase_train, x,y_)
+        sess.run(train_step, feed_dict=batch_feed)
 
     # list of booleans indicating correct predictions
     correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
     # accuracy
-    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float64))
+    accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     print(sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
 
