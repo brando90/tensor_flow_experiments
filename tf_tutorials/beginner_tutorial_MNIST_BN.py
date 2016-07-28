@@ -96,7 +96,7 @@ def get_MNIST_data_sets():
 def main():
     ##BN ON or OFF
     bn = True
-    trainable_bn = False
+    trainable_bn = True
     phase_train = tf.placeholder(tf.bool, name='phase_train') if bn else  None
     ##
     x = tf.placeholder(tf.float32, [None, 784])
