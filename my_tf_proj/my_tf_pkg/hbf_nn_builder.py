@@ -107,7 +107,7 @@ def variable_summaries(var, name):
 def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
     (init_W,init_b) = init
     with tf.name_scope(scope+l):
-        W = get_W(init_W, l, x, dims, init, phase_train=None)
+        W = get_W(init_W, l, x, dims, init)
         b = tf.get_variable(name='b'+l, dtype=tf.float64, initializer=init_b, regularizer=None, trainable=True)
         with tf.name_scope('Z'+l):
             z = tf.matmul(x,W) + b
@@ -122,7 +122,7 @@ def get_NN_layer(l, x, dims, init, phase_train=None, scope="NNLayer"):
             b = tf.histogram_summary('b'+l, b)
     return a
 
-def get_W(init_W, l, x, dims, init, phase_train=None):
+def get_W(init_W, l, x, dims, init):
     (dim_input,dim_out) = dims
     if isinstance(init_W, tf.python.framework.ops.Tensor):
         print 'isinstance'
