@@ -1,4 +1,5 @@
 import tensorflow as tf
+from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 # download and install the MNIST data automatically
 from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
@@ -93,7 +94,7 @@ def get_MNIST_data_sets():
 
 def main():
     ##BN ON or OFF
-    bn = False
+    bn = True
     phase_train = tf.placeholder(tf.bool, name='phase_train') if bn else  None
     ##
     x = tf.placeholder(tf.float32, [None, 784])
@@ -127,7 +128,7 @@ def main():
     # accuracy
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
-    print(sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels}))
+    print(sess.run(accuracy, feed_dict=feed_dict_test))
 
 if __name__ == '__main__':
     main()
