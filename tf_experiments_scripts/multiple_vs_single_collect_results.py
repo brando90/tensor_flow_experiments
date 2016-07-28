@@ -277,5 +277,38 @@ def display_results_HBF1_task2():
     plt.legend()
     plt.show()
 
+def display_results_HBF1_xsinglog1_x():
+    path_to_experiments = './om_results_test_experiments/task_27_july_NN1_depth_2_1000'
+    nn1_multiple_experiment_results = get_results_for_experiments(path_to_experiments,verbose=True)
+
+    path_to_experiments = './om_results_test_experiments/task_27_july_NN2_depth_2_1000'
+    nn2_multiple_experiment_results = get_results_for_experiments(path_to_experiments,verbose=True)
+
+    path_to_experiments = './om_results_test_experiments/task_27_july_NN3_depth_2_1000'
+    nn3_multiple_experiment_results = get_results_for_experiments(path_to_experiments,verbose=True)
+
+    #
+    nn1_list_units, nn1_list_train_errors, nn1_list_test_errors = get_list_errors2(experiment_results=nn1_multiple_experiment_results)
+    nn2_list_units, nn2_list_train_errors, nn2_list_test_errors = get_list_errors2(experiment_results=nn2_multiple_experiment_results)
+    nn3_list_units, nn3_list_train_errors, nn3_list_test_errors = get_list_errors2(experiment_results=nn3_multiple_experiment_results)
+
+    #
+    plt.figure(3)
+    #
+    list_units = np.array(nn1_list_units)
+    krls.plot_errors(list_units, list_train_errors,label='NN1', markersize=3, colour='b')
+    krls.plot_errors(list_units, list_test_errors,label='NN1', markersize=3, colour='c')
+    #
+    list_units = 2*np.array(nn2_list_units)
+    krls.plot_errors(list_units, list_train_errors,label='NN2', markersize=3, colour='r')
+    krls.plot_errors(list_units, list_test_errors,label='NNF2', markersize=3, colour='m')
+    #
+    list_units = 3*np.array(nn3_list_units)
+    krls.plot_errors(list_units, list_train_errors,label='NN3', markersize=3, colour='g')
+    krls.plot_errors(list_units, list_test_errors,label='NN3', markersize=3, colour='y')
+
+    plt.legend()
+    plt.show()
+
 if __name__ == '__main__':
-    display_results_HBF1_task2()
+    display_results_HBF1_xsinglog1_x()
