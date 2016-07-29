@@ -6,8 +6,8 @@ mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 # placeholder for data
 x = tf.placeholder(tf.float32, [None, 784])
 # variables for parameters
-W = tf.Variable(tf.truncated_normal(shape, mean=0.0, stddev=0.1))
-b = tf.Variable(tf.constant(0.1, shape=shape))
+W = tf.Variable(tf.truncated_normal([784, 10], mean=0.0, stddev=0.1))
+b = tf.Variable(tf.constant(0.1, shape=[10]))
 # create model
 y = tf.nn.softmax(tf.matmul(x, W) + b)
 ### training
