@@ -193,11 +193,13 @@ def standard_batch_norm(l, x, n_out, phase_train, scope='BN'):
 def batch_norm_layer(x,phase_train,scope_bn,trainable=True):
     print '======> official BN'
     bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
+    updates_collections=None,
     is_training=True,
     reuse=None, # is this right?
     trainable=trainable,
     scope=scope_bn)
     bn_inference = batch_norm(x, decay=0.999, center=True, scale=True,
+    updates_collections=None,
     is_training=False,
     reuse=True, # is this right?
     trainable=trainable,

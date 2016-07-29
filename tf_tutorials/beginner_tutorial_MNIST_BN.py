@@ -2,6 +2,9 @@ import tensorflow as tf
 from tensorflow.contrib.layers.python.layers import batch_norm as batch_norm
 # download and install the MNIST data automatically
 from tensorflow.examples.tutorials.mnist import input_data
+#slim = tf.contrib.slim
+import tensorflow.contrib.slim as slim
+
 mnist = input_data.read_data_sets("MNIST_data/", one_hot=True)
 
 def add_batch_norm_layer(l, x, phase_train, trainable=True, scope='BN'):
@@ -12,11 +15,13 @@ def batch_norm_layer(x,phase_train,scope_bn,trainable=True):
     print '======> official BN'
     print 'trainable', trainable
     bn_train = batch_norm(x, decay=0.999, center=True, scale=True,
+    updates_collections=None,
     is_training=True,
     reuse=None, # is this right?
     trainable=trainable,
     scope=scope_bn)
     bn_inference = batch_norm(x, decay=0.999, center=True, scale=True,
+    updates_collections=None,
     is_training=False,
     reuse=True, # is this right?
     trainable=trainable,
@@ -91,6 +96,19 @@ def get_MNIST_data_sets():
     X_test, Y_test = mnist.test.images, mnist.test.labels
     return X_train,X_cv,X_test, Y_train,Y_cv,Y_test
 
+def build_NN_two_hidden_layers_sguada(x, is_training):
+ batch_norm_params = {'is_training': is_training, 'decay': 0.9, 'updates_collections': None}
+ with slim.arg_scope([slim.fully_connected],
+    activation_fn=tf.nn.relu,
+    weights_initializer=tf.contrib.layers.xavier_initializer(),
+    biases_initializer=tf.constant_initializer(0.1),
+    normalizer_fn=slim.batch_norm,
+    normalizer_params=batch_norm_params):
+   net = slim.fully_connected(x, 50, scope='A1')
+   net = slim.fully_connected(net, 49, scope='A2')
+   y = slim.fully_connected(net, 10, activation_fn=tf.nn.softmax, normalizer_fn=None, scope='A3')
+ return y
+
 ##
 
 def main():
@@ -101,6 +119,8 @@ def main():
     ##
     x = tf.placeholder(tf.float32, [None, 784])
     y = build_NN_two_hidden_layers(x, phase_train, trainable_bn)
+    #is_training = True
+    #y = build_NN_two_hidden_layers_sguada(x, is_training=is_training)
     ### training
     # new placeholder to input the correct answers
     y_ = tf.placeholder(tf.float32, [None, 10])
@@ -131,6 +151,7 @@ def main():
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
     print(sess.run(accuracy, feed_dict=feed_dict_test))
+
 
 if __name__ == '__main__':
     main()
